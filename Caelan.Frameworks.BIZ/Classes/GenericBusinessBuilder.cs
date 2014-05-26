@@ -1,31 +1,42 @@
-﻿using AutoMapper;
+﻿using System;
+using System.Linq;
+using System.Reflection;
+using AutoMapper;
 using Caelan.Frameworks.BIZ.Interfaces;
 using Caelan.Frameworks.DAL.Interfaces;
 
 namespace Caelan.Frameworks.BIZ.Classes
 {
-	public static class GenericBusinessBuilder
-	{
-		public static BaseDTOBuilder<TSource, TDestination> GenericDTOBuilder<TSource, TDestination>()
-			where TSource : class, IEntity, new()
-			where TDestination : class, IDTO, new()
-		{
-			var builder = new BaseDTOBuilder<TSource, TDestination>();
+    public static class GenericBusinessBuilder
+    {
+        public static BaseDTOBuilder<TSource, TDestination> GenericDTOBuilder<TSource, TDestination>()
+            where TSource : class, IEntity, new()
+            where TDestination : class, IDTO, new()
+        {
+            var builder = new BaseDTOBuilder<TSource, TDestination>();
 
-			if (Mapper.FindTypeMapFor<TSource, TDestination>() == null) Mapper.AddProfile(builder);
+            var customBuilder = Assembly.GetCallingAssembly().GetTypes().Where(t => t.BaseType == builder.GetType()).Select(Activator.CreateInstance).SingleOrDefault();
 
-			return builder;
-		}
+            if (customBuilder != null) return customBuilder as BaseDTOBuilder<TSource, TDestination>;
 
-		public static BaseEntityBuilder<TSource, TDestination> GenericEntityBuilder<TSource, TDestination>()
-			where TSource : class, IDTO, new()
-			where TDestination : class, IEntity, new()
-		{
-			var builder = new BaseEntityBuilder<TSource, TDestination>();
+            if (Mapper.FindTypeMapFor<TSource, TDestination>() == null) Mapper.AddProfile(builder);
 
-			if (Mapper.FindTypeMapFor<TSource, TDestination>() == null) Mapper.AddProfile(builder);
+            return builder;
+        }
 
-			return builder;
-		}
-	}
+        public static BaseEntityBuilder<TSource, TDestination> GenericEntityBuilder<TSource, TDestination>()
+            where TSource : class, IDTO, new()
+            where TDestination : class, IEntity, new()
+        {
+            var builder = new BaseEntityBuilder<TSource, TDestination>();
+
+            var customBuilder = Assembly.GetCallingAssembly().GetTypes().Where(t => t.BaseType == builder.GetType()).Select(Activator.CreateInstance).SingleOrDefault();
+
+            if (customBuilder != null) return customBuilder as BaseEntityBuilder<TSource, TDestination>;
+
+            if (Mapper.FindTypeMapFor<TSource, TDestination>() == null) Mapper.AddProfile(builder);
+
+            return builder;
+        }
+    }
 }

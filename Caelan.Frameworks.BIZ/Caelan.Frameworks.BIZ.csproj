@@ -43,11 +43,13 @@
     <Reference Include="Caelan.DynamicLinq">
       <HintPath>..\packages\Caelan.DynamicLinq.1.1.0\lib\Caelan.DynamicLinq.dll</HintPath>
     </Reference>
-    <Reference Include="Caelan.Frameworks.Common">
-      <HintPath>..\packages\Caelan.Frameworks.Common.1.0.2\lib\Caelan.Frameworks.Common.dll</HintPath>
+    <Reference Include="Caelan.Frameworks.Common, Version=1.0.5.35032, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Caelan.Frameworks.Common.1.0.5\lib\Caelan.Frameworks.Common.dll</HintPath>
     </Reference>
-    <Reference Include="Caelan.Frameworks.DAL">
-      <HintPath>..\packages\Caelan.Frameworks.DAL.1.0.1\lib\Caelan.Frameworks.DAL.dll</HintPath>
+    <Reference Include="Caelan.Frameworks.DAL, Version=1.0.2.24233, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Caelan.Frameworks.DAL.1.0.2\lib\Caelan.Frameworks.DAL.dll</HintPath>
     </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
