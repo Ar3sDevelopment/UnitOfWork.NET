@@ -71,7 +71,7 @@
     <Compile Include="Classes\BaseDTOBuilder.cs" />
     <Compile Include="Classes\BaseEntityBuilder.cs" />
     <Compile Include="Classes\BaseRepository.cs" />
-    <Compile Include="Classes\BaseRepositoryManager.cs" />
+    <Compile Include="Classes\BaseUnitOfWork.cs" />
     <Compile Include="Classes\GenericBusinessBuilder.cs" />
     <Compile Include="Interfaces\IDeleteRepository.cs" />
     <Compile Include="Interfaces\IDTO.cs" />

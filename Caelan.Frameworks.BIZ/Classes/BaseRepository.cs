@@ -10,21 +10,29 @@ using Caelan.Frameworks.DAL.Interfaces;
 
 namespace Caelan.Frameworks.BIZ.Classes
 {
-    public abstract class BaseRepository<TEntity, TDTO, TKey>
+    public abstract class BaseRepository
+    {
+        protected readonly BaseUnitOfWork Manager;
+
+        protected BaseRepository(BaseUnitOfWork manager)
+        {
+            Manager = manager;
+        }
+
+        protected BaseUnitOfWork GetUnitOfWork()
+        {
+            return Manager;
+        }
+    }
+
+    public abstract class BaseRepository<TEntity, TDTO, TKey> : BaseRepository
         where TEntity : class, IEntity<TKey>, new()
         where TDTO : class, IDTO<TKey>, new()
         where TKey : IEquatable<TKey>
     {
-        private readonly BaseRepositoryManager _manager;
-
-        protected BaseRepository(BaseRepositoryManager manager)
+        protected BaseRepository(BaseUnitOfWork manager)
+            : base(manager)
         {
-            _manager = manager;
-        }
-
-        protected TManager GetManager<TManager>() where TManager : BaseRepositoryManager
-        {
-            return _manager as TManager;
         }
 
         protected abstract Func<DbContext, DbSet<TEntity>> DbSetFunc();
@@ -36,7 +44,7 @@ namespace Caelan.Frameworks.BIZ.Classes
 
         protected virtual DbSet<TEntity> All()
         {
-            return _manager.GetDbSet(this);
+            return Manager.GetDbSet(this);
         }
 
         protected virtual IQueryable<TEntity> AllQueryable()
@@ -44,9 +52,9 @@ namespace Caelan.Frameworks.BIZ.Classes
             return All();
         }
 
-        protected virtual IQueryable<TEntity> All(Expression<Func<TEntity, bool>> where)
+        protected virtual IQueryable<TEntity> All(Expression<Func<TEntity, bool>> whereFunc)
         {
-            return @where != null ? All().Where(@where) : All();
+            return whereFunc != null ? All().Where(whereFunc) : All();
         }
 
         protected virtual BaseDTOBuilder<TEntity, TDTO> DTOBuilder()
@@ -91,7 +99,7 @@ namespace Caelan.Frameworks.BIZ.Classes
         where TDTO : class, IDTO<TKey>, new()
         where TKey : IEquatable<TKey>
     {
-        protected BaseCRUDRepository(BaseRepositoryManager manager)
+        protected BaseCRUDRepository(BaseUnitOfWork manager)
             : base(manager)
         {
         }
