@@ -1,4 +1,4 @@
-Caelan.Frameworks.BIZ
-=====================
+#Caelan.Frameworks.BIZ NuGet Package
 
-Caelan.Frameworks.BIZ NuGet Package
+##What is it?
+This package provides some utility classes for Business layer like DTOBuilders and EntityBuilders, based on Common.BaseBuilder of my Frameworks.Common package, two BaseRepository (one for List and one for CRUD operations) and 3 repository interfaces (Insert, Update, Delete) that CRUD already use, a repository manager to implement as a Unit Of Work, and a GenericBusinessBuilder for creating generic DTO and Entity builders that searches for existing derived class first. It provides also two IDTO interfaces, one empty for all DTOs to use with builders and one with a generic ID (like Frameworks.DAL IEntity) to provide an IEquatable ID to all DTOs you need. DTOBuilders uses IDTO to get DTO parameter and IEntity for Entity parameter, other builders can inherit from BaseBuilder (from Common package)
