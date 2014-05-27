@@ -53,7 +53,7 @@ namespace Caelan.Frameworks.BIZ.Classes
 
 				if (sourceProp == null) continue;
 
-				if (sourceProp.PropertyType.GetInterfaces().Contains(typeof(IEntity<>)) && prop.PropertyType.GetInterfaces().Contains(typeof(IDTO<>)))
+				if (sourceProp.PropertyType.GetInterfaces().Contains(typeof(IEntity)) && prop.PropertyType.GetInterfaces().Contains(typeof(IDTO)))
 				{
 					var method = typeof(GenericBusinessBuilder).GetMethod("GenericDTOBuilder", BindingFlags.Public | BindingFlags.Static).MakeGenericMethod(sourceProp.PropertyType, prop.PropertyType);
 					var builder = method.Invoke(null, null);
