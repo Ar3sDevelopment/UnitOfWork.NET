@@ -11,67 +11,75 @@ using Caelan.Frameworks.DAL.Interfaces;
 
 namespace Caelan.Frameworks.BIZ.Classes
 {
-    public class BaseDTOBuilder<TSource, TDestination> : BaseBuilder<TSource, TDestination>
-        where TDestination : class, IDTO, new()
-        where TSource : class, IEntity, new()
-    {
-        protected override void AddMappingConfigurations(IMappingExpression<TSource, TDestination> mappingExpression)
-        {
-            base.AddMappingConfigurations(mappingExpression);
+	public class BaseDTOBuilder<TSource, TDestination> : BaseBuilder<TSource, TDestination>
+		where TDestination : class, IDTO, new()
+		where TSource : class, IEntity, new()
+	{
+		protected override void AddMappingConfigurations(IMappingExpression<TSource, TDestination> mappingExpression)
+		{
+			base.AddMappingConfigurations(mappingExpression);
 
-            mappingExpression.IgnoreAllLists();
-        }
+			mappingExpression.IgnoreAllLists();
+		}
 
-        public virtual TDestination BuildFull(TSource source)
-        {
-            var dest = new TDestination();
+		public virtual TDestination BuildFull(TSource source)
+		{
+			var dest = new TDestination();
 
-            BuildFull(source, ref dest);
+			BuildFull(source, ref dest);
 
-            return dest;
-        }
+			return dest;
+		}
 
-        public virtual void BuildFull(TSource source, ref TDestination destination)
-        {
-            Build(source, ref destination);
-        }
+		public virtual void BuildFull(TSource source, ref TDestination destination)
+		{
+			Build(source, ref destination);
+		}
 
-        public IEnumerable<TDestination> BuildFullList(IEnumerable<TSource> sourceList)
-        {
-            return sourceList == null ? null : sourceList.Select(BuildFull);
-        }
+		public IEnumerable<TDestination> BuildFullList(IEnumerable<TSource> sourceList)
+		{
+			return sourceList == null ? null : sourceList.Select(BuildFull);
+		}
 
-        public override void AfterBuild(TSource source, ref TDestination destination)
-        {
-            base.AfterBuild(source, ref destination);
+		public override void AfterBuild(TSource source, ref TDestination destination)
+		{
+			base.AfterBuild(source, ref destination);
 
-            foreach (var prop in from prop in typeof(TDestination).GetProperties(BindingFlags.Public | BindingFlags.Instance) let propType = prop.PropertyType where !(propType.IsPrimitive || propType.IsValueType || propType == typeof(string)) && !propType.IsEnumerableType() select prop)
-            {
-                if (Mapper.FindTypeMapFor<TSource, TDestination>().GetPropertyMaps().Any(t => t.IsIgnored() && t.DestinationProperty.Name == prop.Name)) continue;
+			foreach (var prop in from prop in typeof(TDestination).GetProperties(BindingFlags.Public | BindingFlags.Instance) let propType = prop.PropertyType where !(propType.IsPrimitive || propType.IsValueType || propType == typeof(string)) && !propType.IsEnumerableType() select prop)
+			{
+				if (Mapper.FindTypeMapFor<TSource, TDestination>().GetPropertyMaps().Any(t => t.IsIgnored() && t.DestinationProperty.Name == prop.Name)) continue;
 
-                var sourceProp = typeof(TSource).GetProperty(prop.Name, BindingFlags.Instance | BindingFlags.Public);
+				var sourceProp = typeof(TSource).GetProperty(prop.Name, BindingFlags.Instance | BindingFlags.Public);
 
-                if (sourceProp == null) continue;
+				if (sourceProp == null) continue;
 
-                if (sourceProp.PropertyType.GetInterfaces().Contains(typeof(IEntity<>)) && prop.PropertyType.GetInterfaces().Contains(typeof(IDTO<>)))
-                {
-                    var method = typeof(GenericBusinessBuilder).GetMethod("GenericDTOBuilder", BindingFlags.Public | BindingFlags.Static).MakeGenericMethod(sourceProp.PropertyType, prop.PropertyType);
-                    var builder = method.Invoke(null, null);
-                    builder = Assembly.GetCallingAssembly().GetTypes().Where(t => t.BaseType == builder.GetType()).Select(Activator.CreateInstance).SingleOrDefault() ?? builder;
-                    var buildMethod = builder.GetType().GetMethod("Build", BindingFlags.Public | BindingFlags.Instance);
+				if (sourceProp.PropertyType.GetInterfaces().Contains(typeof(IEntity<>)) && prop.PropertyType.GetInterfaces().Contains(typeof(IDTO<>)))
+				{
+					var method = typeof(GenericBusinessBuilder).GetMethod("GenericDTOBuilder", BindingFlags.Public | BindingFlags.Static).MakeGenericMethod(sourceProp.PropertyType, prop.PropertyType);
+					var builder = method.Invoke(null, null);
+					var correctBuilder = Assembly.GetExecutingAssembly().GetReferencedAssemblies().OrderBy(t => t.Name).Select(Assembly.Load).SelectMany(assembly => assembly.GetTypes().Where(t => t.BaseType == builder.GetType())).SingleOrDefault();
 
-                    prop.SetValue(destination, buildMethod.Invoke(builder, new[] { sourceProp.GetValue(source, null) }), null);
-                }
-                else
-                {
-                    var method = typeof(GenericBuilder).GetMethod("Create", BindingFlags.Public | BindingFlags.Static).MakeGenericMethod(sourceProp.PropertyType, prop.PropertyType);
-                    var builder = method.Invoke(null, null);
-                    builder = Assembly.GetCallingAssembly().GetTypes().Where(t => t.BaseType == builder.GetType()).Select(Activator.CreateInstance).SingleOrDefault() ?? builder;
-                    var buildMethod = builder.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance).Single(t => t.GetParameters().Count() == 1 && t.Name == "Build");
+					if (correctBuilder != null)
+						builder = Activator.CreateInstance(correctBuilder);
 
-                    prop.SetValue(destination, buildMethod.Invoke(builder, new[] { sourceProp.GetValue(source, null) }), null);
-                }
-            }
-        }
-    }
+					var buildMethod = builder.GetType().GetMethod("Build", BindingFlags.Public | BindingFlags.Instance);
+
+					prop.SetValue(destination, buildMethod.Invoke(builder, new[] { sourceProp.GetValue(source, null) }), null);
+				}
+				else
+				{
+					var method = typeof(GenericBuilder).GetMethod("Create", BindingFlags.Public | BindingFlags.Static).MakeGenericMethod(sourceProp.PropertyType, prop.PropertyType);
+					var builder = method.Invoke(null, null);
+					var correctBuilder = Assembly.GetExecutingAssembly().GetReferencedAssemblies().OrderBy(t => t.Name).Select(Assembly.Load).SelectMany(assembly => assembly.GetTypes().Where(t => t.BaseType == builder.GetType())).SingleOrDefault();
+
+					if (correctBuilder != null)
+						builder = Activator.CreateInstance(correctBuilder);
+
+					var buildMethod = builder.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance).Single(t => t.GetParameters().Count() == 1 && t.Name == "Build");
+
+					prop.SetValue(destination, buildMethod.Invoke(builder, new[] { sourceProp.GetValue(source, null) }), null);
+				}
+			}
+		}
+	}
 }
