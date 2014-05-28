@@ -19,9 +19,19 @@ namespace Caelan.Frameworks.BIZ.Classes
             Manager = manager;
         }
 
+        protected dynamic GetDynamicUnitOfWork()
+        {
+            return Manager;
+        }
+
         protected BaseUnitOfWork GetUnitOfWork()
         {
             return Manager;
+        }
+
+        protected T GetUnitOfWork<T>() where T : BaseUnitOfWork
+        {
+            return Manager as T;
         }
     }
 
