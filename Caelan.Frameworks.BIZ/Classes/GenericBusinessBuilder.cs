@@ -15,7 +15,7 @@ namespace Caelan.Frameworks.BIZ.Classes
         {
             var builder = new BaseDTOBuilder<TSource, TDestination>();
 
-            var customBuilder = Assembly.GetCallingAssembly().GetTypes().SingleOrDefault(t => t.BaseType == builder.GetType()) ?? Assembly.GetCallingAssembly().GetReferencedAssemblies().OrderBy(t => t.Name).Select(Assembly.Load).SelectMany(assembly => assembly.GetTypes().Where(t => t.BaseType == builder.GetType())).SingleOrDefault();
+            var customBuilder = (Assembly.GetEntryAssembly() ?? Assembly.GetCallingAssembly()).GetTypes().SingleOrDefault(t => t.BaseType == builder.GetType()) ?? (Assembly.GetEntryAssembly() ?? Assembly.GetCallingAssembly()).GetReferencedAssemblies().OrderBy(t => t.Name).Select(Assembly.Load).SelectMany(assembly => assembly.GetTypes().Where(t => t.BaseType == builder.GetType())).SingleOrDefault();
 
             if (customBuilder != null) return Activator.CreateInstance(customBuilder) as BaseDTOBuilder<TSource, TDestination>;
 
@@ -30,7 +30,7 @@ namespace Caelan.Frameworks.BIZ.Classes
         {
             var builder = new BaseEntityBuilder<TSource, TDestination>();
 
-            var customBuilder = Assembly.GetCallingAssembly().GetTypes().SingleOrDefault(t => t.BaseType == builder.GetType()) ?? Assembly.GetCallingAssembly().GetReferencedAssemblies().OrderBy(t => t.Name).Select(Assembly.Load).SelectMany(assembly => assembly.GetTypes().Where(t => t.BaseType == builder.GetType())).SingleOrDefault();
+            var customBuilder = (Assembly.GetEntryAssembly() ?? Assembly.GetCallingAssembly()).GetTypes().SingleOrDefault(t => t.BaseType == builder.GetType()) ?? (Assembly.GetEntryAssembly() ?? Assembly.GetCallingAssembly()).GetReferencedAssemblies().OrderBy(t => t.Name).Select(Assembly.Load).SelectMany(assembly => assembly.GetTypes().Where(t => t.BaseType == builder.GetType())).SingleOrDefault();
 
             if (customBuilder != null) return Activator.CreateInstance(customBuilder) as BaseEntityBuilder<TSource, TDestination>;
 
