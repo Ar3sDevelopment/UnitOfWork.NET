@@ -15,7 +15,8 @@ namespace Caelan.Frameworks.BIZ.Classes
 
         protected BaseUnitOfWork()
         {
-            _repositories = Assembly.GetCallingAssembly().GetReferencedAssemblies().OrderBy(t => t.Name).Select(Assembly.Load).SelectMany(assembly => assembly.GetTypes().Where(t => t.BaseType == typeof(BaseRepository))).Select(t => new KeyValuePair<string, BaseRepository>(t.Name.Replace("Repository", string.Empty), Activator.CreateInstance(t, this) as BaseRepository)).ToDictionary(t => t.Key, t => t.Value);
+            _repositories = new Dictionary<string, BaseRepository>();
+            //_repositories = Assembly.GetCallingAssembly().GetReferencedAssemblies().OrderBy(t => t.Name).Select(Assembly.Load).SelectMany(assembly => assembly.GetTypes().Where(t => t.BaseType == typeof(BaseRepository))).Select(t => new KeyValuePair<string, BaseRepository>(t.Name.Replace("Repository", string.Empty), Activator.CreateInstance(t.MakeGenericType(t.GetGenericArguments()), this) as BaseRepository)).ToDictionary(t => t.Key, t => t.Value);
         }
 
         protected abstract DbContext Context();
