@@ -43,9 +43,9 @@
     <Reference Include="Caelan.DynamicLinq">
       <HintPath>..\packages\Caelan.DynamicLinq.1.1.0\lib\Caelan.DynamicLinq.dll</HintPath>
     </Reference>
-    <Reference Include="Caelan.Frameworks.Common, Version=1.0.7.27904, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Caelan.Frameworks.Common, Version=1.0.8.33869, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Caelan.Frameworks.Common.1.0.7\lib\Caelan.Frameworks.Common.dll</HintPath>
+      <HintPath>..\packages\Caelan.Frameworks.Common.1.0.8\lib\Caelan.Frameworks.Common.dll</HintPath>
     </Reference>
     <Reference Include="Caelan.Frameworks.DAL, Version=1.0.2.24233, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using AutoMapper;
 using Caelan.Frameworks.BIZ.Interfaces;
+using Caelan.Frameworks.Common.Classes;
 using Caelan.Frameworks.DAL.Interfaces;
 
 namespace Caelan.Frameworks.BIZ.Classes
@@ -13,38 +14,14 @@ namespace Caelan.Frameworks.BIZ.Classes
             where TSource : class, IEntity, new()
             where TDestination : class, IDTO, new()
         {
-            var builder = new BaseDTOBuilder<TSource, TDestination>();
-
-            var customBuilder = Assembly.GetAssembly(typeof(TDestination)).GetTypes().SingleOrDefault(t => t.BaseType == builder.GetType()) ?? (Assembly.GetAssembly(typeof(TDestination))).GetReferencedAssemblies().OrderBy(t => t.Name).Select(Assembly.Load).SelectMany(assembly => assembly.GetTypes().Where(t => t.BaseType == builder.GetType())).SingleOrDefault();
-
-            if (customBuilder != null) return Activator.CreateInstance(customBuilder) as BaseDTOBuilder<TSource, TDestination>;
-
-            customBuilder = (Assembly.GetEntryAssembly() ?? Assembly.GetCallingAssembly()).GetTypes().SingleOrDefault(t => t.BaseType == builder.GetType()) ?? (Assembly.GetEntryAssembly() ?? Assembly.GetCallingAssembly()).GetReferencedAssemblies().OrderBy(t => t.Name).Select(Assembly.Load).SelectMany(assembly => assembly.GetTypes().Where(t => t.BaseType == builder.GetType())).SingleOrDefault();
-
-            if (customBuilder != null) return Activator.CreateInstance(customBuilder) as BaseDTOBuilder<TSource, TDestination>;
-
-            if (Mapper.FindTypeMapFor<TSource, TDestination>() == null) Mapper.AddProfile(builder);
-
-            return builder;
+            return GenericBuilder.CreateGenericBuilder<BaseDTOBuilder<TSource, TDestination>, TSource, TDestination>();
         }
 
         public static BaseEntityBuilder<TSource, TDestination> GenericEntityBuilder<TSource, TDestination>()
             where TSource : class, IDTO, new()
             where TDestination : class, IEntity, new()
         {
-            var builder = new BaseEntityBuilder<TSource, TDestination>();
-
-            var customBuilder = Assembly.GetAssembly(typeof(TDestination)).GetTypes().SingleOrDefault(t => t.BaseType == builder.GetType()) ?? (Assembly.GetAssembly(typeof(TDestination))).GetReferencedAssemblies().OrderBy(t => t.Name).Select(Assembly.Load).SelectMany(assembly => assembly.GetTypes().Where(t => t.BaseType == builder.GetType())).SingleOrDefault();
-
-            if (customBuilder != null) return Activator.CreateInstance(customBuilder) as BaseEntityBuilder<TSource, TDestination>;
-
-            customBuilder = (Assembly.GetEntryAssembly() ?? Assembly.GetCallingAssembly()).GetTypes().SingleOrDefault(t => t.BaseType == builder.GetType()) ?? (Assembly.GetEntryAssembly() ?? Assembly.GetCallingAssembly()).GetReferencedAssemblies().OrderBy(t => t.Name).Select(Assembly.Load).SelectMany(assembly => assembly.GetTypes().Where(t => t.BaseType == builder.GetType())).SingleOrDefault();
-
-            if (customBuilder != null) return Activator.CreateInstance(customBuilder) as BaseEntityBuilder<TSource, TDestination>;
-
-            if (Mapper.FindTypeMapFor<TSource, TDestination>() == null) Mapper.AddProfile(builder);
-
-            return builder;
+            return GenericBuilder.CreateGenericBuilder<BaseEntityBuilder<TSource, TDestination>, TSource, TDestination>();
         }
     }
 }
