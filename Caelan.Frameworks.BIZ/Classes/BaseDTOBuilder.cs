@@ -57,11 +57,6 @@ namespace Caelan.Frameworks.BIZ.Classes
                 {
                     var method = typeof(GenericBusinessBuilder).GetMethod("GenericDTOBuilder", BindingFlags.Public | BindingFlags.Static).MakeGenericMethod(sourceProp.PropertyType, prop.PropertyType);
                     var builder = method.Invoke(null, null);
-                    var correctBuilder = Assembly.GetExecutingAssembly().GetReferencedAssemblies().OrderBy(t => t.Name).Select(Assembly.Load).SelectMany(assembly => assembly.GetTypes().Where(t => t.BaseType == builder.GetType())).SingleOrDefault();
-
-                    if (correctBuilder != null)
-                        builder = Activator.CreateInstance(correctBuilder);
-
                     var buildMethod = builder.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance).Single(t => t.GetParameters().Count() == 1 && t.Name == "Build");
 
                     prop.SetValue(destination, buildMethod.Invoke(builder, new[] { sourceProp.GetValue(source, null) }), null);
@@ -70,11 +65,6 @@ namespace Caelan.Frameworks.BIZ.Classes
                 {
                     var method = typeof(GenericBuilder).GetMethod("Create", BindingFlags.Public | BindingFlags.Static).MakeGenericMethod(sourceProp.PropertyType, prop.PropertyType);
                     var builder = method.Invoke(null, null);
-                    var correctBuilder = Assembly.GetExecutingAssembly().GetReferencedAssemblies().OrderBy(t => t.Name).Select(Assembly.Load).SelectMany(assembly => assembly.GetTypes().Where(t => t.BaseType == builder.GetType())).SingleOrDefault();
-
-                    if (correctBuilder != null)
-                        builder = Activator.CreateInstance(correctBuilder);
-
                     var buildMethod = builder.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance).Single(t => t.GetParameters().Count() == 1 && t.Name == "Build");
 
                     prop.SetValue(destination, buildMethod.Invoke(builder, new[] { sourceProp.GetValue(source, null) }), null);
