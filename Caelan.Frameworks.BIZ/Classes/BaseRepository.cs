@@ -72,6 +72,11 @@ namespace Caelan.Frameworks.BIZ.Classes
             return GenericBusinessBuilder.GenericDTOBuilder<TEntity, TDTO>();
         }
 
+        protected virtual BaseEntityBuilder<TDTO, TEntity> EntityBuilder()
+        {
+            return GenericBusinessBuilder.GenericEntityBuilder<TDTO, TEntity>();
+        }
+
         public virtual DataSourceResult<TDTO> All(int take, int skip, IEnumerable<Sort> sort, Filter filter, Expression<Func<TEntity, bool>> where = null)
         {
             var queryResult = All(where).OrderBy(t => t.ID).ToDataSourceResult(take, skip, sort, filter);
@@ -112,11 +117,6 @@ namespace Caelan.Frameworks.BIZ.Classes
         protected BaseCRUDRepository(BaseUnitOfWork manager)
             : base(manager)
         {
-        }
-
-        protected virtual BaseEntityBuilder<TDTO, TEntity> EntityBuilder()
-        {
-            return GenericBusinessBuilder.GenericEntityBuilder<TDTO, TEntity>();
         }
 
         public abstract void Insert(TDTO dto);
