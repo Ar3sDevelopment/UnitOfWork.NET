@@ -68,6 +68,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\BaseCRUDRepository.cs" />
     <Compile Include="Classes\BaseDTOBuilder.cs" />
     <Compile Include="Classes\BaseEntityBuilder.cs" />
     <Compile Include="Classes\BaseRepository.cs" />
