@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 using Caelan.DynamicLinq.Classes;
 using Caelan.DynamicLinq.Extensions;
 using Caelan.Frameworks.BIZ.Interfaces;
@@ -90,6 +91,19 @@ namespace Caelan.Frameworks.BIZ.Classes
             return result;
         }
 
+        public virtual async Task<DataSourceResult<TDTO>> AllAsync(int take, int skip, IEnumerable<Sort> sort, Filter filter, Expression<Func<TEntity, bool>> where = null)
+        {
+            var queryResult = await Task.Run(() => All(where).OrderBy(t => t.ID).ToDataSourceResult(take, skip, sort, filter));
+
+            var result = new DataSourceResult<TDTO>
+            {
+                Data = await DTOBuilder().BuildListAsync(queryResult.Data),
+                Total = queryResult.Total
+            };
+
+            return result;
+        }
+
         public virtual DataSourceResult<TDTO> AllFull(int take, int skip, IEnumerable<Sort> sort, Filter filter, Expression<Func<TEntity, bool>> where = null)
         {
             var queryResult = All(where).OrderBy(t => t.ID).ToDataSourceResult(take, skip, sort, filter);
@@ -103,9 +117,27 @@ namespace Caelan.Frameworks.BIZ.Classes
             return result;
         }
 
+        public virtual async Task<DataSourceResult<TDTO>> AllFullAsync(int take, int skip, IEnumerable<Sort> sort, Filter filter, Expression<Func<TEntity, bool>> where = null)
+        {
+            var queryResult = await Task.Run(() => All(where).OrderBy(t => t.ID).ToDataSourceResult(take, skip, sort, filter));
+
+            var result = new DataSourceResult<TDTO>
+            {
+                Data = await DTOBuilder().BuildFullListAsync(queryResult.Data),
+                Total = queryResult.Total
+            };
+
+            return result;
+        }
+
         public virtual TDTO Single(TKey id)
         {
             return DTOBuilder().BuildFull(All().FirstOrDefault(t => t.ID.Equals(id)));
+        }
+
+        public virtual async Task<TDTO> SingleAsync(TKey id)
+        {
+            return await DTOBuilder().BuildFullAsync(await All().FirstOrDefaultAsync(t => t.ID.Equals(id)));
         }
     }
 }
