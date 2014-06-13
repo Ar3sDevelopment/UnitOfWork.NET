@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using AutoMapper;
 using AutoMapper.Internal;
 using Caelan.Frameworks.BIZ.Interfaces;
@@ -39,6 +39,16 @@ namespace Caelan.Frameworks.BIZ.Classes
         public IEnumerable<TDestination> BuildFullList(IEnumerable<TSource> sourceList)
         {
             return sourceList == null ? null : sourceList.Select(BuildFull);
+        }
+
+        public async Task<TDestination> BuildFullAsync(TSource source)
+        {
+            return await Task.Run(() => BuildFull(source));
+        }
+
+        public async Task<IEnumerable<TDestination>> BuildFullListAsync(IEnumerable<TSource> sourceList)
+        {
+            return await Task.Run(() => BuildFullList(sourceList));
         }
 
         public override void AfterBuild(TSource source, ref TDestination destination)

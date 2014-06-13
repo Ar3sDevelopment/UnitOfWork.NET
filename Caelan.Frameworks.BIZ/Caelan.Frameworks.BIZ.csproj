@@ -9,12 +9,13 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Caelan.Frameworks.BIZ</RootNamespace>
     <AssemblyName>Caelan.Frameworks.BIZ</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SccProjectName>SAK</SccProjectName>
     <SccLocalPath>SAK</SccLocalPath>
     <SccAuxPath>SAK</SccAuxPath>
     <SccProvider>SAK</SccProvider>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -24,6 +25,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -32,6 +34,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AutoMapper">
@@ -43,20 +46,21 @@
     <Reference Include="Caelan.DynamicLinq">
       <HintPath>..\packages\Caelan.DynamicLinq.1.1.0\lib\Caelan.DynamicLinq.dll</HintPath>
     </Reference>
-    <Reference Include="Caelan.Frameworks.Common, Version=1.0.8.33869, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Caelan.Frameworks.Common, Version=1.0.9.29476, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Caelan.Frameworks.Common.1.0.8\lib\Caelan.Frameworks.Common.dll</HintPath>
+      <HintPath>..\packages\Caelan.Frameworks.Common.1.0.9\lib\Caelan.Frameworks.Common.dll</HintPath>
     </Reference>
-    <Reference Include="Caelan.Frameworks.DAL, Version=1.0.2.24233, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Caelan.Frameworks.DAL, Version=1.0.3.29513, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Caelan.Frameworks.DAL.1.0.2\lib\Caelan.Frameworks.DAL.dll</HintPath>
+      <HintPath>..\packages\Caelan.Frameworks.DAL.1.0.3\lib\Caelan.Frameworks.DAL.dll</HintPath>
     </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\EntityFramework.6.1.0\lib\net40\EntityFramework.dll</HintPath>
+      <HintPath>..\packages\EntityFramework.6.1.0\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
-    <Reference Include="EntityFramework.SqlServer">
-      <HintPath>..\packages\EntityFramework.6.1.0\lib\net40\EntityFramework.SqlServer.dll</HintPath>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\EntityFramework.6.1.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
