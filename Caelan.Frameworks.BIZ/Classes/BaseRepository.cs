@@ -13,26 +13,26 @@ namespace Caelan.Frameworks.BIZ.Classes
 {
     public abstract class BaseRepository
     {
-        protected readonly BaseUnitOfWork Manager;
+        protected readonly BaseUnitOfWork UnitOfWork;
 
         protected BaseRepository(BaseUnitOfWork manager)
         {
-            Manager = manager;
+            UnitOfWork = manager;
         }
 
         protected dynamic GetDynamicUnitOfWork()
         {
-            return Manager;
+            return UnitOfWork;
         }
 
         protected BaseUnitOfWork GetUnitOfWork()
         {
-            return Manager;
+            return UnitOfWork;
         }
 
         protected T GetUnitOfWork<T>() where T : BaseUnitOfWork
         {
-            return Manager as T;
+            return UnitOfWork as T;
         }
     }
 
@@ -55,7 +55,7 @@ namespace Caelan.Frameworks.BIZ.Classes
 
         protected virtual DbSet<TEntity> All()
         {
-            return Manager.GetDbSet(this);
+            return UnitOfWork.GetDbSet(this);
         }
 
         protected virtual IQueryable<TEntity> AllQueryable()

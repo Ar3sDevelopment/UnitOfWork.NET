@@ -9,7 +9,7 @@ using Caelan.Frameworks.DAL.Interfaces;
 
 namespace Caelan.Frameworks.BIZ.Classes
 {
-    public abstract class BaseUnitOfWork : DynamicObject, IDisposable
+    public abstract class BaseUnitOfWork : DynamicObject, IDisposable, IUnitOfWork
     {
         private readonly Dictionary<string, BaseRepository> _repositories;
 
@@ -31,6 +31,20 @@ namespace Caelan.Frameworks.BIZ.Classes
         public int SaveChanges()
         {
             return Context().SaveChanges();
+        }
+
+        public T GetRepository<T>() where T : BaseRepository
+        {
+            var type = typeof(T).Name.Replace("Repository", "");
+
+            if (!_repositories.ContainsKey(type))
+                return _repositories[type] as T;
+
+            var repo = Activator.CreateInstance(typeof(T), this) as T;
+
+            _repositories.Add(type, repo);
+
+            return repo;
         }
 
         public async Task<int> SaveChangesAsync()

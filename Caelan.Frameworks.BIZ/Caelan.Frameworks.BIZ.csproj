@@ -81,6 +81,7 @@
     <Compile Include="Interfaces\IDeleteRepository.cs" />
     <Compile Include="Interfaces\IDTO.cs" />
     <Compile Include="Interfaces\IInsertRepository.cs" />
+    <Compile Include="Interfaces\IUnitOfWork.cs" />
     <Compile Include="Interfaces\IUpdateRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
