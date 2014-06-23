@@ -26,5 +26,5 @@
     type IUnitOfWork =
         abstract member SaveChanges : unit -> int
 
-        abstract member GetDbSet<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey>  and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null> : repository : IBaseRepository -> DbSet<'TEntity>
+        abstract member GetDbSet<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey>  and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality> : repository : IBaseRepository -> DbSet<'TEntity>
         //abstract member GetRepository<'T when 'T :> IBaseRepository> : unit -> 'T

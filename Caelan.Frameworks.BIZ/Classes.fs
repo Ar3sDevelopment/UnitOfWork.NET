@@ -96,7 +96,7 @@
             this.UnitOfWork :?> 'T
 
     [<AbstractClass>]
-    type BaseRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey>  and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null>(manager) =
+    type BaseRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey>  and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(manager) =
         inherit BaseRepository(manager)
 
         abstract member DbSetFunc : unit -> Func<DbContext, DbSet<'TEntity>>
@@ -104,19 +104,19 @@
         member this.DbSetFuncGetter() =
             this.DbSetFunc()
 
-        abstract member All : unit -> DbSet<'TEntity>
-        default this.All() =
+        abstract member Set : unit -> DbSet<'TEntity>
+        default this.Set() =
             this.UnitOfWork.GetDbSet(this)
 
-        abstract member AllQueryable : unit -> IQueryable<'TEntity>
-        default this.AllQueryable() =
-            this.All() :> IQueryable<'TEntity>
+        abstract member All : unit -> IQueryable<'TEntity>
+        default this.All() =
+            this.Set() :> IQueryable<'TEntity>
 
         abstract member All : whereExpr : Expression<Func<'TEntity, bool>> -> IQueryable<'TEntity>
         default this.All(whereExpr : Expression<Func<'TEntity, bool>>) =
             match whereExpr with
-            | null -> this.AllQueryable()
-            | _ -> this.All().Where(whereExpr)
+            | null -> this.All()
+            | _ -> this.Set().Where(whereExpr)
 
         abstract member All : int * int * seq<Sort> * Filter * Expression<Func<'TEntity, bool>> -> DataSourceResult<'TDTO>
         default this.All(take : int, skip : int, sort : seq<Sort>, filter : Filter, whereFunc : Expression<Func<'TEntity, bool>>) =
@@ -138,15 +138,27 @@
 
         abstract member Single : 'TKey -> 'TDTO
         default this.Single(id : 'TKey) =
-            this.DTOBuilder().BuildFull(this.All() |> Seq.find (fun t -> t.ID.Equals(id)))
+            this.DTOBuilder().BuildFull(this.Set() |> Seq.find (fun t -> t.ID.Equals(id)))
             
     [<AbstractClass>]
-    type BaseCRUDRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey>  and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null>(manager) =
+    type BaseCRUDRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey>  and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(manager) =
         inherit BaseRepository<'TEntity, 'TDTO, 'TKey>(manager)
 
         abstract member Insert : 'TDTO -> unit
+        default this.Insert(dto : 'TDTO) =
+            this.Set().Add(this.EntityBuilder().Build(dto)) |> ignore
+            
         abstract member Update : 'TDTO -> unit
+        default this.Update(dto : 'TDTO) =
+            let mutable entity = this.Set() |> Seq.find (fun t -> t.ID = dto.ID)
+
+            this.EntityBuilder().Build(dto, ref entity)
+
         abstract member Delete : 'TDTO -> unit
+        default this.Delete(dto : 'TDTO) =
+            let mutable entity = this.Set() |> Seq.find (fun t -> t.ID = dto.ID)
+
+            this.Set().Remove(entity) |> ignore
 
         abstract member Delete : 'TKey -> unit
         default this.Delete(id : 'TKey) =
@@ -157,12 +169,12 @@
         abstract member Context : unit -> DbContext
         default this.Context() = null
 
-        member this.GetDbSet<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey>  and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null>(repository : BaseRepository<'TEntity, 'TDTO, 'TKey>) =
+        member this.GetDbSet<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey>  and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(repository : BaseRepository<'TEntity, 'TDTO, 'TKey>) =
             repository.DbSetFuncGetter().Invoke(this.Context())
 
         interface IUnitOfWork with
             member this.SaveChanges() =
                 this.Context().SaveChanges()
 
-            member this.GetDbSet<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey>  and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null>(repository : IBaseRepository) =
+            member this.GetDbSet<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey>  and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(repository : IBaseRepository) =
                 this.GetDbSet(repository :?> BaseRepository<'TEntity, 'TDTO, 'TKey>)
