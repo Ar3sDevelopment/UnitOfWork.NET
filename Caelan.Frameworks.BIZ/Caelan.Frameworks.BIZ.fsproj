@@ -69,19 +69,19 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Caelan.Frameworks.Common">
-      <HintPath>..\packages\Caelan.Frameworks.Common.1.0.9\lib\Caelan.Frameworks.Common.dll</HintPath>
+      <HintPath>..\packages\Caelan.Frameworks.Common.2.0.0-a\lib\Caelan.Frameworks.Common.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Caelan.Frameworks.DAL">
-      <HintPath>..\packages\Caelan.Frameworks.DAL.1.0.3\lib\Caelan.Frameworks.DAL.dll</HintPath>
+      <HintPath>..\packages\Caelan.Frameworks.DAL.2.0.1-a\lib\Caelan.Frameworks.DAL.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="EntityFramework">
-      <HintPath>..\packages\EntityFramework.6.1.0\lib\net45\EntityFramework.dll</HintPath>
+      <HintPath>..\packages\EntityFramework.6.1.1\lib\net45\EntityFramework.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="EntityFramework.SqlServer">
-      <HintPath>..\packages\EntityFramework.6.1.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+      <HintPath>..\packages\EntityFramework.6.1.1\lib\net45\EntityFramework.SqlServer.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="mscorlib" />
