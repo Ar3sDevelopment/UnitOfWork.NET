@@ -1,0 +1,168 @@
+﻿namespace Caelan.Frameworks.BIZ.Classes
+
+    open System
+    open System.Data.Entity
+    open System.Runtime.CompilerServices
+    open System.Collections.Generic
+    open System.Linq
+    open System.Linq.Expressions
+    open System.Reflection
+    open AutoMapper
+    open AutoMapper.Internal
+    open Caelan.Frameworks.DAL.Interfaces
+    open Caelan.Frameworks.Common.Classes
+    open Caelan.Frameworks.Common.Extenders
+    open Caelan.Frameworks.BIZ.Interfaces
+    open Caelan.DynamicLinq.Classes
+    open Caelan.DynamicLinq.Extensions
+
+    [<AbstractClass; Sealed>]
+    type GenericBusinessBuilder() =
+        static member GenericDTOBuilder<'TEntity, 'TDTO when 'TEntity :> IEntity and 'TDTO :> IDTO and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null>() =
+            GenericBuilder.CreateGenericBuilder<BaseDTOBuilder<'TEntity, 'TDTO>, 'TEntity, 'TDTO>()
+
+        static member GenericEntityBuilder<'TDTO, 'TEntity when 'TEntity :> IEntity and 'TDTO :> IDTO and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null>() =
+            GenericBuilder.CreateGenericBuilder<BaseEntityBuilder<'TDTO, 'TEntity>, 'TDTO, 'TEntity>()
+    and [<AbstractClass>]
+        BaseDTOBuilder<'TSource, 'TDestination when 'TSource :> IEntity and 'TDestination :> IDTO and 'TSource : equality and 'TSource : null and 'TDestination : equality and 'TDestination : null>() =
+        inherit BaseBuilder<'TSource, 'TDestination>()
+
+        abstract member BuildFull : 'TSource -> 'TDestination
+        default this.BuildFull(source : 'TSource) =
+            let dest = Activator.CreateInstance<'TDestination>()
+
+            this.Build(source, ref dest)
+
+            dest
+
+        abstract member BuildFull : 'TSource * 'TDestination byref -> unit
+        default this.BuildFull(source : 'TSource, destination : 'TDestination byref) =
+            this.Build(source, ref destination)
+
+        abstract member BuildFullList : seq<'TSource> -> seq<'TDestination>
+        default this.BuildFullList(sourceList : seq<'TSource>) =
+            sourceList |> Seq.map (fun t -> this.BuildFull(t))
+
+        override this.AfterBuild(source : 'TSource, destination : 'TDestination ref) =
+            base.AfterBuild(source, destination)
+
+            let destType = typedefof<'TDestination>
+            let sourceType = typedefof<'TSource>
+            let properties = destType.GetProperties(BindingFlags.Public ||| BindingFlags.Instance) |> Seq.filter (fun t -> t.PropertyType.IsPrimitive = false && t.PropertyType.IsValueType = false && t.PropertyType.Equals(typedefof<string>) = false && t.PropertyType.IsEnumerableType())
+
+            for prop in properties do
+                if Mapper.FindTypeMapFor<'TSource, 'TDestination>().GetPropertyMaps().Any(fun t -> t.IsIgnored() && t.DestinationProperty.Name = prop.Name) = false then
+                    let sourceProp = sourceType.GetProperty(prop.Name, BindingFlags.Public ||| BindingFlags.Instance)
+
+                    if sourceProp <> null then
+                        if sourceProp.PropertyType.GetInterfaces().Contains(typedefof<IEntity>) && prop.PropertyType.GetInterfaces().Contains(typedefof<IDTO>) then
+                            let builderType = typedefof<GenericBusinessBuilder>
+                            let builderMethod = builderType.GetMethod("GenericDTOBuilder", BindingFlags.Public ||| BindingFlags.Static).MakeGenericMethod(sourceProp.PropertyType, prop.PropertyType)
+                            let builder = builderMethod.Invoke(null, null)
+                            let build = builder.GetType().GetMethods(BindingFlags.Public ||| BindingFlags.Instance).Single(fun t -> t.GetParameters().Count() = 1 && t.Name = "Build")
+
+                            prop.SetValue(destination, build.Invoke(builder, [|sourceProp.GetValue(source, null)|]), null)
+                        else
+                            let builderType = typedefof<GenericBuilder>
+                            let builderMethod = builderType.GetMethod("Create", BindingFlags.Public ||| BindingFlags.Static).MakeGenericMethod(sourceProp.PropertyType, prop.PropertyType)
+                            let builder = builderMethod.Invoke(null, null)
+                            let build = builder.GetType().GetMethods(BindingFlags.Public ||| BindingFlags.Instance).Single(fun t -> t.GetParameters().Count() = 1 && t.Name = "Build")
+
+                            prop.SetValue(destination, build.Invoke(builder, [|sourceProp.GetValue(source, null)|]), null)
+                            
+
+        override this.AddMappingConfigurations(mappingExpression : IMappingExpression<'TSource, 'TDestination>) =
+            base.AddMappingConfigurations(mappingExpression)
+
+            AutoMapperExtender.IgnoreAllLists(mappingExpression)
+
+    and [<AbstractClass>]
+        BaseEntityBuilder<'TSource, 'TDestination when 'TSource :> IDTO and 'TDestination :> IEntity and 'TSource : equality and 'TSource : null and 'TDestination : equality and 'TDestination : null>() =
+        inherit BaseBuilder<'TSource, 'TDestination>()
+        override this.AddMappingConfigurations(mappingExpression : IMappingExpression<'TSource, 'TDestination>) =
+            base.AddMappingConfigurations(mappingExpression)
+
+            AutoMapperExtender.IgnoreAllNonPrimitive(mappingExpression)
+
+    [<AbstractClass>]
+    type BaseRepository(manager) =
+        interface IBaseRepository
+        member this.UnitOfWork : IUnitOfWork = manager
+
+        member this.GetUnitOfWork() =
+            this.UnitOfWork
+
+        member this.GetUnitOfWork<'T when 'T :> IUnitOfWork>() =
+            this.UnitOfWork :?> 'T
+
+    [<AbstractClass>]
+    type BaseRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey>  and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null>(manager) =
+        inherit BaseRepository(manager)
+
+        abstract member DbSetFunc : unit -> Func<DbContext, DbSet<'TEntity>>
+            
+        member this.DbSetFuncGetter() =
+            this.DbSetFunc()
+
+        abstract member All : unit -> DbSet<'TEntity>
+        default this.All() =
+            this.UnitOfWork.GetDbSet(this)
+
+        abstract member AllQueryable : unit -> IQueryable<'TEntity>
+        default this.AllQueryable() =
+            this.All() :> IQueryable<'TEntity>
+
+        abstract member All : whereExpr : Expression<Func<'TEntity, bool>> -> IQueryable<'TEntity>
+        default this.All(whereExpr : Expression<Func<'TEntity, bool>>) =
+            match whereExpr with
+            | null -> this.AllQueryable()
+            | _ -> this.All().Where(whereExpr)
+
+        abstract member All : int * int * seq<Sort> * Filter * Expression<Func<'TEntity, bool>> -> DataSourceResult<'TDTO>
+        default this.All(take : int, skip : int, sort : seq<Sort>, filter : Filter, whereFunc : Expression<Func<'TEntity, bool>>) =
+            let queryResult = this.All(whereFunc).OrderBy(fun t -> t.ID).ToDataSourceResult(take, skip, sort, filter)
+            let result = DataSourceResult<'TDTO>()
+
+            result.Data <- this.DTOBuilder().BuildFullList(queryResult.Data)
+            result.Total <- queryResult.Total
+
+            result
+
+        abstract member DTOBuilder : unit -> BaseDTOBuilder<'TEntity, 'TDTO>
+        default this.DTOBuilder() =
+            GenericBusinessBuilder.GenericDTOBuilder<'TEntity, 'TDTO>()
+
+        abstract member EntityBuilder : unit -> BaseEntityBuilder<'TDTO, 'TEntity>
+        default this.EntityBuilder() =
+            GenericBusinessBuilder.GenericEntityBuilder<'TDTO, 'TEntity>()
+
+        abstract member Single : 'TKey -> 'TDTO
+        default this.Single(id : 'TKey) =
+            this.DTOBuilder().BuildFull(this.All() |> Seq.find (fun t -> t.ID.Equals(id)))
+            
+    [<AbstractClass>]
+    type BaseCRUDRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey>  and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null>(manager) =
+        inherit BaseRepository<'TEntity, 'TDTO, 'TKey>(manager)
+
+        abstract member Insert : 'TDTO -> unit
+        abstract member Update : 'TDTO -> unit
+        abstract member Delete : 'TDTO -> unit
+
+        abstract member Delete : 'TKey -> unit
+        default this.Delete(id : 'TKey) =
+            this.Delete(this.Single(id))
+
+    [<AbstractClass>]
+    type BaseUnitOfWork() =
+        abstract member Context : unit -> DbContext
+        default this.Context() = null
+
+        member this.GetDbSet<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey>  and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null>(repository : BaseRepository<'TEntity, 'TDTO, 'TKey>) =
+            repository.DbSetFuncGetter().Invoke(this.Context())
+
+        interface IUnitOfWork with
+            member this.SaveChanges() =
+                this.Context().SaveChanges()
+
+            member this.GetDbSet<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey>  and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null>(repository : IBaseRepository) =
+                this.GetDbSet(repository :?> BaseRepository<'TEntity, 'TDTO, 'TKey>)
