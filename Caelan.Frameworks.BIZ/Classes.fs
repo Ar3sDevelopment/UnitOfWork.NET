@@ -173,7 +173,7 @@
             let newEntity : ref<'TEntity> = ref null
             this.EntityBuilder().Build(dto, newEntity)
 
-            manager.Entry(entity).OriginalValues.SetValues(!newEntity)
+            manager.Entry(entity).CurrentValues.SetValues(!newEntity)
 
         abstract member Delete : 'TDTO -> unit
         default this.Delete(dto : 'TDTO) =
