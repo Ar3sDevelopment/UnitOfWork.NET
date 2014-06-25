@@ -137,7 +137,10 @@
 
             abstract member Single : 'TKey -> 'TDTO
             default this.Single(id : 'TKey) =
-                this.DTOBuilder().BuildFull(this.Set() |> Seq.find (fun t -> t.ID.Equals(id)))
+                this.DTOBuilder().BuildFull(
+                    match this.Set() |> Seq.tryFind (fun t -> t.ID.Equals(id)) with
+                    | None -> null
+                    | Some(value) -> value)
     and [<AbstractClass>]
         BaseUnitOfWork() =
             abstract member Context : unit -> DbContext
@@ -159,13 +162,19 @@
             
         abstract member Update : 'TDTO -> unit
         default this.Update(dto : 'TDTO) =
-            let mutable entity = this.Set() |> Seq.find (fun t -> t.ID = dto.ID)
+            let mutable entity =
+                match this.Set() |> Seq.tryFind (fun t -> t.ID = dto.ID) with
+                | None -> null
+                | Some(value) -> value
 
             this.EntityBuilder().Build(dto, ref entity)
 
         abstract member Delete : 'TDTO -> unit
         default this.Delete(dto : 'TDTO) =
-            let mutable entity = this.Set() |> Seq.find (fun t -> t.ID = dto.ID)
+            let mutable entity =
+                match this.Set() |> Seq.tryFind (fun t -> t.ID = dto.ID) with
+                | None -> null
+                | Some(value) -> value
 
             this.Set().Remove(entity) |> ignore
 
