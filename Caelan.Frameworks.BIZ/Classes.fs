@@ -98,12 +98,12 @@
         BaseRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey>  and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(manager) =
             inherit BaseRepository(manager)
 
-            abstract member DbSetFunc : unit -> Func<IContext, ISet<'TEntity>>
+            abstract member DbSetFunc : unit -> Func<DbContext, DbSet<'TEntity>>
             
             member this.DbSetFuncGetter() =
                 this.DbSetFunc()
 
-            abstract member Set : unit -> ISet<'TEntity>
+            abstract member Set : unit -> DbSet<'TEntity>
             default this.Set() =
                 this.UnitOfWork.GetDbSet(this)
 
@@ -140,14 +140,14 @@
                 this.DTOBuilder().BuildFull(this.Set() |> Seq.find (fun t -> t.ID.Equals(id)))
     and [<AbstractClass>]
         BaseUnitOfWork() =
-            abstract member Context : unit -> IContext
-            default this.Context() = Unchecked.defaultof<IContext>
+            abstract member Context : unit -> DbContext
+            default this.Context() = Unchecked.defaultof<DbContext>
 
             member this.GetDbSet<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey>  and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(repository : BaseRepository<'TEntity, 'TDTO, 'TKey>) =
                 repository.DbSetFuncGetter().Invoke(this.Context())
 
             member this.SaveChanges() =
-                this.Context().Save()
+                this.Context().SaveChanges()
             
     [<AbstractClass>]
     type BaseCRUDRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey>  and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(manager) =
@@ -155,7 +155,7 @@
 
         abstract member Insert : 'TDTO -> unit
         default this.Insert(dto : 'TDTO) =
-            this.Set().Insert(this.EntityBuilder().Build(dto)) |> ignore
+            this.Set().Add(this.EntityBuilder().Build(dto)) |> ignore
             
         abstract member Update : 'TDTO -> unit
         default this.Update(dto : 'TDTO) =
@@ -167,7 +167,7 @@
         default this.Delete(dto : 'TDTO) =
             let mutable entity = this.Set() |> Seq.find (fun t -> t.ID = dto.ID)
 
-            this.Set().Delete(entity) |> ignore
+            this.Set().Remove(entity) |> ignore
 
         abstract member Delete : 'TKey -> unit
         default this.Delete(id : 'TKey) =
