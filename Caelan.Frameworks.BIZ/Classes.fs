@@ -162,16 +162,16 @@
             
         abstract member Update : 'TDTO -> unit
         default this.Update(dto : 'TDTO) =
-            let mutable entity =
+            let entity =
                 match this.Set() |> Seq.tryFind (fun t -> t.ID = dto.ID) with
                 | None -> null
                 | Some(value) -> value
 
-            this.EntityBuilder().Build(dto, &entity)
+            this.EntityBuilder().Build(dto, ref entity)
 
         abstract member Delete : 'TDTO -> unit
         default this.Delete(dto : 'TDTO) =
-            let mutable entity =
+            let entity =
                 match this.Set() |> Seq.tryFind (fun t -> t.ID = dto.ID) with
                 | None -> null
                 | Some(value) -> value
