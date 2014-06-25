@@ -151,6 +151,9 @@
 
             member this.SaveChanges() =
                 this.Context().SaveChanges()
+
+            member this.Detach<'TEntity>(entity : 'TEntity) =
+                this.Context().Entry(entity).State = EntityState.Detached |> ignore
             
     [<AbstractClass>]
     type BaseCRUDRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey>  and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(manager) =
@@ -167,7 +170,11 @@
                 | None -> ref null
                 | Some(value) -> ref value
 
+            manager.Detach(entity)
+
             this.EntityBuilder().Build(dto, entity)
+
+            this.Set().Attach(!entity) |> ignore
 
         abstract member Delete : 'TDTO -> unit
         default this.Delete(dto : 'TDTO) =
