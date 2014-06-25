@@ -170,11 +170,11 @@
                 | None -> ref null
                 | Some(value) -> ref value
 
-            manager.Detach(entity)
+//            manager.Detach(!entity)
 
-            this.EntityBuilder().Build(dto, entity)
+            this.EntityBuilder().Build(dto, ref !entity)
 
-            this.Set().Attach(!entity) |> ignore
+//            this.Set().Attach(!entity) |> ignore
 
         abstract member Delete : 'TDTO -> unit
         default this.Delete(dto : 'TDTO) =
