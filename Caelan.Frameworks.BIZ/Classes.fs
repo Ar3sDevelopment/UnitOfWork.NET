@@ -23,8 +23,7 @@
 
         static member GenericEntityBuilder<'TDTO, 'TEntity when 'TEntity :> IEntity and 'TDTO :> IDTO and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null>() =
             GenericBuilder.CreateGenericBuilder<BaseEntityBuilder<'TDTO, 'TEntity>, 'TDTO, 'TEntity>()
-    and [<AbstractClass>]
-        BaseDTOBuilder<'TSource, 'TDestination when 'TSource :> IEntity and 'TDestination :> IDTO and 'TSource : equality and 'TSource : null and 'TDestination : equality and 'TDestination : null>() =
+    and BaseDTOBuilder<'TSource, 'TDestination when 'TSource :> IEntity and 'TDestination :> IDTO and 'TSource : equality and 'TSource : null and 'TDestination : equality and 'TDestination : null>() =
         inherit BaseBuilder<'TSource, 'TDestination>()
 
         abstract member BuildFull : 'TSource -> 'TDestination
@@ -76,8 +75,7 @@
 
             AutoMapperExtender.IgnoreAllLists(mappingExpression)
 
-    and [<AbstractClass>]
-        BaseEntityBuilder<'TSource, 'TDestination when 'TSource :> IDTO and 'TDestination :> IEntity and 'TSource : equality and 'TSource : null and 'TDestination : equality and 'TDestination : null>() =
+    and BaseEntityBuilder<'TSource, 'TDestination when 'TSource :> IDTO and 'TDestination :> IEntity and 'TSource : equality and 'TSource : null and 'TDestination : equality and 'TDestination : null>() =
         inherit BaseBuilder<'TSource, 'TDestination>()
         override this.AddMappingConfigurations(mappingExpression : IMappingExpression<'TSource, 'TDestination>) =
             base.AddMappingConfigurations(mappingExpression)
