@@ -164,10 +164,10 @@
         default this.Update(dto : 'TDTO) =
             let entity =
                 match this.Set() |> Seq.tryFind (fun t -> t.ID = dto.ID) with
-                | None -> null
-                | Some(value) -> value
+                | None -> ref null
+                | Some(value) -> ref value
 
-            this.EntityBuilder().Build(dto, ref entity)
+            this.EntityBuilder().Build(dto, entity)
 
         abstract member Delete : 'TDTO -> unit
         default this.Delete(dto : 'TDTO) =
