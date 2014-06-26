@@ -22,3 +22,6 @@
 
     type IDeleteRepository<'TDTO when 'TDTO :> IDTO> =
         abstract member Delete : dto : 'TDTO -> unit
+
+    type IUnitOfWork =
+        abstract member Context : unit -> DbContext
