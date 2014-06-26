@@ -94,10 +94,10 @@ type BaseRepository(manager) =
 
 and [<AbstractClass>] BaseRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(manager) = 
     inherit BaseRepository(manager)
-    let mutable dbSetFunc : Func<DbContext, DbSet<'TEntity>> = null
+    [<DefaultValue>] val mutable dbSetFunc : Func<DbContext, DbSet<'TEntity>>
     member this.DbSetFunc 
-        with set (value) = dbSetFunc <- value
-    member this.DbSetFuncGetter() = dbSetFunc
+        with set (value) = this.dbSetFunc <- value
+    member internal this.DbSetFuncGetter() = this.dbSetFunc
     abstract Set : unit -> DbSet<'TEntity>
     override this.Set() = this.GetUnitOfWork().GetDbSet(this)
     abstract All : unit -> IQueryable<'TEntity>
