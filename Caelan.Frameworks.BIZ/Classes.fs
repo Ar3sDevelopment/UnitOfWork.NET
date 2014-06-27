@@ -94,7 +94,7 @@ type BaseRepository(manager) =
 
 and [<AbstractClass>] BaseRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(manager) = 
     inherit BaseRepository(manager)
-    [<DefaultValue>] val mutable dbSetFunc : Func<DbContext, DbSet<'TEntity>>
+    [<DefaultValue>] val mutable private dbSetFunc : Func<DbContext, DbSet<'TEntity>>
     member this.DbSetFunc 
         with set (value) = this.dbSetFunc <- value
     member internal this.DbSetFuncGetter() = this.dbSetFunc
@@ -136,7 +136,7 @@ and [<AbstractClass>] BaseUnitOfWorkManager(uow : IUnitOfWork) =
     member this.Entry<'TEntity>(entity : 'TEntity) = uow.Context().Entry(entity)
 
 [<AbstractClass>]
-type BaseCRUDRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(manager, dbSetFunc) = 
+type BaseCRUDRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(manager) = 
     inherit BaseRepository<'TEntity, 'TDTO, 'TKey>(manager)
     abstract Insert : 'TDTO -> unit
     override this.Insert(dto) = this.Set().Add(this.EntityBuilder().Build(dto)) |> ignore
