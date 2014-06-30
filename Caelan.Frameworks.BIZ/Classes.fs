@@ -37,6 +37,10 @@ and BaseDTOBuilder<'TSource, 'TDestination when 'TSource :> IEntity and 'TDestin
     override this.BuildFull(source, destination) = this.Build(source, ref destination)
     abstract BuildFullList : seq<'TSource> -> seq<'TDestination>
     override this.BuildFullList(sourceList) = sourceList |> Seq.map (fun t -> this.BuildFull(t))
+
+    member this.BuildFullAsync(source) = async { return this.BuildFull(source) } |> Async.StartAsTask
+    member this.BuildFullAsync(source, destination) = async { return this.BuildFull(source, ref destination) } |> Async.StartAsTask
+    member this.BuildFullListAsync(source) = async { return this.BuildFullList(source) } |> Async.StartAsTask
     
     override this.AfterBuild(source, destination) = 
         base.AfterBuild(source, destination)
@@ -131,11 +135,15 @@ and [<AbstractClass>] BaseRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquat
         }
         this.DTOBuilder().BuildFull(item)
 
+    member this.AllAsync(take, skip, sort, filter, whereFunc) = async { return this.All(take, skip, sort, filter, whereFunc) } |> Async.StartAsTask
+    member this.SingleAsync(id) = async { return this.Single(id) } |> Async.StartAsTask
+
 and [<AbstractClass>] BaseUnitOfWorkManager(uow : IUnitOfWork) = 
     let unitOfWork = uow
     member this.GetDbSet<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(repository : BaseRepository<'TEntity, 'TDTO, 'TKey>) = 
         repository.DbSetFuncGetter().Invoke(uow.Context())
     member this.SaveChanges() = uow.Context().SaveChanges()
+    member this.SaveChangesAsync() = async { return! uow.Context().SaveChangesAsync() |> Async.AwaitTask }
     member this.Entry<'TEntity>(entity : 'TEntity) = uow.Context().Entry(entity)
 
 [<AbstractClass>]
@@ -168,3 +176,8 @@ type BaseCRUDRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> a
     
     abstract Delete : 'TKey -> unit
     override this.Delete(id) = this.Delete(this.Single(id))
+
+    member this.InsertAsync(dto) = async { this.Insert(dto) } |> Async.StartAsTask
+    member this.UpdateAsync(dto) = async { this.Update(dto) } |> Async.StartAsTask
+    member this.DeleteAsync(dto : 'TDTO) = async { this.Delete(dto) } |> Async.StartAsTask
+    member this.DeleteAsync(id : 'TKey) = async { this.Delete(id) } |> Async.StartAsTask
