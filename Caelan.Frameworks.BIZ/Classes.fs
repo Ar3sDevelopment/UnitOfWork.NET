@@ -124,9 +124,12 @@ and [<AbstractClass>] BaseRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquat
     override this.EntityBuilder() = GenericBusinessBuilder.GenericEntityBuilder<'TDTO, 'TEntity>()
     abstract Single : 'TKey -> 'TDTO
     override this.Single(id) = 
-        this.DTOBuilder().BuildFull(match this.Set() |> Seq.tryFind (fun t -> t.ID.Equals(id)) with
-                                    | None -> null
-                                    | Some(value) -> value)
+        let item = query {
+            for item in this.Set() do
+            where (item.ID.Equals(id))
+            headOrDefault
+        }
+        this.DTOBuilder().BuildFull(item)
 
 and [<AbstractClass>] BaseUnitOfWorkManager(uow : IUnitOfWork) = 
     let unitOfWork = uow
@@ -143,10 +146,11 @@ type BaseCRUDRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> a
     abstract Update : 'TDTO -> unit
     
     override this.Update(dto) = 
-        let entity = 
-            match this.Set() |> Seq.tryFind (fun t -> t.ID = dto.ID) with
-            | None -> null
-            | Some(value) -> value
+        let entity = query {
+            for item in this.Set() do
+            where (item.ID.Equals(dto.ID))
+            headOrDefault
+        }
         
         let newEntity : ref<'TEntity> = ref null
         this.EntityBuilder().Build(dto, newEntity)
@@ -155,10 +159,11 @@ type BaseCRUDRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> a
     abstract Delete : 'TDTO -> unit
     
     override this.Delete(dto : 'TDTO) = 
-        let entity = 
-            match this.Set() |> Seq.tryFind (fun t -> t.ID = dto.ID) with
-            | None -> null
-            | Some(value) -> value
+        let entity = query {
+            for item in this.Set() do
+            where (item.ID.Equals(dto.ID))
+            headOrDefault
+        }
         this.Set().Remove(entity) |> ignore
     
     abstract Delete : 'TKey -> unit
