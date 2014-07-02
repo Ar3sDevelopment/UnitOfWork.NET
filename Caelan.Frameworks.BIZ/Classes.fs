@@ -114,8 +114,15 @@ and [<AbstractClass>] BaseRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquat
         | _ -> this.Set().Where(whereExpr)
     
     abstract All : int * int * seq<Sort> * Filter * Expression<Func<'TEntity, bool>> -> DataSourceResult<'TDTO>
-    
     override this.All(take, skip, sort, filter, whereFunc) = 
+        let queryResult = this.All(whereFunc).OrderBy(fun t -> t.ID).ToDataSourceResult(take, skip, sort, filter)
+        let result = DataSourceResult<'TDTO>()
+        result.Data <- this.DTOBuilder().BuildList(queryResult.Data)
+        result.Total <- queryResult.Total
+        result
+    
+    abstract AllFull : int * int * seq<Sort> * Filter * Expression<Func<'TEntity, bool>> -> DataSourceResult<'TDTO>
+    override this.AllFull(take, skip, sort, filter, whereFunc) = 
         let queryResult = this.All(whereFunc).OrderBy(fun t -> t.ID).ToDataSourceResult(take, skip, sort, filter)
         let result = DataSourceResult<'TDTO>()
         result.Data <- this.DTOBuilder().BuildFullList(queryResult.Data)
