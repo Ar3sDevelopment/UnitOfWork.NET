@@ -30,7 +30,7 @@ and BaseDTOBuilder<'TSource, 'TDestination when 'TSource :> IEntity and 'TDestin
     
     override this.BuildFull(source) = 
         let dest = Activator.CreateInstance<'TDestination>()
-        this.Build(source, ref dest)
+        this.BuildFull(source, ref dest)
         dest
     
     abstract BuildFull : 'TSource * 'TDestination byref -> unit
