@@ -33,8 +33,8 @@ and BaseDTOBuilder<'TSource, 'TDestination when 'TSource :> IEntity and 'TDestin
         this.BuildFull(source, ref dest)
         dest
     
-    abstract BuildFull : 'TSource * 'TDestination byref -> unit
-    override this.BuildFull(source, destination) = this.Build(source, ref destination)
+    abstract BuildFull : 'TSource * 'TDestination ref -> unit
+    override this.BuildFull(source, destination) = this.Build(source, destination)
     abstract BuildFullList : seq<'TSource> -> seq<'TDestination>
     override this.BuildFullList(sourceList) = sourceList |> Seq.map (fun t -> this.BuildFull(t))
 
