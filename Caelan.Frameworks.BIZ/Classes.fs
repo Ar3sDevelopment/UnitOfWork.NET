@@ -29,9 +29,13 @@ and BaseDTOBuilder<'TSource, 'TDestination when 'TSource :> IEntity and 'TDestin
     abstract BuildFull : 'TSource -> 'TDestination
     
     override this.BuildFull(source) = 
-        let dest = Activator.CreateInstance<'TDestination>()
-        this.BuildFull(source, ref dest)
-        dest
+        match source with
+        | null -> Unchecked.defaultof<'TDestination>
+        | _ ->
+            let dest = ref Unchecked.defaultof<'TDestination>
+            if (box dest = null) then dest := Activator.CreateInstance<'TDestination>()
+            this.BuildFull(source, dest)
+            !dest
     
     abstract BuildFull : 'TSource * 'TDestination ref -> unit
     override this.BuildFull(source, destination) = this.Build(source, destination)
@@ -51,7 +55,7 @@ and BaseDTOBuilder<'TSource, 'TDestination when 'TSource :> IEntity and 'TDestin
             |> Seq.filter 
                    (fun t -> 
                    t.PropertyType.IsPrimitive = false && t.PropertyType.IsValueType = false 
-                   && t.PropertyType.Equals(typedefof<string>) = false && t.PropertyType.IsEnumerableType())
+                   && t.PropertyType.Equals(typedefof<string>) = false && t.PropertyType.IsEnumerableType() = false)
         for prop in properties do
             if Mapper.FindTypeMapFor<'TSource, 'TDestination>().GetPropertyMaps()
                    .Any(fun t -> t.IsIgnored() && t.DestinationProperty.Name = prop.Name) = false then 
