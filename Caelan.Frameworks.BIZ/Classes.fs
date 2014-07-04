@@ -50,37 +50,22 @@ and BaseDTOBuilder<'TSource, 'TDestination when 'TSource :> IEntity and 'TDestin
         base.AfterBuild(source, destination)
         let destType = typedefof<'TDestination>
         let sourceType = typedefof<'TSource>
-        let properties = 
-            destType.GetProperties(BindingFlags.Public ||| BindingFlags.Instance) 
-            |> Seq.filter 
-                   (fun t -> 
-                   t.PropertyType.IsPrimitive = false && t.PropertyType.IsValueType = false 
-                   && t.PropertyType.Equals(typedefof<string>) = false && t.PropertyType.IsEnumerableType() = false)
+        let properties = destType.GetProperties(BindingFlags.Public ||| BindingFlags.Instance) |> Seq.filter  (fun t -> (t.PropertyType.IsPrimitive || t.PropertyType.IsValueType || t.PropertyType.Equals(typedefof<string>)) = false && t.PropertyType.IsEnumerableType() = false)
         for prop in properties do
-            if Mapper.FindTypeMapFor<'TSource, 'TDestination>().GetPropertyMaps()
-                   .Any(fun t -> t.IsIgnored() && t.DestinationProperty.Name = prop.Name) = false then 
+            if Mapper.FindTypeMapFor<'TSource, 'TDestination>().GetPropertyMaps().Any(fun t -> t.IsIgnored() && t.DestinationProperty.Name = prop.Name) = false then 
                 let sourceProp = sourceType.GetProperty(prop.Name, BindingFlags.Public ||| BindingFlags.Instance)
                 if sourceProp <> null then 
-                    if sourceProp.PropertyType.GetInterfaces().Contains(typedefof<IEntity>) 
-                       && prop.PropertyType.GetInterfaces().Contains(typedefof<IDTO>) then 
+                    if sourceProp.PropertyType.GetInterfaces().Contains(typedefof<IEntity>) && prop.PropertyType.GetInterfaces().Contains(typedefof<IDTO>) then 
                         let builderType = typedefof<GenericBusinessBuilder>
-                        let builderMethod = 
-                            builderType.GetMethod("GenericDTOBuilder", BindingFlags.Public ||| BindingFlags.Static)
-                                       .MakeGenericMethod(sourceProp.PropertyType, prop.PropertyType)
+                        let builderMethod = builderType.GetMethod("GenericDTOBuilder", BindingFlags.Public ||| BindingFlags.Static).MakeGenericMethod(sourceProp.PropertyType, prop.PropertyType)
                         let builder = builderMethod.Invoke(null, null)
-                        let build = 
-                            builder.GetType().GetMethods(BindingFlags.Public ||| BindingFlags.Instance)
-                                   .Single(fun t -> t.GetParameters().Count() = 1 && t.Name = "Build")
+                        let build =  builder.GetType().GetMethods(BindingFlags.Public ||| BindingFlags.Instance).Single(fun t -> t.GetParameters().Count() = 1 && t.Name = "Build")
                         prop.SetValue(destination, build.Invoke(builder, [| sourceProp.GetValue(source, null) |]), null)
                     else 
                         let builderType = typedefof<GenericBuilder>
-                        let builderMethod = 
-                            builderType.GetMethod("Create", BindingFlags.Public ||| BindingFlags.Static)
-                                       .MakeGenericMethod(sourceProp.PropertyType, prop.PropertyType)
+                        let builderMethod = builderType.GetMethod("Create", BindingFlags.Public ||| BindingFlags.Static).MakeGenericMethod(sourceProp.PropertyType, prop.PropertyType)
                         let builder = builderMethod.Invoke(null, null)
-                        let build = 
-                            builder.GetType().GetMethods(BindingFlags.Public ||| BindingFlags.Instance)
-                                   .Single(fun t -> t.GetParameters().Count() = 1 && t.Name = "Build")
+                        let build = builder.GetType().GetMethods(BindingFlags.Public ||| BindingFlags.Instance).Single(fun t -> t.GetParameters().Count() = 1 && t.Name = "Build")
                         prop.SetValue(destination, build.Invoke(builder, [| sourceProp.GetValue(source, null) |]), null)
     
     override this.AddMappingConfigurations(mappingExpression) = 
