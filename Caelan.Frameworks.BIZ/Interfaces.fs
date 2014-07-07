@@ -12,4 +12,5 @@
         inherit IDTO
         abstract member ID : 'TKey with get, set
 
+    [<AllowNullLiteral>]
     type IBaseRepository = interface end

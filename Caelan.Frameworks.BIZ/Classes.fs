@@ -98,14 +98,13 @@ and BaseEntityBuilder<'TSource, 'TDestination when 'TSource :> IDTO and 'TDestin
         base.AddMappingConfigurations(mappingExpression)
         AutoMapperExtender.IgnoreAllNonPrimitive(mappingExpression)
 
-[<AbstractClass>]
-type BaseRepository(manager) = 
+type [<AbstractClass>][<AllowNullLiteral>] BaseRepository(manager) = 
     interface IBaseRepository
-    member private this.UnitOfWork : BaseUnitOfWorkManager = manager
+    member private this.UnitOfWork : BaseUnitOfWork = manager
     member this.GetUnitOfWork() = this.UnitOfWork
-    member this.GetUnitOfWork<'T when 'T :> BaseUnitOfWorkManager>() = this.UnitOfWork :?> 'T
+    member this.GetUnitOfWork<'T when 'T :> BaseUnitOfWork>() = this.UnitOfWork :?> 'T
 
-and [<AbstractClass>] BaseRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(manager) = 
+and [<AllowNullLiteral>]BaseRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(manager) = 
     inherit BaseRepository(manager)
     abstract Set : unit -> DbSet<'TEntity>
     override this.Set() = this.GetUnitOfWork().DbSet(this)
@@ -180,16 +179,102 @@ and [<AbstractClass>] BaseUnitOfWork internal (context : DbContext) =
             let repositoryProp = this.GetType().GetProperties(BindingFlags.Instance) |> Seq.find (fun t -> t.PropertyType = typedefof<'TRepository>)
             repositoryProp.GetValue(this) :?> 'TRepository
         with
-        | :? KeyNotFoundException ->
-            Activator.CreateInstance(typedefof<'TRepository>, [| this |]) :?> 'TRepository
+        | :? KeyNotFoundException -> Activator.CreateInstance(typedefof<'TRepository>, [| this |]) :?> 'TRepository
+    member this.Repository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>() =
+        try
+            let repositoryProp = this.GetType().GetProperties(BindingFlags.Instance) |> Seq.find (fun t -> t.PropertyType.BaseType = typedefof<'TRepository>)
+            repositoryProp.GetValue(this) :?> 'TRepository
+        with
+        | :? KeyNotFoundException -> Activator.CreateInstance(typedefof<'TRepository>, [| this |]) :?> 'TRepository
     member this.Dispose() = ()
     interface IDisposable with
         member this.Dispose() = this.Dispose()
 and [<AbstractClass>] BaseUnitOfWork<'TContext when 'TContext :> DbContext>() =
     inherit BaseUnitOfWork(Activator.CreateInstance<'TContext>())
+and [<Sealed>][<AbstractClass>] GenericRepository() =
+    static member CreateGenericRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(manager : BaseUnitOfWork) =
+        let baseType = typedefof<BaseRepository<'TEntity, 'TDTO, 'TKey>>
 
-[<AbstractClass>]
-type BaseCRUDRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(manager) = 
+        let mutable assembly = Assembly.GetExecutingAssembly()
+        let mutable repo : BaseRepository<'TEntity, 'TDTO, 'TKey> = null
+        let mutable repoType : Type = null
+
+        if (assembly <> null) then
+            try
+                repoType <- assembly.GetTypes() |> Seq.find (fun t -> t.BaseType = baseType)
+
+                repo <- (Activator.CreateInstance(repoType, [| manager |]) :?> BaseRepository<'TEntity, 'TDTO, 'TKey>)
+            with
+            | :? KeyNotFoundException -> assembly <- null
+
+        if (assembly = null) then
+            assembly <- Assembly.GetEntryAssembly()
+
+            if (assembly <> null) then
+                try
+                    repoType <- assembly.GetTypes() |> Seq.find (fun t -> t.BaseType = baseType)
+
+                    repo <- (Activator.CreateInstance(repoType, [| manager |]) :?> BaseRepository<'TEntity, 'TDTO, 'TKey>)
+                with
+                | :? KeyNotFoundException -> assembly <- null
+
+        if (assembly = null) then
+            assembly <- Assembly.GetCallingAssembly()
+            if (assembly <> null) then
+                try
+                    repoType <- assembly.GetTypes() |> Seq.find (fun t -> t.BaseType = baseType)
+
+                    repo <- (Activator.CreateInstance(repoType, [| manager |]) :?> BaseRepository<'TEntity, 'TDTO, 'TKey>)
+                with
+                | :? KeyNotFoundException -> assembly <- null
+
+        if (assembly = null) then
+            repo <- null
+
+        repo
+
+    static member CreateGenericCRUDRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(manager : BaseUnitOfWork) =
+        let baseType = typedefof<BaseCRUDRepository<'TEntity, 'TDTO, 'TKey>>
+        
+        let mutable assembly = Assembly.GetExecutingAssembly()
+        let mutable repo : BaseRepository<'TEntity, 'TDTO, 'TKey> = null
+        let mutable repoType : Type = null
+
+        if (assembly <> null) then
+            try
+                repoType <- assembly.GetTypes() |> Seq.find (fun t -> t.BaseType = baseType)
+
+                repo <- (Activator.CreateInstance(repoType, [| manager |]) :?> BaseRepository<'TEntity, 'TDTO, 'TKey>)
+            with
+            | :? KeyNotFoundException -> assembly <- null
+
+        if (assembly = null) then
+            assembly <- Assembly.GetEntryAssembly()
+
+            if (assembly <> null) then
+                try
+                    repoType <- assembly.GetTypes() |> Seq.find (fun t -> t.BaseType = baseType)
+
+                    repo <- (Activator.CreateInstance(repoType, [| manager |]) :?> BaseRepository<'TEntity, 'TDTO, 'TKey>)
+                with
+                | :? KeyNotFoundException -> assembly <- null
+
+        if (assembly = null) then
+            assembly <- Assembly.GetCallingAssembly()
+            if (assembly <> null) then
+                try
+                    repoType <- assembly.GetTypes() |> Seq.find (fun t -> t.BaseType = baseType)
+
+                    repo <- (Activator.CreateInstance(repoType, [| manager |]) :?> BaseRepository<'TEntity, 'TDTO, 'TKey>)
+                with
+                | :? KeyNotFoundException -> assembly <- null
+
+        if (assembly = null) then
+            repo <- null
+
+        repo
+
+and [<AllowNullLiteral>] BaseCRUDRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(manager) = 
     inherit BaseRepository<'TEntity, 'TDTO, 'TKey>(manager)
     abstract Insert : 'TDTO -> unit
     override this.Insert(dto) = this.Set().Add(this.EntityBuilder().Build(dto)) |> ignore
