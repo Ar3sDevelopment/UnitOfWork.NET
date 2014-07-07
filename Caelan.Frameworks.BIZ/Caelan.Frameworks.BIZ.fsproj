@@ -72,7 +72,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Caelan.Frameworks.Common">
-      <HintPath>..\packages\Caelan.Frameworks.Common.2.0.13-a\lib\Caelan.Frameworks.Common.dll</HintPath>
+      <HintPath>..\packages\Caelan.Frameworks.Common.2.0.14-a\lib\Caelan.Frameworks.Common.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Caelan.Frameworks.DAL">
