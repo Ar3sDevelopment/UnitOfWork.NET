@@ -31,7 +31,7 @@ and BaseDTOBuilder<'TSource, 'TDestination when 'TSource :> IEntity and 'TDestin
     override this.BuildFull(source) = 
         match source with
         | null -> Unchecked.defaultof<'TDestination>
-        | _ ->
+        | _ -> 
             let dest = ref Unchecked.defaultof<'TDestination>
             if (box dest = null) then dest := Activator.CreateInstance<'TDestination>()
             this.BuildFull(source, dest)
@@ -41,30 +41,52 @@ and BaseDTOBuilder<'TSource, 'TDestination when 'TSource :> IEntity and 'TDestin
     override this.BuildFull(source, destination) = this.Build(source, destination)
     abstract BuildFullList : seq<'TSource> -> seq<'TDestination>
     override this.BuildFullList(sourceList) = sourceList |> Seq.map (fun t -> this.BuildFull(t))
-
     member this.BuildFullAsync(source) = async { return this.BuildFull(source) } |> Async.StartAsTask
-    member this.BuildFullAsync(source, destination) = async { return this.BuildFull(source, ref destination) } |> Async.StartAsTask
+    member this.BuildFullAsync(source, destination) = 
+        async { return this.BuildFull(source, ref destination) } |> Async.StartAsTask
     member this.BuildFullListAsync(source) = async { return this.BuildFullList(source) } |> Async.StartAsTask
     
     override this.AfterBuild(source, destination) = 
         base.AfterBuild(source, destination)
         let destType = typedefof<'TDestination>
         let sourceType = typedefof<'TSource>
-        let properties = destType.GetProperties(BindingFlags.Public ||| BindingFlags.Instance) |> Seq.filter (fun t -> (t.PropertyType.IsPrimitive || t.PropertyType.IsValueType || t.PropertyType.Equals(typedefof<string>)) = false && t.PropertyType.IsEnumerableType() = false)
+        let properties = 
+            destType.GetProperties(BindingFlags.Public ||| BindingFlags.Instance) 
+            |> Seq.filter 
+                   (fun t -> 
+                   (t.PropertyType.IsPrimitive || t.PropertyType.IsValueType || t.PropertyType.Equals(typedefof<string>)) = false 
+                   && t.PropertyType.IsEnumerableType() = false)
         for prop in properties do
-            if Mapper.FindTypeMapFor<'TSource, 'TDestination>().GetPropertyMaps().Any(fun t -> t.IsIgnored() && t.DestinationProperty.Name = prop.Name) = false then 
+            if Mapper.FindTypeMapFor<'TSource, 'TDestination>().GetPropertyMaps()
+                   .Any(fun t -> t.IsIgnored() && t.DestinationProperty.Name = prop.Name) = false then 
                 let sourceProp = sourceType.GetProperty(prop.Name, BindingFlags.Public ||| BindingFlags.Instance)
                 if sourceProp <> null then 
-                    if sourceProp.PropertyType.GetInterfaces().Contains(typedefof<IEntity>) && prop.PropertyType.GetInterfaces().Contains(typedefof<IDTO>) then 
-                        let builderGenerator = (typedefof<GenericBusinessBuilder>).GetMethod("GenericDTOBuilder", BindingFlags.Public ||| BindingFlags.Static).MakeGenericMethod(sourceProp.PropertyType, prop.PropertyType)
+                    if sourceProp.PropertyType.GetInterfaces().Contains(typedefof<IEntity>) 
+                       && prop.PropertyType.GetInterfaces().Contains(typedefof<IDTO>) then 
+                        let builderGenerator = 
+                            (typedefof<GenericBusinessBuilder>)
+                                .GetMethod("GenericDTOBuilder", BindingFlags.Public ||| BindingFlags.Static)
+                                .MakeGenericMethod(sourceProp.PropertyType, prop.PropertyType)
                         let builder = builderGenerator.Invoke(null, null)
-                        let buildMethod =  builder.GetType().GetMethods(BindingFlags.Public ||| BindingFlags.Instance).Single(fun t -> t.GetParameters().Count() = 1 && t.Name = "Build")
-                        prop.SetValue(destination, buildMethod.Invoke(builder, [| sourceProp.GetValue(source, null) |]), null)
+                        let buildMethod = 
+                            builder.GetType().GetMethods(BindingFlags.Public ||| BindingFlags.Instance)
+                                   .Single(fun t -> t.GetParameters().Count() = 1 && t.Name = "Build")
+                        let sourceValue = sourceProp.GetValue(source, null)
+                        if (sourceValue <> null) then 
+                            let destValue = buildMethod.Invoke(builder, [| sourceValue |])
+                            prop.SetValue(!destination, destValue)
                     else 
-                        let builderGenerator = (typedefof<GenericBuilder>).GetMethod("Create", BindingFlags.Public ||| BindingFlags.Static).MakeGenericMethod(sourceProp.PropertyType, prop.PropertyType)
+                        let builderGenerator = 
+                            (typedefof<GenericBuilder>).GetMethod("Create", BindingFlags.Public ||| BindingFlags.Static)
+                                .MakeGenericMethod(sourceProp.PropertyType, prop.PropertyType)
                         let builder = builderGenerator.Invoke(null, null)
-                        let buildMethod = builder.GetType().GetMethods(BindingFlags.Public ||| BindingFlags.Instance).Single(fun t -> t.GetParameters().Count() = 1 && t.Name = "Build")
-                        prop.SetValue(destination, buildMethod.Invoke(builder, [| sourceProp.GetValue(source, null) |]), null)
+                        let buildMethod = 
+                            builder.GetType().GetMethods(BindingFlags.Public ||| BindingFlags.Instance)
+                                   .Single(fun t -> t.GetParameters().Count() = 1 && t.Name = "Build")
+                        let sourceValue = sourceProp.GetValue(source, null)
+                        if (sourceValue <> null) then 
+                            let destValue = buildMethod.Invoke(builder, [| sourceValue |])
+                            prop.SetValue(!destination, destValue)
     
     override this.AddMappingConfigurations(mappingExpression) = 
         base.AddMappingConfigurations(mappingExpression)
@@ -85,10 +107,6 @@ type BaseRepository(manager) =
 
 and [<AbstractClass>] BaseRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(manager) = 
     inherit BaseRepository(manager)
-    [<DefaultValue>] val mutable private dbSetFunc : Func<DbContext, DbSet<'TEntity>>
-    member this.DbSetFunc 
-        with set (value) = this.dbSetFunc <- value
-    member internal this.DbSetFuncGetter() = this.dbSetFunc
     abstract Set : unit -> DbSet<'TEntity>
     override this.Set() = this.GetUnitOfWork().GetDbSet(this)
     abstract All : unit -> IQueryable<'TEntity>
@@ -101,6 +119,7 @@ and [<AbstractClass>] BaseRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquat
         | _ -> this.Set().Where(whereExpr)
     
     abstract All : int * int * seq<Sort> * Filter * Expression<Func<'TEntity, bool>> -> DataSourceResult<'TDTO>
+    
     override this.All(take, skip, sort, filter, whereFunc) = 
         let queryResult = this.All(whereFunc).OrderBy(fun t -> t.ID).ToDataSourceResult(take, skip, sort, filter)
         let result = DataSourceResult<'TDTO>()
@@ -109,6 +128,7 @@ and [<AbstractClass>] BaseRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquat
         result
     
     abstract AllFull : int * int * seq<Sort> * Filter * Expression<Func<'TEntity, bool>> -> DataSourceResult<'TDTO>
+    
     override this.AllFull(take, skip, sort, filter, whereFunc) = 
         let queryResult = this.All(whereFunc).OrderBy(fun t -> t.ID).ToDataSourceResult(take, skip, sort, filter)
         let result = DataSourceResult<'TDTO>()
@@ -121,24 +141,30 @@ and [<AbstractClass>] BaseRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquat
     abstract EntityBuilder : unit -> BaseEntityBuilder<'TDTO, 'TEntity>
     override this.EntityBuilder() = GenericBusinessBuilder.GenericEntityBuilder<'TDTO, 'TEntity>()
     abstract Single : 'TKey -> 'TDTO
+    
     override this.Single(id) = 
-        let item = query {
-            for item in this.Set() do
-            where (item.ID.Equals(id))
-            headOrDefault
-        }
+        let item = 
+            query { 
+                for item in this.Set() do
+                    where (item.ID.Equals(id))
+                    headOrDefault
+            }
         this.DTOBuilder().BuildFull(item)
-
-    member this.AllAsync(take, skip, sort, filter, whereFunc) = async { return this.All(take, skip, sort, filter, whereFunc) } |> Async.StartAsTask
+    
+    member this.AllAsync(take, skip, sort, filter, whereFunc) = 
+        async { return this.All(take, skip, sort, filter, whereFunc) } |> Async.StartAsTask
     member this.SingleAsync(id) = async { return this.Single(id) } |> Async.StartAsTask
 
 and [<AbstractClass>] BaseUnitOfWorkManager(uow : IUnitOfWork) = 
     let unitOfWork = uow
     member this.GetDbSet<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(repository : BaseRepository<'TEntity, 'TDTO, 'TKey>) = 
-        repository.DbSetFuncGetter().Invoke(uow.Context())
+        uow.Context().Set<'TEntity>()
     member this.SaveChanges() = uow.Context().SaveChanges()
     member this.SaveChangesAsync() = async { return! uow.Context().SaveChangesAsync() |> Async.AwaitTask }
     member this.Entry<'TEntity>(entity : 'TEntity) = uow.Context().Entry(entity)
+    member this.Dispose() = ()
+    interface IDisposable with
+        member this.Dispose() = this.Dispose()
 
 [<AbstractClass>]
 type BaseCRUDRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(manager) = 
@@ -148,11 +174,12 @@ type BaseCRUDRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> a
     abstract Update : 'TDTO -> unit
     
     override this.Update(dto) = 
-        let entity = query {
-            for item in this.Set() do
-            where (item.ID.Equals(dto.ID))
-            headOrDefault
-        }
+        let entity = 
+            query { 
+                for item in this.Set() do
+                    where (item.ID.Equals(dto.ID))
+                    headOrDefault
+            }
         
         let newEntity : ref<'TEntity> = ref null
         this.EntityBuilder().Build(dto, newEntity)
@@ -161,16 +188,16 @@ type BaseCRUDRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> a
     abstract Delete : 'TDTO -> unit
     
     override this.Delete(dto : 'TDTO) = 
-        let entity = query {
-            for item in this.Set() do
-            where (item.ID.Equals(dto.ID))
-            headOrDefault
-        }
+        let entity = 
+            query { 
+                for item in this.Set() do
+                    where (item.ID.Equals(dto.ID))
+                    headOrDefault
+            }
         this.Set().Remove(entity) |> ignore
     
     abstract Delete : 'TKey -> unit
     override this.Delete(id) = this.Delete(this.Single(id))
-
     member this.InsertAsync(dto) = async { this.Insert(dto) } |> Async.StartAsTask
     member this.UpdateAsync(dto) = async { this.Update(dto) } |> Async.StartAsTask
     member this.DeleteAsync(dto : 'TDTO) = async { this.Delete(dto) } |> Async.StartAsTask
