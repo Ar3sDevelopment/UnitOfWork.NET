@@ -109,6 +109,12 @@ and [<AbstractClass>] BaseRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquat
     inherit BaseRepository(manager)
     abstract Set : unit -> DbSet<'TEntity>
     override this.Set() = this.GetUnitOfWork().GetDbSet(this)
+    abstract List : unit -> IEnumerable<'TDTO>
+    override this.List() =
+        this.DTOBuilder().BuildList(this.All())
+    abstract List : whereExpr:Expression<Func<'TEntity, bool>> -> IEnumerable<'TDTO>
+    override this.List(whereExpr) =
+        this.DTOBuilder().BuildList(this.All(whereExpr))
     abstract All : unit -> IQueryable<'TEntity>
     override this.All() = this.Set() :> IQueryable<'TEntity>
     abstract All : whereExpr:Expression<Func<'TEntity, bool>> -> IQueryable<'TEntity>
@@ -142,7 +148,7 @@ and [<AbstractClass>] BaseRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquat
     override this.EntityBuilder() = GenericBusinessBuilder.GenericEntityBuilder<'TDTO, 'TEntity>()
     abstract Single : 'TKey -> 'TDTO
     
-    override this.Single(id) = 
+    override this.Single(id : 'TKey) = 
         let item = 
             query { 
                 for item in this.Set() do
@@ -150,17 +156,25 @@ and [<AbstractClass>] BaseRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquat
                     headOrDefault
             }
         this.DTOBuilder().BuildFull(item)
+
+    abstract Single : Expression<Func<'TEntity, bool>> -> 'TDTO
+    override this.Single(expr : Expression<Func<'TEntity, bool>>) =
+        this.DTOBuilder().BuildFull(this.Set().FirstOrDefault(expr))
     
+    member this.ListAsync(whereExpr) = 
+        async { return this.List(whereExpr) } |> Async.StartAsTask
+    member this.ListAsync() = 
+        async { return this.List() } |> Async.StartAsTask
     member this.AllAsync(take, skip, sort, filter, whereFunc) = 
         async { return this.All(take, skip, sort, filter, whereFunc) } |> Async.StartAsTask
-    member this.SingleAsync(id) = async { return this.Single(id) } |> Async.StartAsTask
+    member this.SingleAsync(id : 'TKey) = async { return this.Single(id) } |> Async.StartAsTask
+    member this.SingleAsync(expr : Expression<Func<'TEntity, bool>>) = async { return this.Single(expr) } |> Async.StartAsTask
 
 and [<AbstractClass>] BaseUnitOfWorkManager(uow : IUnitOfWork) = 
     let unitOfWork = uow
-    member this.GetDbSet<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(repository : BaseRepository<'TEntity, 'TDTO, 'TKey>) = 
-        uow.Context().Set<'TEntity>()
+    member internal this.GetDbSet<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(repository : BaseRepository<'TEntity, 'TDTO, 'TKey>) = uow.Context().Set<'TEntity>()
     member this.SaveChanges() = uow.Context().SaveChanges()
-    member this.SaveChangesAsync() = async { return! uow.Context().SaveChangesAsync() |> Async.AwaitTask }
+    member this.SaveChangesAsync() = async { return! uow.Context().SaveChangesAsync() |> Async.AwaitTask } |> Async.StartAsTask
     member this.Entry<'TEntity>(entity : 'TEntity) = uow.Context().Entry(entity)
     member this.Dispose() = ()
     interface IDisposable with
@@ -197,7 +211,7 @@ type BaseCRUDRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> a
         this.Set().Remove(entity) |> ignore
     
     abstract Delete : 'TKey -> unit
-    override this.Delete(id) = this.Delete(this.Single(id))
+    override this.Delete(id : 'TKey) = this.Delete(this.Single(id))
     member this.InsertAsync(dto) = async { this.Insert(dto) } |> Async.StartAsTask
     member this.UpdateAsync(dto) = async { this.Update(dto) } |> Async.StartAsTask
     member this.DeleteAsync(dto : 'TDTO) = async { this.Delete(dto) } |> Async.StartAsTask
