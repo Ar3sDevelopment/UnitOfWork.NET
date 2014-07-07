@@ -13,15 +13,3 @@
         abstract member ID : 'TKey with get, set
 
     type IBaseRepository = interface end
-
-    type IInsertRepository<'TDTO when 'TDTO :> IDTO> =
-        abstract member Insert : dto : 'TDTO -> unit
-
-    type IUpdateRepository<'TDTO when 'TDTO :> IDTO> =
-        abstract member Update : dto : 'TDTO -> unit
-
-    type IDeleteRepository<'TDTO when 'TDTO :> IDTO> =
-        abstract member Delete : dto : 'TDTO -> unit
-
-    type IUnitOfWork =
-        abstract member Context : unit -> DbContext

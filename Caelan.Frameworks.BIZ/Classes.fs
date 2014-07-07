@@ -108,7 +108,7 @@ type BaseRepository(manager) =
 and [<AbstractClass>] BaseRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(manager) = 
     inherit BaseRepository(manager)
     abstract Set : unit -> DbSet<'TEntity>
-    override this.Set() = this.GetUnitOfWork().GetDbSet(this)
+    override this.Set() = this.GetUnitOfWork().DbSet(this)
     abstract List : unit -> IEnumerable<'TDTO>
     override this.List() =
         this.DTOBuilder().BuildList(this.All())
@@ -170,15 +170,23 @@ and [<AbstractClass>] BaseRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquat
     member this.SingleAsync(id : 'TKey) = async { return this.Single(id) } |> Async.StartAsTask
     member this.SingleAsync(expr : Expression<Func<'TEntity, bool>>) = async { return this.Single(expr) } |> Async.StartAsTask
 
-and [<AbstractClass>] BaseUnitOfWorkManager(uow : IUnitOfWork) = 
-    let unitOfWork = uow
-    member internal this.GetDbSet<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(repository : BaseRepository<'TEntity, 'TDTO, 'TKey>) = uow.Context().Set<'TEntity>()
-    member this.SaveChanges() = uow.Context().SaveChanges()
-    member this.SaveChangesAsync() = async { return! uow.Context().SaveChangesAsync() |> Async.AwaitTask } |> Async.StartAsTask
-    member this.Entry<'TEntity>(entity : 'TEntity) = uow.Context().Entry(entity)
+and [<AbstractClass>] BaseUnitOfWork internal (context : DbContext) = 
+    member internal this.DbSet<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(repository : BaseRepository<'TEntity, 'TDTO, 'TKey>) = context.Set<'TEntity>()
+    member this.SaveChanges() = context.SaveChanges()
+    member this.SaveChangesAsync() = async { return! context.SaveChangesAsync() |> Async.AwaitTask } |> Async.StartAsTask
+    member this.Entry<'TEntity>(entity : 'TEntity) = context.Entry(entity)
+    member this.Repository<'TRepository when 'TRepository :> BaseRepository>() =
+        try
+            let repositoryProp = this.GetType().GetProperties(BindingFlags.Instance) |> Seq.find (fun t -> t.PropertyType = typedefof<'TRepository>)
+            repositoryProp.GetValue(this) :?> 'TRepository
+        with
+        | :? KeyNotFoundException ->
+            Activator.CreateInstance(typedefof<'TRepository>, [| this |]) :?> 'TRepository
     member this.Dispose() = ()
     interface IDisposable with
         member this.Dispose() = this.Dispose()
+and [<AbstractClass>] BaseUnitOfWork<'TContext when 'TContext :> DbContext>() =
+    inherit BaseUnitOfWork(Activator.CreateInstance<'TContext>())
 
 [<AbstractClass>]
 type BaseCRUDRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(manager) = 
