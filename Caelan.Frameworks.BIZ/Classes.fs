@@ -110,6 +110,16 @@ and [<AbstractClass>] BaseUnitOfWork internal (context : DbContext) =
             repositoryProp.GetValue(this) :?> BaseRepository<'TEntity, 'TDTO, 'TKey>
         with :? KeyNotFoundException -> 
             Activator.CreateInstance(repoType.MakeGenericType(typedefof<'TEntity>, typedefof<'TDTO>, typedefof<'TKey>), this) :?> BaseRepository<'TEntity, 'TDTO, 'TKey>
+
+    member this.CRUDRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>() = 
+        let repoType = typeof<BaseCRUDRepository<'TEntity, 'TDTO, 'TKey>>
+        try 
+            let repositoryProp = 
+                this.GetType().GetProperties(BindingFlags.Instance) 
+                |> Seq.find (fun t -> t.PropertyType.BaseType = repoType)
+            repositoryProp.GetValue(this) :?> BaseCRUDRepository<'TEntity, 'TDTO, 'TKey>
+        with :? KeyNotFoundException -> 
+            Activator.CreateInstance(repoType.MakeGenericType(typedefof<'TEntity>, typedefof<'TDTO>, typedefof<'TKey>), this) :?> BaseCRUDRepository<'TEntity, 'TDTO, 'TKey>
     
     member this.Dispose() = ()
     interface IDisposable with
@@ -126,8 +136,8 @@ and [<Sealed>][<AbstractClass>] GenericRepository() =
         let mutable repo =
             (match baseType.IsGenericType with
              | true ->
-                   Activator.CreateInstance(baseType.MakeGenericType(typedefof<'TEntity>, typedefof<'TDTO>, typedefof<'TKey>))
-             | _ -> Activator.CreateInstance(baseType)) :?> BaseRepository<'TEntity, 'TDTO, 'TKey>
+                   Activator.CreateInstance(baseType.MakeGenericType(typedefof<'TEntity>, typedefof<'TDTO>, typedefof<'TKey>), manager)
+             | _ -> Activator.CreateInstance(baseType, manager)) :?> BaseRepository<'TEntity, 'TDTO, 'TKey>
         let mutable repoType : Type = null
         if (assembly <> null) then 
             try 
