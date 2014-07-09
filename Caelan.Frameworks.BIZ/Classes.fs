@@ -69,7 +69,7 @@ and [<AllowNullLiteral>] BaseRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEq
         let item = 
             query { 
                 for item in this.Set() do
-                    where (item.ID.Equals(id))
+                    where (item.ID = id)
                     headOrDefault
             }
         this.DTOBuilder().BuildFull(item)
@@ -128,23 +128,24 @@ and [<Sealed>][<AbstractClass>] GenericRepository() =
         if (assembly <> null) then 
             try 
                 repoType <- assembly.GetTypes() |> Seq.find (fun t -> t.BaseType = baseType)
-                repo <- (Activator.CreateInstance(repoType, [| manager |]) :?> BaseRepository<'TEntity, 'TDTO, 'TKey>)
+                repo <- Activator.CreateInstance(repoType, [| manager |]) :?> BaseRepository<'TEntity, 'TDTO, 'TKey>
             with :? KeyNotFoundException -> assembly <- null
         if (assembly = null) then 
             assembly <- Assembly.GetEntryAssembly()
             if (assembly <> null) then 
                 try 
                     repoType <- assembly.GetTypes() |> Seq.find (fun t -> t.BaseType = baseType)
-                    repo <- (Activator.CreateInstance(repoType, [| manager |]) :?> BaseRepository<'TEntity, 'TDTO, 'TKey>)
+                    repo <- Activator.CreateInstance(repoType, [| manager |]) :?> BaseRepository<'TEntity, 'TDTO, 'TKey>
                 with :? KeyNotFoundException -> assembly <- null
         if (assembly = null) then 
             assembly <- Assembly.GetCallingAssembly()
             if (assembly <> null) then 
                 try 
                     repoType <- assembly.GetTypes() |> Seq.find (fun t -> t.BaseType = baseType)
-                    repo <- (Activator.CreateInstance(repoType, [| manager |]) :?> BaseRepository<'TEntity, 'TDTO, 'TKey>)
+                    repo <- Activator.CreateInstance(repoType, [| manager |]) :?> BaseRepository<'TEntity, 'TDTO, 'TKey>
                 with :? KeyNotFoundException -> assembly <- null
-        if (assembly = null) then repo <- null
+        if (assembly = null) then 
+            repo <- Activator.CreateInstance(baseType, [| manager |]) :?> BaseRepository<'TEntity, 'TDTO, 'TKey>
         repo
     
     static member CreateGenericCRUDRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(manager : BaseUnitOfWork) = 
@@ -155,23 +156,24 @@ and [<Sealed>][<AbstractClass>] GenericRepository() =
         if (assembly <> null) then 
             try 
                 repoType <- assembly.GetTypes() |> Seq.find (fun t -> t.BaseType = baseType)
-                repo <- (Activator.CreateInstance(repoType, [| manager |]) :?> BaseRepository<'TEntity, 'TDTO, 'TKey>)
+                repo <- Activator.CreateInstance(repoType, [| manager |]) :?> BaseCRUDRepository<'TEntity, 'TDTO, 'TKey>
             with :? KeyNotFoundException -> assembly <- null
         if (assembly = null) then 
             assembly <- Assembly.GetEntryAssembly()
             if (assembly <> null) then 
                 try 
                     repoType <- assembly.GetTypes() |> Seq.find (fun t -> t.BaseType = baseType)
-                    repo <- (Activator.CreateInstance(repoType, [| manager |]) :?> BaseRepository<'TEntity, 'TDTO, 'TKey>)
+                    repo <- Activator.CreateInstance(repoType, [| manager |]) :?> BaseCRUDRepository<'TEntity, 'TDTO, 'TKey>
                 with :? KeyNotFoundException -> assembly <- null
         if (assembly = null) then 
             assembly <- Assembly.GetCallingAssembly()
             if (assembly <> null) then 
                 try 
                     repoType <- assembly.GetTypes() |> Seq.find (fun t -> t.BaseType = baseType)
-                    repo <- (Activator.CreateInstance(repoType, [| manager |]) :?> BaseRepository<'TEntity, 'TDTO, 'TKey>)
+                    repo <- Activator.CreateInstance(repoType, [| manager |]) :?> BaseCRUDRepository<'TEntity, 'TDTO, 'TKey>
                 with :? KeyNotFoundException -> assembly <- null
-        if (assembly = null) then repo <- null
+        if (assembly = null) then 
+            repo <- Activator.CreateInstance(baseType, [| manager |]) :?> BaseCRUDRepository<'TEntity, 'TDTO, 'TKey>
         repo
 
 and [<AllowNullLiteral>] BaseCRUDRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(manager) = 
@@ -184,7 +186,7 @@ and [<AllowNullLiteral>] BaseCRUDRepository<'TEntity, 'TDTO, 'TKey when 'TKey :>
         let entity = 
             query { 
                 for item in this.Set() do
-                    where (item.ID.Equals(dto.ID))
+                    where (item.ID = dto.ID)
                     headOrDefault
             }
         
@@ -198,7 +200,7 @@ and [<AllowNullLiteral>] BaseCRUDRepository<'TEntity, 'TDTO, 'TKey when 'TKey :>
         let entity = 
             query { 
                 for item in this.Set() do
-                    where (item.ID.Equals(dto.ID))
+                    where (item.ID = dto.ID)
                     headOrDefault
             }
         this.Set().Remove(entity) |> ignore
