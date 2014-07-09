@@ -109,7 +109,7 @@ and [<AbstractClass>] BaseUnitOfWork internal (context : DbContext) =
                 |> Seq.find (fun t -> t.PropertyType.BaseType = repoType)
             repositoryProp.GetValue(this) :?> BaseRepository<'TEntity, 'TDTO, 'TKey>
         with :? KeyNotFoundException -> 
-            Activator.CreateInstance(repoType.MakeGenericType(typedefof<'TEntity>, typedefof<'TDTO>, typedefof<'TKey>)) :?> BaseRepository<'TEntity, 'TDTO, 'TKey>
+            Activator.CreateInstance(repoType.MakeGenericType(typedefof<'TEntity>, typedefof<'TDTO>, typedefof<'TKey>), this) :?> BaseRepository<'TEntity, 'TDTO, 'TKey>
     
     member this.Dispose() = ()
     interface IDisposable with
