@@ -99,7 +99,7 @@ and [<AbstractClass>] BaseUnitOfWork internal (context : DbContext) =
                 this.GetType().GetProperties(BindingFlags.Instance) 
                 |> Seq.find (fun t -> t.PropertyType = typedefof<'TRepository>)
             repositoryProp.GetValue(this) :?> 'TRepository
-        with :? KeyNotFoundException -> Activator.CreateInstance(typedefof<'TRepository>, [| this |]) :?> 'TRepository
+        with :? KeyNotFoundException -> Activator.CreateInstance(typedefof<'TRepository>, this) :?> 'TRepository
     
     member this.Repository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>() = 
         let repoType = typeof<BaseRepository<'TEntity, 'TDTO, 'TKey>>
@@ -109,7 +109,7 @@ and [<AbstractClass>] BaseUnitOfWork internal (context : DbContext) =
                 |> Seq.find (fun t -> t.PropertyType.BaseType = repoType)
             repositoryProp.GetValue(this) :?> BaseRepository<'TEntity, 'TDTO, 'TKey>
         with :? KeyNotFoundException -> 
-            Activator.CreateInstance(repoType, [| this |]) :?> BaseRepository<'TEntity, 'TDTO, 'TKey>
+            Activator.CreateInstance(repoType, this) :?> BaseRepository<'TEntity, 'TDTO, 'TKey>
     
     member this.Dispose() = ()
     interface IDisposable with
@@ -128,52 +128,52 @@ and [<Sealed>][<AbstractClass>] GenericRepository() =
         if (assembly <> null) then 
             try 
                 repoType <- assembly.GetTypes() |> Seq.find (fun t -> t.BaseType = baseType)
-                repo <- Activator.CreateInstance(repoType, [| manager |]) :?> BaseRepository<'TEntity, 'TDTO, 'TKey>
+                repo <- Activator.CreateInstance(repoType, manager) :?> BaseRepository<'TEntity, 'TDTO, 'TKey>
             with :? KeyNotFoundException -> assembly <- null
         if (assembly = null) then 
             assembly <- Assembly.GetEntryAssembly()
             if (assembly <> null) then 
                 try 
                     repoType <- assembly.GetTypes() |> Seq.find (fun t -> t.BaseType = baseType)
-                    repo <- Activator.CreateInstance(repoType, [| manager |]) :?> BaseRepository<'TEntity, 'TDTO, 'TKey>
+                    repo <- Activator.CreateInstance(repoType, manager) :?> BaseRepository<'TEntity, 'TDTO, 'TKey>
                 with :? KeyNotFoundException -> assembly <- null
         if (assembly = null) then 
             assembly <- Assembly.GetCallingAssembly()
             if (assembly <> null) then 
                 try 
                     repoType <- assembly.GetTypes() |> Seq.find (fun t -> t.BaseType = baseType)
-                    repo <- Activator.CreateInstance(repoType, [| manager |]) :?> BaseRepository<'TEntity, 'TDTO, 'TKey>
+                    repo <- Activator.CreateInstance(repoType, manager) :?> BaseRepository<'TEntity, 'TDTO, 'TKey>
                 with :? KeyNotFoundException -> assembly <- null
         if (assembly = null) then 
-            repo <- Activator.CreateInstance(baseType, [| manager |]) :?> BaseRepository<'TEntity, 'TDTO, 'TKey>
+            repo <- Activator.CreateInstance(baseType, manager) :?> BaseRepository<'TEntity, 'TDTO, 'TKey>
         repo
     
     static member CreateGenericCRUDRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(manager : BaseUnitOfWork) = 
         let baseType = typedefof<BaseCRUDRepository<'TEntity, 'TDTO, 'TKey>>
         let mutable assembly = Assembly.GetExecutingAssembly()
-        let mutable repo : BaseRepository<'TEntity, 'TDTO, 'TKey> = null
+        let mutable repo : BaseCRUDRepository<'TEntity, 'TDTO, 'TKey> = null
         let mutable repoType : Type = null
         if (assembly <> null) then 
             try 
                 repoType <- assembly.GetTypes() |> Seq.find (fun t -> t.BaseType = baseType)
-                repo <- Activator.CreateInstance(repoType, [| manager |]) :?> BaseCRUDRepository<'TEntity, 'TDTO, 'TKey>
+                repo <- Activator.CreateInstance(repoType, manager) :?> BaseCRUDRepository<'TEntity, 'TDTO, 'TKey>
             with :? KeyNotFoundException -> assembly <- null
         if (assembly = null) then 
             assembly <- Assembly.GetEntryAssembly()
             if (assembly <> null) then 
                 try 
                     repoType <- assembly.GetTypes() |> Seq.find (fun t -> t.BaseType = baseType)
-                    repo <- Activator.CreateInstance(repoType, [| manager |]) :?> BaseCRUDRepository<'TEntity, 'TDTO, 'TKey>
+                    repo <- Activator.CreateInstance(repoType, manager) :?> BaseCRUDRepository<'TEntity, 'TDTO, 'TKey>
                 with :? KeyNotFoundException -> assembly <- null
         if (assembly = null) then 
             assembly <- Assembly.GetCallingAssembly()
             if (assembly <> null) then 
                 try 
                     repoType <- assembly.GetTypes() |> Seq.find (fun t -> t.BaseType = baseType)
-                    repo <- Activator.CreateInstance(repoType, [| manager |]) :?> BaseCRUDRepository<'TEntity, 'TDTO, 'TKey>
+                    repo <- Activator.CreateInstance(repoType, manager) :?> BaseCRUDRepository<'TEntity, 'TDTO, 'TKey>
                 with :? KeyNotFoundException -> assembly <- null
         if (assembly = null) then 
-            repo <- Activator.CreateInstance(baseType, [| manager |]) :?> BaseCRUDRepository<'TEntity, 'TDTO, 'TKey>
+            repo <- Activator.CreateInstance(baseType, manager) :?> BaseCRUDRepository<'TEntity, 'TDTO, 'TKey>
         repo
 
 and [<AllowNullLiteral>] BaseCRUDRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(manager) = 
