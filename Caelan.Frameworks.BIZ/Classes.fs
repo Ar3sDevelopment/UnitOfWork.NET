@@ -109,8 +109,12 @@ and [<AbstractClass>] BaseUnitOfWork internal (context : DbContext) =
                 |> Seq.find (fun t -> t.PropertyType.BaseType = repoType)
             repositoryProp.GetValue(this) :?> BaseRepository<'TEntity, 'TDTO, 'TKey>
         with :? KeyNotFoundException -> 
-            Activator.CreateInstance(repoType.MakeGenericType(typedefof<'TEntity>, typedefof<'TDTO>, typedefof<'TKey>), this) :?> BaseRepository<'TEntity, 'TDTO, 'TKey>
-
+            (match repoType.IsGenericType with
+             | true -> 
+                 Activator.CreateInstance
+                     (repoType.MakeGenericType(typedefof<'TEntity>, typedefof<'TDTO>, typedefof<'TKey>), this)
+             | _ -> Activator.CreateInstance(repoType, this)) :?> BaseRepository<'TEntity, 'TDTO, 'TKey>
+    
     member this.CRUDRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>() = 
         let repoType = typeof<BaseCRUDRepository<'TEntity, 'TDTO, 'TKey>>
         try 
@@ -119,7 +123,11 @@ and [<AbstractClass>] BaseUnitOfWork internal (context : DbContext) =
                 |> Seq.find (fun t -> t.PropertyType.BaseType = repoType)
             repositoryProp.GetValue(this) :?> BaseCRUDRepository<'TEntity, 'TDTO, 'TKey>
         with :? KeyNotFoundException -> 
-            Activator.CreateInstance(repoType.MakeGenericType(typedefof<'TEntity>, typedefof<'TDTO>, typedefof<'TKey>), this) :?> BaseCRUDRepository<'TEntity, 'TDTO, 'TKey>
+            (match repoType.IsGenericType with
+             | true -> 
+                 Activator.CreateInstance
+                     (repoType.MakeGenericType(typedefof<'TEntity>, typedefof<'TDTO>, typedefof<'TKey>), this)
+             | _ -> Activator.CreateInstance(repoType, this)) :?> BaseCRUDRepository<'TEntity, 'TDTO, 'TKey>
     
     member this.Dispose() = ()
     interface IDisposable with
@@ -128,16 +136,19 @@ and [<AbstractClass>] BaseUnitOfWork internal (context : DbContext) =
 and [<AbstractClass>] BaseUnitOfWork<'TContext when 'TContext :> DbContext>() = 
     inherit BaseUnitOfWork(Activator.CreateInstance<'TContext>())
 
-and [<Sealed>][<AbstractClass>] GenericRepository() = 
+and [<Sealed; AbstractClass>] GenericRepository() = 
     
     static member CreateGenericRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(manager : BaseUnitOfWork) = 
         let baseType = typedefof<BaseRepository<'TEntity, 'TDTO, 'TKey>>
         let mutable assembly = Assembly.GetExecutingAssembly()
-        let mutable repo =
+        
+        let mutable repo = 
             (match baseType.IsGenericType with
-             | true ->
-                   Activator.CreateInstance(baseType.MakeGenericType(typedefof<'TEntity>, typedefof<'TDTO>, typedefof<'TKey>), manager)
+             | true -> 
+                 Activator.CreateInstance
+                     (baseType.MakeGenericType(typedefof<'TEntity>, typedefof<'TDTO>, typedefof<'TKey>), manager)
              | _ -> Activator.CreateInstance(baseType, manager)) :?> BaseRepository<'TEntity, 'TDTO, 'TKey>
+        
         let mutable repoType : Type = null
         if (assembly <> null) then 
             try 
@@ -158,17 +169,19 @@ and [<Sealed>][<AbstractClass>] GenericRepository() =
                     repoType <- assembly.GetTypes() |> Seq.find (fun t -> t.BaseType = baseType)
                     repo <- Activator.CreateInstance(repoType, manager) :?> BaseRepository<'TEntity, 'TDTO, 'TKey>
                 with :? KeyNotFoundException -> assembly <- null
-
         repo
     
     static member CreateGenericCRUDRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(manager : BaseUnitOfWork) = 
         let baseType = typedefof<BaseCRUDRepository<'TEntity, 'TDTO, 'TKey>>
         let mutable assembly = Assembly.GetExecutingAssembly()
-        let mutable repo =
+        
+        let mutable repo = 
             (match baseType.IsGenericType with
-             | true ->
-                   Activator.CreateInstance(baseType.MakeGenericType(typedefof<'TEntity>, typedefof<'TDTO>, typedefof<'TKey>))
+             | true -> 
+                 Activator.CreateInstance
+                     (baseType.MakeGenericType(typedefof<'TEntity>, typedefof<'TDTO>, typedefof<'TKey>))
              | _ -> Activator.CreateInstance(baseType)) :?> BaseCRUDRepository<'TEntity, 'TDTO, 'TKey>
+        
         let mutable repoType : Type = null
         if (assembly <> null) then 
             try 
@@ -189,7 +202,6 @@ and [<Sealed>][<AbstractClass>] GenericRepository() =
                     repoType <- assembly.GetTypes() |> Seq.find (fun t -> t.BaseType = baseType)
                     repo <- Activator.CreateInstance(repoType, manager) :?> BaseCRUDRepository<'TEntity, 'TDTO, 'TKey>
                 with :? KeyNotFoundException -> assembly <- null
-
         repo
 
 and [<AllowNullLiteral>] BaseCRUDRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(manager) = 
