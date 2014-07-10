@@ -72,6 +72,7 @@ and [<AllowNullLiteral>] BaseRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEq
                     where (item.ID = id)
                     headOrDefault
             }
+
         this.DTOBuilder().BuildFull(item)
     
     abstract Single : Expression<Func<'TEntity, bool>> -> 'TDTO
@@ -109,7 +110,7 @@ and [<AbstractClass>] BaseUnitOfWork internal (context : DbContext) =
                 |> Seq.find (fun t -> t.PropertyType.BaseType = repoType)
             repositoryProp.GetValue(this) :?> BaseRepository<'TEntity, 'TDTO, 'TKey>
         with :? KeyNotFoundException -> 
-            (match repoType.IsGenericType with
+            (match repoType.IsGenericTypeDefinition with
              | true -> 
                  Activator.CreateInstance
                      (repoType.MakeGenericType(typedefof<'TEntity>, typedefof<'TDTO>, typedefof<'TKey>), this)
@@ -123,7 +124,7 @@ and [<AbstractClass>] BaseUnitOfWork internal (context : DbContext) =
                 |> Seq.find (fun t -> t.PropertyType.BaseType = repoType)
             repositoryProp.GetValue(this) :?> BaseCRUDRepository<'TEntity, 'TDTO, 'TKey>
         with :? KeyNotFoundException -> 
-            (match repoType.IsGenericType with
+            (match repoType.IsGenericTypeDefinition with
              | true -> 
                  Activator.CreateInstance
                      (repoType.MakeGenericType(typedefof<'TEntity>, typedefof<'TDTO>, typedefof<'TKey>), this)

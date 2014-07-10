@@ -73,11 +73,11 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Caelan.Frameworks.Common">
-      <HintPath>..\packages\Caelan.Frameworks.Common.2.0.19-a\lib\Caelan.Frameworks.Common.dll</HintPath>
+      <HintPath>..\packages\Caelan.Frameworks.Common.2.1.1\lib\Caelan.Frameworks.Common.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Caelan.Frameworks.DAL">
-      <HintPath>..\packages\Caelan.Frameworks.DAL.2.0.5-a\lib\Caelan.Frameworks.DAL.dll</HintPath>
+      <HintPath>..\packages\Caelan.Frameworks.DAL.2.1.0\lib\Caelan.Frameworks.DAL.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="EntityFramework">
