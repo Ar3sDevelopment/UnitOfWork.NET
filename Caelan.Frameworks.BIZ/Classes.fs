@@ -144,7 +144,7 @@ and [<Sealed; AbstractClass>] GenericRepository() =
         let mutable assembly = Assembly.GetExecutingAssembly()
         
         let mutable repo = 
-            (match baseType.IsGenericType with
+            (match baseType.IsGenericTypeDefinition with
              | true -> 
                  Activator.CreateInstance
                      (baseType.MakeGenericType(typedefof<'TEntity>, typedefof<'TDTO>, typedefof<'TKey>), manager)
@@ -177,7 +177,7 @@ and [<Sealed; AbstractClass>] GenericRepository() =
         let mutable assembly = Assembly.GetExecutingAssembly()
         
         let mutable repo = 
-            (match baseType.IsGenericType with
+            (match baseType.IsGenericTypeDefinition with
              | true -> 
                  Activator.CreateInstance
                      (baseType.MakeGenericType(typedefof<'TEntity>, typedefof<'TDTO>, typedefof<'TKey>))
