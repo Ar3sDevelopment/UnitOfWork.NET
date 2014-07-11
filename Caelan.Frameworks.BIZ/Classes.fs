@@ -20,7 +20,7 @@ open Caelan.DynamicLinq.Extensions
 [<AllowNullLiteral>]
 type BaseRepository(manager) = 
     interface IBaseRepository
-    member private this.UnitOfWork : BaseUnitOfWork = manager
+    member private __.UnitOfWork : BaseUnitOfWork = manager
     member this.GetUnitOfWork() = this.UnitOfWork
     member this.GetUnitOfWork<'T when 'T :> BaseUnitOfWork>() = this.UnitOfWork :?> 'T
 
@@ -60,9 +60,9 @@ and [<AllowNullLiteral>] BaseRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEq
         result
     
     abstract DTOBuilder : unit -> BaseDTOBuilder<'TEntity, 'TDTO>
-    override this.DTOBuilder() = GenericBusinessBuilder.GenericDTOBuilder<'TEntity, 'TDTO>()
+    override __.DTOBuilder() = GenericBusinessBuilder.GenericDTOBuilder<'TEntity, 'TDTO>()
     abstract EntityBuilder : unit -> BaseEntityBuilder<'TDTO, 'TEntity>
-    override this.EntityBuilder() = GenericBusinessBuilder.GenericEntityBuilder<'TDTO, 'TEntity>()
+    override __.EntityBuilder() = GenericBusinessBuilder.GenericEntityBuilder<'TDTO, 'TEntity>()
     abstract Single : 'TKey -> 'TDTO
     
     override this.Single(id) = 
@@ -87,12 +87,12 @@ and [<AllowNullLiteral>] BaseRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEq
         async { return this.Single(expr) } |> Async.StartAsTask
 
 and [<AbstractClass>] BaseUnitOfWork internal (context : DbContext) = 
-    member internal this.DbSet<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(repository : BaseRepository<'TEntity, 'TDTO, 'TKey>) = 
+    member internal __.DbSet<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(repository : BaseRepository<'TEntity, 'TDTO, 'TKey>) = 
         context.Set<'TEntity>()
-    member this.SaveChanges() = context.SaveChanges()
-    member this.SaveChangesAsync() = 
+    member __.SaveChanges() = context.SaveChanges()
+    member __.SaveChangesAsync() = 
         async { return! context.SaveChangesAsync() |> Async.AwaitTask } |> Async.StartAsTask
-    member this.Entry<'TEntity>(entity : 'TEntity) = context.Entry(entity)
+    member __.Entry<'TEntity>(entity : 'TEntity) = context.Entry(entity)
     
     member this.Repository<'TRepository when 'TRepository :> BaseRepository>() = 
         try 
@@ -130,7 +130,7 @@ and [<AbstractClass>] BaseUnitOfWork internal (context : DbContext) =
                      (repoType.MakeGenericType(typedefof<'TEntity>, typedefof<'TDTO>, typedefof<'TKey>), this)
              | _ -> Activator.CreateInstance(repoType, this)) :?> BaseCRUDRepository<'TEntity, 'TDTO, 'TKey>
     
-    member this.Dispose() = ()
+    member __.Dispose() = ()
     interface IDisposable with
         member this.Dispose() = this.Dispose()
 
