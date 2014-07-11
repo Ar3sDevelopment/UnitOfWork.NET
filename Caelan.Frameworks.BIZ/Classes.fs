@@ -65,19 +65,19 @@ and [<AllowNullLiteral>] BaseRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEq
     override this.EntityBuilder() = GenericBusinessBuilder.GenericEntityBuilder<'TDTO, 'TEntity>()
     abstract Single : 'TKey -> 'TDTO
     
-    override this.Single(id : 'TKey) = 
+    override this.Single(id) = 
         let item = 
             query { 
                 for item in this.Set() do
                     where (item.ID = id)
                     headOrDefault
             }
-
         this.DTOBuilder().BuildFull(item)
     
+    abstract Single : obj [] -> 'TDTO
+    override this.Single([<ParamArray>] ids) = this.DTOBuilder().BuildFull(this.Set().Find(ids))
     abstract Single : Expression<Func<'TEntity, bool>> -> 'TDTO
-    override this.Single(expr : Expression<Func<'TEntity, bool>>) = 
-        this.DTOBuilder().BuildFull(this.Set().FirstOrDefault(expr))
+    override this.Single(expr) = this.DTOBuilder().BuildFull(this.Set().FirstOrDefault(expr))
     member this.ListAsync(whereExpr) = async { return this.List(whereExpr) } |> Async.StartAsTask
     member this.ListAsync() = async { return this.List() } |> Async.StartAsTask
     member this.AllAsync(take, skip, sort, filter, whereFunc) = 

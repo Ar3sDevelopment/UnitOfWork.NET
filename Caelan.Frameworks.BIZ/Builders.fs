@@ -31,17 +31,20 @@ and BaseDTOBuilder<'TSource, 'TDestination when 'TSource :> IEntity and 'TDestin
             this.BuildFull(source, dest)
             !dest
     
-    abstract BuildFull : 'TSource * 'TDestination ref -> unit
-    override this.BuildFull(source, destination) = this.Build(source, destination)
+    abstract BuildFull : 'TSource * 'TDestination byref -> unit
+    override this.BuildFull(source, destination) = this.Build(source, &destination)
     abstract BuildFullList : seq<'TSource> -> seq<'TDestination>
     override this.BuildFullList(sourceList) = sourceList |> Seq.map (fun t -> this.BuildFull(t))
     member this.BuildFullAsync(source) = async { return this.BuildFull(source) } |> Async.StartAsTask
-    member this.BuildFullAsync(source, destination) = 
-        async { return this.BuildFull(source, ref destination) } |> Async.StartAsTask
+    
+    member this.BuildFullAsync(source, destination : 'TDestination byref) = 
+        let dest = ref destination
+        async { return this.BuildFull(source, dest) } |> Async.StartAsTask
+    
     member this.BuildFullListAsync(source) = async { return this.BuildFullList(source) } |> Async.StartAsTask
     
     override this.AfterBuild(source, destination) = 
-        base.AfterBuild(source, destination)
+        //base.AfterBuild(source, &destination)
         let destType = typedefof<'TDestination>
         let sourceType = typedefof<'TSource>
         let properties = 
@@ -68,7 +71,7 @@ and BaseDTOBuilder<'TSource, 'TDestination when 'TSource :> IEntity and 'TDestin
                         let sourceValue = sourceProp.GetValue(source, null)
                         if (sourceValue <> null) then 
                             let destValue = buildMethod.Invoke(builder, [| sourceValue |])
-                            prop.SetValue(!destination, destValue)
+                            prop.SetValue(destination, destValue)
                     else 
                         let builderGenerator = 
                             (typedefof<GenericBuilder>).GetMethod("Create", BindingFlags.Public ||| BindingFlags.Static)
@@ -80,7 +83,7 @@ and BaseDTOBuilder<'TSource, 'TDestination when 'TSource :> IEntity and 'TDestin
                         let sourceValue = sourceProp.GetValue(source, null)
                         if (sourceValue <> null) then 
                             let destValue = buildMethod.Invoke(builder, [| sourceValue |])
-                            prop.SetValue(!destination, destValue)
+                            prop.SetValue(destination, destValue)
     
     override this.AddMappingConfigurations(mappingExpression) = 
         base.AddMappingConfigurations(mappingExpression)
