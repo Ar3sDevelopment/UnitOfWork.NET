@@ -90,8 +90,7 @@ and [<AbstractClass>] BaseUnitOfWork internal (context : DbContext) =
     member internal __.DbSet<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(repository : BaseRepository<'TEntity, 'TDTO, 'TKey>) = 
         context.Set<'TEntity>()
     member __.SaveChanges() = context.SaveChanges()
-    member __.SaveChangesAsync() = 
-        async { return! context.SaveChangesAsync() |> Async.AwaitTask } |> Async.StartAsTask
+    member __.SaveChangesAsync() = async { return! context.SaveChangesAsync() |> Async.AwaitTask } |> Async.StartAsTask
     member __.Entry<'TEntity>(entity : 'TEntity) = context.Entry(entity)
     
     member this.Repository<'TRepository when 'TRepository :> BaseRepository>() = 
@@ -234,9 +233,12 @@ and [<AllowNullLiteral>] BaseCRUDRepository<'TEntity, 'TDTO, 'TKey when 'TKey :>
             }
         this.Set().Remove(entity) |> ignore
     
+    abstract Delete : obj [] -> unit
+    override this.Delete([<ParamArray>] ids : obj []) = this.Delete(this.Single(ids))
     abstract Delete : 'TKey -> unit
     override this.Delete(id : 'TKey) = this.Delete(this.Single(id))
     member this.InsertAsync(dto) = async { this.Insert(dto) } |> Async.StartAsTask
     member this.UpdateAsync(dto) = async { this.Update(dto) } |> Async.StartAsTask
     member this.DeleteAsync(dto : 'TDTO) = async { this.Delete(dto) } |> Async.StartAsTask
     member this.DeleteAsync(id : 'TKey) = async { this.Delete(id) } |> Async.StartAsTask
+    member this.DeleteAsync(ids : obj []) = async { this.Delete(ids) } |> Async.StartAsTask

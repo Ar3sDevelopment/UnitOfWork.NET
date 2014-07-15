@@ -40,7 +40,7 @@ and BaseDTOBuilder<'TSource, 'TDestination when 'TSource :> IEntity and 'TDestin
         async { return this.BuildFull(source, ref destination) } |> Async.StartAsTask
     member this.BuildFullListAsync(source) = async { return this.BuildFullList(source) } |> Async.StartAsTask
     
-    override this.AfterBuild(source, destination) = 
+    override __.AfterBuild(source, destination) = 
         base.AfterBuild(source, destination)
         let destType = typedefof<'TDestination>
         let sourceType = typedefof<'TSource>
@@ -82,12 +82,12 @@ and BaseDTOBuilder<'TSource, 'TDestination when 'TSource :> IEntity and 'TDestin
                             let destValue = buildMethod.Invoke(builder, [| sourceValue |])
                             prop.SetValue(!destination, destValue)
     
-    override this.AddMappingConfigurations(mappingExpression) = 
+    override __.AddMappingConfigurations(mappingExpression) = 
         base.AddMappingConfigurations(mappingExpression)
         AutoMapperExtender.IgnoreAllLists(mappingExpression)
 
 and BaseEntityBuilder<'TSource, 'TDestination when 'TSource :> IDTO and 'TDestination :> IEntity and 'TSource : equality and 'TSource : null and 'TDestination : equality and 'TDestination : null>() = 
     inherit BaseBuilder<'TSource, 'TDestination>()
-    override this.AddMappingConfigurations(mappingExpression) = 
+    override __.AddMappingConfigurations(mappingExpression) = 
         base.AddMappingConfigurations(mappingExpression)
         AutoMapperExtender.IgnoreAllNonPrimitive(mappingExpression)
