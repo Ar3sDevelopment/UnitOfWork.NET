@@ -24,7 +24,7 @@ type BaseRepository(manager) =
     member this.GetUnitOfWork() = this.UnitOfWork
     member this.GetUnitOfWork<'T when 'T :> BaseUnitOfWork>() = this.UnitOfWork :?> 'T
 
-and [<AllowNullLiteral>] BaseRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(manager) = 
+and [<AllowNullLiteral>] BaseRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(manager) = 
     inherit BaseRepository(manager)
     abstract Set : unit -> DbSet<'TEntity>
     override this.Set() = this.GetUnitOfWork().DbSet(this)
@@ -44,7 +44,7 @@ and [<AllowNullLiteral>] BaseRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEq
     abstract All : int * int * seq<Sort> * Filter * Expression<Func<'TEntity, bool>> -> DataSourceResult<'TDTO>
     
     override this.All(take, skip, sort, filter, whereFunc) = 
-        let queryResult = this.All(whereFunc).OrderBy(fun t -> t.ID).ToDataSourceResult(take, skip, sort, filter)
+        let queryResult = this.All(whereFunc).ToDataSourceResult(take, skip, sort, filter)
         let result = DataSourceResult<'TDTO>()
         result.Data <- this.DTOBuilder().BuildList(queryResult.Data)
         result.Total <- queryResult.Total
@@ -53,7 +53,7 @@ and [<AllowNullLiteral>] BaseRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEq
     abstract AllFull : int * int * seq<Sort> * Filter * Expression<Func<'TEntity, bool>> -> DataSourceResult<'TDTO>
     
     override this.AllFull(take, skip, sort, filter, whereFunc) = 
-        let queryResult = this.All(whereFunc).OrderBy(fun t -> t.ID).ToDataSourceResult(take, skip, sort, filter)
+        let queryResult = this.All(whereFunc).ToDataSourceResult(take, skip, sort, filter)
         let result = DataSourceResult<'TDTO>()
         result.Data <- this.DTOBuilder().BuildFullList(queryResult.Data)
         result.Total <- queryResult.Total
@@ -63,17 +63,6 @@ and [<AllowNullLiteral>] BaseRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEq
     override __.DTOBuilder() = GenericBusinessBuilder.GenericDTOBuilder<'TEntity, 'TDTO>()
     abstract EntityBuilder : unit -> BaseEntityBuilder<'TDTO, 'TEntity>
     override __.EntityBuilder() = GenericBusinessBuilder.GenericEntityBuilder<'TDTO, 'TEntity>()
-    abstract Single : 'TKey -> 'TDTO
-    
-    override this.Single(id) = 
-        let item = 
-            query { 
-                for item in this.Set() do
-                    where (item.ID = id)
-                    headOrDefault
-            }
-        this.DTOBuilder().BuildFull(item)
-    
     abstract Single : obj [] -> 'TDTO
     override this.Single([<ParamArray>] ids) = this.DTOBuilder().BuildFull(this.Set().Find(ids))
     abstract Single : Expression<Func<'TEntity, bool>> -> 'TDTO
@@ -82,12 +71,12 @@ and [<AllowNullLiteral>] BaseRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEq
     member this.ListAsync() = async { return this.List() } |> Async.StartAsTask
     member this.AllAsync(take, skip, sort, filter, whereFunc) = 
         async { return this.All(take, skip, sort, filter, whereFunc) } |> Async.StartAsTask
-    member this.SingleAsync(id : 'TKey) = async { return this.Single(id) } |> Async.StartAsTask
+    member this.SingleAsync([<ParamArray>] id : obj []) = async { return this.Single(id) } |> Async.StartAsTask
     member this.SingleAsync(expr : Expression<Func<'TEntity, bool>>) = 
         async { return this.Single(expr) } |> Async.StartAsTask
 
 and [<AbstractClass>] BaseUnitOfWork internal (context : DbContext) = 
-    member internal __.DbSet<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(repository : BaseRepository<'TEntity, 'TDTO, 'TKey>) = 
+    member internal __.DbSet<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(repository : BaseRepository<'TEntity, 'TDTO, 'TKey>) = 
         context.Set<'TEntity>()
     member __.SaveChanges() = context.SaveChanges()
     member __.SaveChangesAsync() = async { return! context.SaveChangesAsync() |> Async.AwaitTask } |> Async.StartAsTask
@@ -101,7 +90,7 @@ and [<AbstractClass>] BaseUnitOfWork internal (context : DbContext) =
             repositoryProp.GetValue(this) :?> 'TRepository
         with :? KeyNotFoundException -> Activator.CreateInstance(typedefof<'TRepository>, this) :?> 'TRepository
     
-    member this.Repository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>() = 
+    member this.Repository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>() = 
         let repoType = typeof<BaseRepository<'TEntity, 'TDTO, 'TKey>>
         try 
             let repositoryProp = 
@@ -115,7 +104,7 @@ and [<AbstractClass>] BaseUnitOfWork internal (context : DbContext) =
                      (repoType.MakeGenericType(typedefof<'TEntity>, typedefof<'TDTO>, typedefof<'TKey>), this)
              | _ -> Activator.CreateInstance(repoType, this)) :?> BaseRepository<'TEntity, 'TDTO, 'TKey>
     
-    member this.CRUDRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>() = 
+    member this.CRUDRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>() = 
         let repoType = typeof<BaseCRUDRepository<'TEntity, 'TDTO, 'TKey>>
         try 
             let repositoryProp = 
@@ -138,7 +127,7 @@ and [<AbstractClass>] BaseUnitOfWork<'TContext when 'TContext :> DbContext>() =
 
 and [<Sealed; AbstractClass>] GenericRepository() = 
     
-    static member CreateGenericRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(manager : BaseUnitOfWork) = 
+    static member CreateGenericRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(manager : BaseUnitOfWork) = 
         let baseType = typedefof<BaseRepository<'TEntity, 'TDTO, 'TKey>>
         let mutable assembly = Assembly.GetExecutingAssembly()
         
@@ -171,7 +160,7 @@ and [<Sealed; AbstractClass>] GenericRepository() =
                 with :? KeyNotFoundException -> assembly <- null
         repo
     
-    static member CreateGenericCRUDRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(manager : BaseUnitOfWork) = 
+    static member CreateGenericCRUDRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(manager : BaseUnitOfWork) = 
         let baseType = typedefof<BaseCRUDRepository<'TEntity, 'TDTO, 'TKey>>
         let mutable assembly = Assembly.GetExecutingAssembly()
         
@@ -204,20 +193,14 @@ and [<Sealed; AbstractClass>] GenericRepository() =
                 with :? KeyNotFoundException -> assembly <- null
         repo
 
-and [<AllowNullLiteral>] BaseCRUDRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity :> IEntity<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(manager) = 
+and [<AllowNullLiteral>] BaseCRUDRepository<'TEntity, 'TDTO, 'TKey when 'TKey :> IEquatable<'TKey> and 'TEntity : not struct and 'TDTO :> IDTO<'TKey> and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TKey : equality>(manager) = 
     inherit BaseRepository<'TEntity, 'TDTO, 'TKey>(manager)
     abstract Insert : 'TDTO -> unit
     override this.Insert(dto) = this.Set().Add(this.EntityBuilder().Build(dto)) |> ignore
     abstract Update : 'TDTO -> unit
     
     override this.Update(dto) = 
-        let entity = 
-            query { 
-                for item in this.Set() do
-                    where (item.ID = dto.ID)
-                    headOrDefault
-            }
-        
+        let entity = this.Set().Find(dto.ID)
         let newEntity : ref<'TEntity> = ref null
         this.EntityBuilder().Build(dto, newEntity)
         manager.Entry(entity).CurrentValues.SetValues(!newEntity)
@@ -225,20 +208,12 @@ and [<AllowNullLiteral>] BaseCRUDRepository<'TEntity, 'TDTO, 'TKey when 'TKey :>
     abstract Delete : 'TDTO -> unit
     
     override this.Delete(dto : 'TDTO) = 
-        let entity = 
-            query { 
-                for item in this.Set() do
-                    where (item.ID = dto.ID)
-                    headOrDefault
-            }
+        let entity = this.Set().Find(dto.ID)
         this.Set().Remove(entity) |> ignore
     
     abstract Delete : obj [] -> unit
     override this.Delete([<ParamArray>] ids : obj []) = this.Delete(this.Single(ids))
-    abstract Delete : 'TKey -> unit
-    override this.Delete(id : 'TKey) = this.Delete(this.Single(id))
     member this.InsertAsync(dto) = async { this.Insert(dto) } |> Async.StartAsTask
     member this.UpdateAsync(dto) = async { this.Update(dto) } |> Async.StartAsTask
     member this.DeleteAsync(dto : 'TDTO) = async { this.Delete(dto) } |> Async.StartAsTask
-    member this.DeleteAsync(id : 'TKey) = async { this.Delete(id) } |> Async.StartAsTask
     member this.DeleteAsync(ids : obj []) = async { this.Delete(ids) } |> Async.StartAsTask

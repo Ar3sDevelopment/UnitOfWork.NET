@@ -13,12 +13,12 @@ open Caelan.Frameworks.BIZ.Interfaces
 [<Sealed>]
 [<AbstractClass>]
 type GenericBusinessBuilder() = 
-    static member GenericDTOBuilder<'TEntity, 'TDTO when 'TEntity :> IEntity and 'TDTO :> IDTO and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null>() = 
+    static member GenericDTOBuilder<'TEntity, 'TDTO when 'TDTO :> IDTO and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null>() = 
         GenericBuilder.CreateGenericBuilder<BaseDTOBuilder<'TEntity, 'TDTO>, 'TEntity, 'TDTO>()
-    static member GenericEntityBuilder<'TDTO, 'TEntity when 'TEntity :> IEntity and 'TDTO :> IDTO and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null>() = 
+    static member GenericEntityBuilder<'TDTO, 'TEntity when 'TDTO :> IDTO and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null>() = 
         GenericBuilder.CreateGenericBuilder<BaseEntityBuilder<'TDTO, 'TEntity>, 'TDTO, 'TEntity>()
 
-and BaseDTOBuilder<'TSource, 'TDestination when 'TSource :> IEntity and 'TDestination :> IDTO and 'TSource : equality and 'TSource : null and 'TDestination : equality and 'TDestination : null>() = 
+and BaseDTOBuilder<'TSource, 'TDestination when 'TDestination :> IDTO and 'TSource : equality and 'TSource : null and 'TDestination : equality and 'TDestination : null>() = 
     inherit BaseBuilder<'TSource, 'TDestination>()
     abstract BuildFull : 'TSource -> 'TDestination
     
@@ -86,7 +86,7 @@ and BaseDTOBuilder<'TSource, 'TDestination when 'TSource :> IEntity and 'TDestin
         base.AddMappingConfigurations(mappingExpression)
         AutoMapperExtender.IgnoreAllLists(mappingExpression)
 
-and BaseEntityBuilder<'TSource, 'TDestination when 'TSource :> IDTO and 'TDestination :> IEntity and 'TSource : equality and 'TSource : null and 'TDestination : equality and 'TDestination : null>() = 
+and BaseEntityBuilder<'TSource, 'TDestination when 'TSource :> IDTO and 'TSource : equality and 'TSource : null and 'TDestination : equality and 'TDestination : null>() = 
     inherit BaseBuilder<'TSource, 'TDestination>()
     override __.AddMappingConfigurations(mappingExpression) = 
         base.AddMappingConfigurations(mappingExpression)
