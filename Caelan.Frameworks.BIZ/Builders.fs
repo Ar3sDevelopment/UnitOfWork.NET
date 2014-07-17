@@ -13,12 +13,12 @@ open Caelan.Frameworks.BIZ.Interfaces
 [<Sealed>]
 [<AbstractClass>]
 type GenericBusinessBuilder() = 
-    static member GenericDTOBuilder<'TEntity, 'TDTO when 'TDTO :> IDTO and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null>() = 
+    static member GenericDTOBuilder<'TEntity, 'TDTO when 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null>() = 
         GenericBuilder.CreateGenericBuilder<BaseDTOBuilder<'TEntity, 'TDTO>, 'TEntity, 'TDTO>()
-    static member GenericEntityBuilder<'TDTO, 'TEntity when 'TDTO :> IDTO and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null>() = 
+    static member GenericEntityBuilder<'TDTO, 'TEntity when 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null>() = 
         GenericBuilder.CreateGenericBuilder<BaseEntityBuilder<'TDTO, 'TEntity>, 'TDTO, 'TEntity>()
 
-and BaseDTOBuilder<'TSource, 'TDestination when 'TDestination :> IDTO and 'TSource : equality and 'TSource : null and 'TDestination : equality and 'TDestination : null>() = 
+and BaseDTOBuilder<'TSource, 'TDestination when 'TSource : equality and 'TSource : null and 'TDestination : equality and 'TDestination : null>() = 
     inherit BaseBuilder<'TSource, 'TDestination>()
     abstract BuildFull : 'TSource -> 'TDestination
     
@@ -55,23 +55,9 @@ and BaseDTOBuilder<'TSource, 'TDestination when 'TDestination :> IDTO and 'TSour
                    .Any(fun t -> t.IsIgnored() && t.DestinationProperty.Name = prop.Name) = false then 
                 let sourceProp = sourceType.GetProperty(prop.Name, BindingFlags.Public ||| BindingFlags.Instance)
                 if sourceProp <> null then 
-                    if sourceProp.PropertyType.GetInterfaces().Contains(typedefof<IEntity>) 
-                       && prop.PropertyType.GetInterfaces().Contains(typedefof<IDTO>) then 
                         let builderGenerator = 
                             (typedefof<GenericBusinessBuilder>)
                                 .GetMethod("GenericDTOBuilder", BindingFlags.Public ||| BindingFlags.Static)
-                                .MakeGenericMethod(sourceProp.PropertyType, prop.PropertyType)
-                        let builder = builderGenerator.Invoke(null, null)
-                        let buildMethod = 
-                            builder.GetType().GetMethods(BindingFlags.Public ||| BindingFlags.Instance)
-                                   .Single(fun t -> t.GetParameters().Count() = 1 && t.Name = "Build")
-                        let sourceValue = sourceProp.GetValue(source, null)
-                        if (sourceValue <> null) then 
-                            let destValue = buildMethod.Invoke(builder, [| sourceValue |])
-                            prop.SetValue(!destination, destValue)
-                    else 
-                        let builderGenerator = 
-                            (typedefof<GenericBuilder>).GetMethod("Create", BindingFlags.Public ||| BindingFlags.Static)
                                 .MakeGenericMethod(sourceProp.PropertyType, prop.PropertyType)
                         let builder = builderGenerator.Invoke(null, null)
                         let buildMethod = 
@@ -86,7 +72,7 @@ and BaseDTOBuilder<'TSource, 'TDestination when 'TDestination :> IDTO and 'TSour
         base.AddMappingConfigurations(mappingExpression)
         AutoMapperExtender.IgnoreAllLists(mappingExpression)
 
-and BaseEntityBuilder<'TSource, 'TDestination when 'TSource :> IDTO and 'TSource : equality and 'TSource : null and 'TDestination : equality and 'TDestination : null>() = 
+and BaseEntityBuilder<'TSource, 'TDestination when 'TSource : equality and 'TSource : null and 'TDestination : equality and 'TDestination : null>() = 
     inherit BaseBuilder<'TSource, 'TDestination>()
     override __.AddMappingConfigurations(mappingExpression) = 
         base.AddMappingConfigurations(mappingExpression)
