@@ -9,7 +9,6 @@ open System.Linq.Expressions
 open System.Reflection
 open AutoMapper
 open AutoMapper.Internal
-open Caelan.Frameworks.DAL.Interfaces
 open Caelan.Frameworks.Common.Classes
 open Caelan.Frameworks.Common.Extenders
 open Caelan.Frameworks.BIZ.Interfaces
