@@ -42,8 +42,13 @@ and [<AllowNullLiteral>] BaseRepository<'TEntity, 'TDTO when 'TEntity : not stru
     
     abstract All : int * int * seq<Sort> * Filter * Expression<Func<'TEntity, bool>> -> DataSourceResult<'TDTO>
     
-    override this.All(take, skip, sort, filter, whereFunc) = 
-        let queryResult = this.All(whereFunc).ToDataSourceResult(take, skip, sort, filter)
+    override this.All(take, skip, sort, filter, whereFunc) =
+        let defaultSort = (typedefof<'TEntity>).GetProperties(BindingFlags.Instance ||| BindingFlags.Public).Select(fun t -> t.Name).FirstOrDefault()
+        let all =
+            match defaultSort with
+            | null -> this.All(whereFunc)
+            | _ -> this.All(whereFunc).OrderBy(defaultSort)
+        let queryResult = all.ToDataSourceResult(take, skip, sort, filter)
         let result = DataSourceResult<'TDTO>()
         result.Data <- this.DTOBuilder().BuildList(queryResult.Data)
         result.Total <- queryResult.Total
