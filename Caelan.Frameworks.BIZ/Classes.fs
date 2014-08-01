@@ -201,13 +201,23 @@ and [<AllowNullLiteral>] BaseCRUDRepository<'TEntity, 'TDTO when 'TEntity : not 
     inherit BaseRepository<'TEntity, 'TDTO>(manager)
     abstract Insert : 'TDTO -> unit
     override this.Insert(dto) = this.Set().Add(this.EntityBuilder().Build(dto)) |> ignore
+
+    abstract Insert : 'TEntity -> unit
+    override this.Insert(entity) = this.Set().Add(entity) |> ignore
+
     abstract Update : 'TDTO * obj[] -> unit
     
-    override this.Update(dto, [<ParamArray>] ids) = 
+    override this.Update(dto : 'TDTO, [<ParamArray>] ids) = 
         let entity = this.Set().Find(ids)
         let newEntity : ref<'TEntity> = ref null
         this.EntityBuilder().Build(dto, newEntity)
         manager.Entry(entity).CurrentValues.SetValues(!newEntity)
+
+    abstract Update : 'TEntity * obj[] -> unit
+
+    override this.Update(entity : 'TEntity, [<ParamArray>] ids) =
+        let oldEntity = this.Set().Find(ids)
+        manager.Entry(oldEntity).CurrentValues.SetValues(entity)
     
     abstract Delete : 'TDTO * obj[] -> unit
     
@@ -217,7 +227,9 @@ and [<AllowNullLiteral>] BaseCRUDRepository<'TEntity, 'TDTO when 'TEntity : not 
     
     abstract Delete : obj[] -> unit
     override this.Delete([<ParamArray>] ids : obj[]) = this.Delete(this.Single(ids), ids)
-    member this.InsertAsync(dto) = async { this.Insert(dto) } |> Async.StartAsTask
-    member this.UpdateAsync(dto) = async { this.Update(dto) } |> Async.StartAsTask
+    member this.InsertAsync(dto : 'TDTO) = async { this.Insert(dto) } |> Async.StartAsTask
+    member this.UpdateAsync(dto : 'TDTO, ids) = async { this.Update(dto, ids) } |> Async.StartAsTask
+    member this.InsertAsync(entity : 'TEntity) = async { this.Insert(entity) } |> Async.StartAsTask
+    member this.UpdateAsync(entity : 'TEntity, ids) = async { this.Update(entity, ids) } |> Async.StartAsTask
     member this.DeleteAsync(dto : 'TDTO, [<ParamArray>] ids) = async { this.Delete(dto, ids) } |> Async.StartAsTask
     member this.DeleteAsync(ids : obj []) = async { this.Delete(ids) } |> Async.StartAsTask
