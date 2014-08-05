@@ -64,6 +64,12 @@ and [<AllowNullLiteral>] BaseRepository<'TEntity, 'TDTO when 'TEntity : not stru
     override __.EntityBuilder() = GenericBusinessBuilder.GenericEntityBuilder<'TDTO, 'TEntity>()
     abstract Single : obj [] -> 'TDTO
     override this.Single([<ParamArray>] ids) = this.DTOBuilder().BuildFull(this.Set().Find(ids))
+    
+    member this.Single(expr : Func<'TEntity, bool>) = 
+        this.Single(match expr with
+                    | null -> None
+                    | _ -> Some(fun t -> expr.Invoke(t)))
+    
     abstract Single : ('TEntity -> bool) option -> 'TDTO
     
     override this.Single(expr) = 
@@ -85,6 +91,7 @@ and [<AllowNullLiteral>] BaseRepository<'TEntity, 'TDTO when 'TEntity : not stru
         async { return this.All(take, skip, sort, filter, whereFunc) } |> Async.StartAsTask
     member this.SingleAsync([<ParamArray>] id : obj []) = async { return this.Single(id) } |> Async.StartAsTask
     member this.SingleAsync(expr : ('TEntity -> bool) option) = async { return this.Single(expr) } |> Async.StartAsTask
+    member this.SingleAsync(expr : Func<'TEntity, bool>) = async { return this.Single(expr) } |> Async.StartAsTask
 
 and [<AbstractClass>] BaseUnitOfWork internal (context : DbContext) = 
     member internal __.DbSet<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null>() = 
