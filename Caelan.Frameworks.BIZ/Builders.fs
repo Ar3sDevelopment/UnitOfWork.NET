@@ -43,29 +43,28 @@ and BaseDTOBuilder<'TSource, 'TDestination when 'TSource : equality and 'TSource
         base.AfterBuild(source, destination)
         let destType = typedefof<'TDestination>
         let sourceType = typedefof<'TSource>
-        let properties = 
-            destType.GetProperties(BindingFlags.Public ||| BindingFlags.Instance) 
-            |> Seq.filter 
-                   (fun t -> 
-                   (t.PropertyType.IsPrimitive || t.PropertyType.IsValueType || t.PropertyType.Equals(typedefof<string>)) = false 
-                   && t.PropertyType.IsEnumerableType() = false)
-        for prop in properties do
-            if Mapper.FindTypeMapFor<'TSource, 'TDestination>().GetPropertyMaps()
-                   .Any(fun t -> t.IsIgnored() && t.DestinationProperty.Name = prop.Name) = false then 
-                let sourceProp = sourceType.GetProperty(prop.Name, BindingFlags.Public ||| BindingFlags.Instance)
-                if sourceProp <> null then 
-                        let builderGenerator = 
-                            (typedefof<GenericBusinessBuilder>)
-                                .GetMethod("GenericDTOBuilder", BindingFlags.Public ||| BindingFlags.Static)
-                                .MakeGenericMethod(sourceProp.PropertyType, prop.PropertyType)
-                        let builder = builderGenerator.Invoke(null, null)
-                        let buildMethod = 
-                            builder.GetType().GetMethods(BindingFlags.Public ||| BindingFlags.Instance)
-                                   .Single(fun t -> t.GetParameters().Count() = 1 && t.Name = "Build")
-                        let sourceValue = sourceProp.GetValue(source, null)
-                        if (sourceValue <> null) then 
-                            let destValue = buildMethod.Invoke(builder, [| sourceValue |])
-                            prop.SetValue(!destination, destValue)
+        for prop in destType.GetProperties(BindingFlags.Public ||| BindingFlags.Instance) 
+                    |> Seq.filter 
+                           (fun t -> 
+                           (t.PropertyType.IsPrimitive || t.PropertyType.IsValueType 
+                            || t.PropertyType.Equals(typedefof<string>)) = false 
+                           && t.PropertyType.IsEnumerableType() = false 
+                           && Mapper.FindTypeMapFor<'TSource, 'TDestination>().GetPropertyMaps()
+                              |> Seq.exists (fun x -> x.IsIgnored() && x.DestinationProperty.Name = t.Name) = false) do
+            let sourceProp = sourceType.GetProperty(prop.Name, BindingFlags.Public ||| BindingFlags.Instance)
+            if sourceProp <> null then 
+                let builderGenerator = 
+                    (typedefof<GenericBusinessBuilder>)
+                        .GetMethod("GenericDTOBuilder", BindingFlags.Public ||| BindingFlags.Static)
+                        .MakeGenericMethod(sourceProp.PropertyType, prop.PropertyType)
+                let builder = builderGenerator.Invoke(null, null)
+                let buildMethod = 
+                    builder.GetType().GetMethods(BindingFlags.Public ||| BindingFlags.Instance)
+                           .Single(fun t -> t.GetParameters().Count() = 1 && t.Name = "Build")
+                let sourceValue = sourceProp.GetValue(source, null)
+                if (sourceValue <> null) then 
+                    let destValue = buildMethod.Invoke(builder, [| sourceValue |])
+                    prop.SetValue(!destination, destValue)
     
     override __.AddMappingConfigurations(mappingExpression) = 
         base.AddMappingConfigurations(mappingExpression)
