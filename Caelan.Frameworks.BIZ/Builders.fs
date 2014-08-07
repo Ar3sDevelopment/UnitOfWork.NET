@@ -41,20 +41,20 @@ and BaseDTOBuilder<'TSource, 'TDestination when 'TSource : equality and 'TSource
     
     override __.AfterBuild(source, destination) = 
         base.AfterBuild(source, destination)
-        let destType = typedefof<'TDestination>
-        let sourceType = typedefof<'TSource>
+        let destType = typeof<'TDestination>
+        let sourceType = typeof<'TSource>
         for prop in destType.GetProperties(BindingFlags.Public ||| BindingFlags.Instance) 
                     |> Seq.filter 
                            (fun t -> 
                            (t.PropertyType.IsPrimitive || t.PropertyType.IsValueType 
-                            || t.PropertyType.Equals(typedefof<string>)) = false 
+                            || t.PropertyType.Equals(typeof<string>)) = false 
                            && t.PropertyType.IsEnumerableType() = false 
                            && Mapper.FindTypeMapFor<'TSource, 'TDestination>().GetPropertyMaps()
                               |> Seq.exists (fun x -> x.IsIgnored() && x.DestinationProperty.Name = t.Name) = false) do
             let sourceProp = sourceType.GetProperty(prop.Name, BindingFlags.Public ||| BindingFlags.Instance)
             if sourceProp <> null then 
                 let builderGenerator = 
-                    (typedefof<GenericBusinessBuilder>)
+                    (typeof<GenericBusinessBuilder>)
                         .GetMethod("GenericDTOBuilder", BindingFlags.Public ||| BindingFlags.Static)
                         .MakeGenericMethod(sourceProp.PropertyType, prop.PropertyType)
                 let builder = builderGenerator.Invoke(null, null)

@@ -31,9 +31,9 @@ and BaseUnitOfWork internal (context : DbContext) =
     
     member this.Repository<'TRepository when 'TRepository :> BaseRepository>() = 
         (match this.GetType().GetProperties(BindingFlags.Instance) 
-               |> Seq.tryFind (fun t -> t.PropertyType = typedefof<'TRepository>) with
+               |> Seq.tryFind (fun t -> t.PropertyType = typeof<'TRepository>) with
          | Some(repositoryProp) -> repositoryProp.GetValue(this)
-         | None -> Activator.CreateInstance(typedefof<'TRepository>, this)) :?> 'TRepository
+         | None -> Activator.CreateInstance(typeof<'TRepository>, this)) :?> 'TRepository
     
     member this.Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null>() = 
         this.Repository<BaseRepository<'TEntity, 'TDTO>>()
@@ -68,7 +68,7 @@ and [<AllowNullLiteral>] BaseRepository<'TEntity, 'TDTO when 'TEntity : not stru
                             whereFunc : ('TEntity -> bool) option, buildFunc : seq<'TEntity> -> seq<'TDTO>) = 
         let queryResult = 
             (match query { 
-                       for item in (typedefof<'TEntity>).GetProperties(BindingFlags.Instance ||| BindingFlags.Public) 
+                       for item in (typeof<'TEntity>).GetProperties(BindingFlags.Instance ||| BindingFlags.Public) 
                                    |> Seq.map (fun t -> t.Name) do
                            select item
                            headOrDefault
@@ -114,7 +114,7 @@ and [<Sealed; AbstractClass>] GenericRepository() =
         else None
     
     static member private CreateRepository<'TEntity, 'TDTO, 'TRepository when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TRepository :> BaseRepository<'TEntity, 'TDTO>>(manager : BaseUnitOfWork) = 
-        let baseType = typedefof<'TRepository>
+        let baseType = typeof<'TRepository>
         match Assembly.GetExecutingAssembly() 
               |> GenericRepository.FindRepositoryInAssembly<'TEntity, 'TDTO, 'TRepository> manager baseType with
         | Some(repo) -> repo
@@ -128,7 +128,7 @@ and [<Sealed; AbstractClass>] GenericRepository() =
                 | Some(repo) -> repo
                 | None -> 
                     (match baseType.IsGenericTypeDefinition with
-                     | true -> Activator.CreateInstance(baseType.MakeGenericType(typedefof<'TEntity>, typedefof<'TDTO>))
+                     | true -> Activator.CreateInstance(baseType.MakeGenericType(typeof<'TEntity>, typeof<'TDTO>))
                      | _ -> Activator.CreateInstance(baseType, manager)) :?> 'TRepository
     
     static member CreateGenericRepository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null>(manager : BaseUnitOfWork) = 
