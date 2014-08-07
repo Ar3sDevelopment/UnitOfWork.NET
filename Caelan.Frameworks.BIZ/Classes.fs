@@ -47,25 +47,22 @@ and [<AllowNullLiteral>] BaseRepository<'TEntity, 'TDTO when 'TEntity : not stru
     inherit BaseRepository(manager)
     member __.DTOBuilder() = GenericBusinessBuilder.GenericDTOBuilder<'TEntity, 'TDTO>()
     member __.EntityBuilder() = GenericBusinessBuilder.GenericEntityBuilder<'TDTO, 'TEntity>()
-    member this.ListAsync(whereExpr : ('TEntity -> bool) option) = 
-        async { return this.List(whereExpr) } |> Async.StartAsTask
+    member this.ListAsync(whereExpr : Func<'TEntity, bool>) = async { return this.List(whereExpr) } |> Async.StartAsTask
     member this.ListAsync() = async { return this.List() } |> Async.StartAsTask
-    member this.AllAsync(take : int, skip : int, sort : seq<Sort>, filter : Filter, 
-                         whereFunc : ('TEntity -> bool) option) = 
+    member this.AllAsync(take : int, skip : int, sort : seq<Sort>, filter : Filter, whereFunc : Func<'TEntity, bool>) = 
         async { return this.All(take, skip, sort, filter, whereFunc) } |> Async.StartAsTask
     member this.Set() = this.GetUnitOfWork().DbSet() :> DbSet<'TEntity>
     member this.Single([<ParamArray>] ids : obj []) = this.DTOBuilder().BuildFull(this.Set().Find(ids))
     member this.List() = this.DTOBuilder().BuildList(this.All())
-    member this.List(whereExpr : ('TEntity -> bool) option) = this.DTOBuilder().BuildList(this.All(whereExpr))
-    member this.All() = this.Set() :> IQueryable<'TEntity>
+    member this.List(whereExpr : Func<'TEntity, bool>) = this.DTOBuilder().BuildList(this.All(whereExpr))
+    member this.All() = this.Set().AsQueryable()
     
-    member this.All(whereExpr : ('TEntity -> bool) option) = 
+    member this.All(whereExpr : Func<'TEntity, bool>) = 
         match whereExpr with
-        | None -> this.All()
-        | Some(expr) -> this.Set().Where(expr)
+        | null -> this.All()
+        | _ -> this.Set().Where(whereExpr).AsQueryable()
     
-    member private this.All(take : int, skip : int, sort : seq<Sort>, filter : Filter, 
-                            whereFunc : ('TEntity -> bool) option, buildFunc : seq<'TEntity> -> seq<'TDTO>) = 
+    member private this.All(take : int, skip : int, sort : seq<Sort>, filter : Filter, whereFunc : Func<'TEntity, bool>,  buildFunc : seq<'TEntity> -> seq<'TDTO>) = 
         let queryResult = 
             (match query { 
                        for item in (typeof<'TEntity>).GetProperties(BindingFlags.Instance ||| BindingFlags.Public) 
@@ -75,26 +72,23 @@ and [<AllowNullLiteral>] BaseRepository<'TEntity, 'TDTO when 'TEntity : not stru
                    } with
              | null -> this.All(whereFunc)
              | defaultSort -> this.All(whereFunc).OrderBy(defaultSort)).ToDataSourceResult(take, skip, sort, filter)
-        DataSourceResult<'TDTO>(Data = buildFunc (queryResult.Data), Total = queryResult.Total)
+        DataSourceResult<'TDTO>(Data = buildFunc queryResult.Data, Total = queryResult.Total)
     
-    member this.All(take : int, skip : int, sort : seq<Sort>, filter : Filter, whereFunc : ('TEntity -> bool) option) = 
+    member this.All(take : int, skip : int, sort : seq<Sort>, filter : Filter, whereFunc : Func<'TEntity, bool>) = 
         this.All(take, skip, sort, filter, whereFunc, this.DTOBuilder().BuildList)
-    member this.AllFull(take : int, skip : int, sort : seq<Sort>, filter : Filter, whereFunc : ('TEntity -> bool) option) = 
+    member this.AllFull(take : int, skip : int, sort : seq<Sort>, filter : Filter, whereFunc : Func<'TEntity, bool>) = 
         this.All(take, skip, sort, filter, whereFunc, this.DTOBuilder().BuildFullList)
     
-    member this.Single(expr : ('TEntity -> bool) option) = 
+    member this.Single(expr : Func<'TEntity, bool>) = 
         this.DTOBuilder().BuildFull(match expr with
-                                    | Some(checkExpr) -> 
-                                        match this.Set() |> Seq.tryFind checkExpr with
-                                        | Some(entity) -> entity
-                                        | None -> null
-                                    | None -> 
+                                    | null -> 
                                         query { 
                                             for item in this.Set() do
                                                 select item
                                                 headOrDefault
-                                        })
-    
+                                        }
+                                    | _  -> 
+                                        this.Set().FirstOrDefault(expr))
     member this.SingleAsync([<ParamArray>] id : obj []) = async { return this.Single(id) } |> Async.StartAsTask
     member this.SingleAsync(expr : ('TEntity -> bool) option) = async { return this.Single(expr) } |> Async.StartAsTask
 
