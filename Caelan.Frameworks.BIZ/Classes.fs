@@ -53,7 +53,7 @@ and [<AllowNullLiteral>] BaseRepository<'TEntity, 'TDTO when 'TEntity : not stru
     member this.AllAsync(take : int, skip : int, sort : seq<Sort>, filter : Filter, 
                          whereFunc : ('TEntity -> bool) option) = 
         async { return this.All(take, skip, sort, filter, whereFunc) } |> Async.StartAsTask
-    member this.Set() = this.GetUnitOfWork().DbSet()
+    member this.Set() = this.GetUnitOfWork().DbSet() :> DbSet<'TEntity>
     member this.Single([<ParamArray>] ids : obj []) = this.DTOBuilder().BuildFull(this.Set().Find(ids))
     member this.List() = this.DTOBuilder().BuildList(this.All())
     member this.List(whereExpr : ('TEntity -> bool) option) = this.DTOBuilder().BuildList(this.All(whereExpr))
