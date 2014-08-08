@@ -67,7 +67,10 @@ and [<AllowNullLiteral>] BaseRepository<'TEntity, 'TDTO when 'TEntity : not stru
         | _ -> this.Set().Where(whereExpr).AsQueryable()*)
 
     member this.All(whereExpr : 'TEntity -> bool) = 
-        this.Set().Where(whereExpr).AsQueryable()
+        query { 
+            for item in this.Set() do
+                where (whereExpr (item))
+        }
     
     (*member private this.All(take : int, skip : int, sort : seq<Sort>, filter : Filter, whereFunc : Func<'TEntity, bool>,  buildFunc : seq<'TEntity> -> seq<'TDTO>) = 
         let queryResult = 
@@ -81,7 +84,8 @@ and [<AllowNullLiteral>] BaseRepository<'TEntity, 'TDTO when 'TEntity : not stru
              | defaultSort -> this.All(whereFunc).OrderBy(defaultSort)).ToDataSourceResult(take, skip, sort, filter)
         DataSourceResult<'TDTO>(Data = buildFunc queryResult.Data, Total = queryResult.Total)*)
 
-    member private this.All(take : int, skip : int, sort : seq<Sort>, filter : Filter, whereFunc : 'TEntity -> bool,  buildFunc : seq<'TEntity> -> seq<'TDTO>) = 
+    member private this.All(take : int, skip : int, sort : seq<Sort>, filter : Filter, whereFunc : 'TEntity -> bool, 
+                            buildFunc : seq<'TEntity> -> seq<'TDTO>) = 
         let queryResult = 
             (match query { 
                        for item in (typeof<'TEntity>).GetProperties(BindingFlags.Instance ||| BindingFlags.Public) 
@@ -114,8 +118,10 @@ and [<AllowNullLiteral>] BaseRepository<'TEntity, 'TDTO when 'TEntity : not stru
                                     | _  -> this.Set().FirstOrDefault(expr))*)
 
     member this.Single(expr : 'TEntity -> bool) = 
-        this.DTOBuilder().BuildFull(this.Set().FirstOrDefault(expr))
-
+        this.DTOBuilder().BuildFull(match this.Set() |> Seq.tryFind expr with
+                                    | Some(item) -> item
+                                    | None -> null)
+    
     member this.SingleAsync([<ParamArray>] id : obj []) = async { return this.Single(id) } |> Async.StartAsTask
     member this.SingleAsync(expr : 'TEntity -> bool) = async { return this.Single(expr) } |> Async.StartAsTask
 
