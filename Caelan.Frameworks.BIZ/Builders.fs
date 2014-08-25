@@ -7,7 +7,6 @@ open AutoMapper
 open AutoMapper.Internal
 open Caelan.Frameworks.Common.Classes
 open Caelan.Frameworks.Common.Extenders
-open Caelan.Frameworks.BIZ.Interfaces
 
 [<Sealed>]
 [<AbstractClass>]
