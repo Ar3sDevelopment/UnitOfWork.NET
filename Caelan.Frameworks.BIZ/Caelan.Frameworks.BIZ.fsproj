@@ -59,18 +59,18 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="AutoMapper">
-      <HintPath>..\packages\AutoMapper.3.3.0-ci1017\lib\net40\AutoMapper.dll</HintPath>
+      <HintPath>..\packages\AutoMapper.3.3.0-ci1027\lib\net40\AutoMapper.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="AutoMapper.Net4">
-      <HintPath>..\packages\AutoMapper.3.3.0-ci1017\lib\net40\AutoMapper.Net4.dll</HintPath>
+      <HintPath>..\packages\AutoMapper.3.3.0-ci1027\lib\net40\AutoMapper.Net4.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Caelan.DynamicLinq">
       <HintPath>..\packages\Caelan.DynamicLinq.1.1.0\lib\Caelan.DynamicLinq.dll</HintPath>
     </Reference>
     <Reference Include="Caelan.Frameworks.Common">
-      <HintPath>..\packages\Caelan.Frameworks.Common.2.2.0-l\lib\Caelan.Frameworks.Common.dll</HintPath>
+      <HintPath>..\packages\Caelan.Frameworks.Common.2.2.0-o\lib\Caelan.Frameworks.Common.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="EntityFramework">
@@ -88,7 +88,7 @@
       <Private>True</Private>
     </Reference>
   </ItemGroup>
-  <Import Project="..\packages\AutoMapper.3.3.0-ci1017\tools\AutoMapper.targets" Condition="Exists('..\packages\AutoMapper.3.3.0-ci1017\tools\AutoMapper.targets')" />
+  <Import Project="..\packages\AutoMapper.3.3.0-ci1027\tools\AutoMapper.targets" Condition="Exists('..\packages\AutoMapper.3.3.0-ci1027\tools\AutoMapper.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
