@@ -31,13 +31,15 @@ and BaseUnitOfWork internal (context : DbContext) =
          | Some(repositoryProp) -> repositoryProp.GetValue(this)
          | None -> Activator.CreateInstance(typeof<'TRepository>, this)) :?> 'TRepository
     
-    member this.Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null>() = 
+    member this.Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>() = 
         this.Repository<BaseRepository<'TEntity, 'TDTO>>()
+    member this.ListRepository<'TEntity, 'TDTO, 'TListDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct and 'TListDTO : equality and 'TListDTO : null>() = 
+        this.Repository<BaseListRepository<'TEntity, 'TDTO, 'TListDTO>>()
     member __.Dispose() = ()
     interface IDisposable with
         member this.Dispose() = this.Dispose()
 
-and [<AllowNullLiteral>] BaseRepository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null>(manager) = 
+and [<AllowNullLiteral>] BaseRepository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>(manager) = 
     inherit BaseRepository(manager)
     member __.DTOBuilder() = GenericBusinessBuilder.GenericDTOBuilder<'TEntity, 'TDTO>()
     member __.EntityBuilder() = GenericBusinessBuilder.GenericEntityBuilder<'TDTO, 'TEntity>()
@@ -57,7 +59,7 @@ and [<AllowNullLiteral>] BaseRepository<'TEntity, 'TDTO when 'TEntity : not stru
         match whereExpr with
         | null -> this.All()
         | _ -> this.Set().Where(whereExpr).AsQueryable()
-
+    
     member private this.All(take : int, skip : int, sort : seq<Sort>, filter : Filter, 
                             whereFunc : Expression<Func<'TEntity, bool>>, buildFunc : seq<'TEntity> -> seq<'TDTO>) = 
         let queryResult = 
@@ -131,6 +133,10 @@ and [<AllowNullLiteral>] BaseRepository<'TEntity, 'TDTO when 'TEntity : not stru
         async { this.Delete(entity, ids) } |> Async.StartAsTask
     member this.DeleteAsync(ids : obj []) = async { this.Delete(ids) } |> Async.StartAsTask
 
+and [<AllowNullLiteral>] BaseListRepository<'TEntity, 'TDTO, 'TListDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct and 'TListDTO : equality and 'TListDTO : null and 'TListDTO : not struct>(manager) = 
+    inherit BaseRepository<'TEntity, 'TDTO>(manager)
+    member val ListRepository = manager.Repository<'TEntity, 'TListDTO>() with get, set
+
 and [<AbstractClass>] BaseUnitOfWork<'TContext when 'TContext :> DbContext>() = 
     inherit BaseUnitOfWork(Activator.CreateInstance<'TContext>())
 
@@ -145,6 +151,39 @@ and [<Sealed; AbstractClass>] GenericRepository() =
                 Some(repo)
             with :? KeyNotFoundException -> None
         else None
+    
+    static member private FindListRepositoryInAssembly<'TEntity, 'TDTO, 'TListDTO, 'TRepository when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct and 'TListDTO : equality and 'TListDTO : null and 'TListDTO : not struct and 'TRepository :> BaseRepository<'TEntity, 'TDTO>> (manager : BaseUnitOfWork) 
+                  (baseType : Type) (assembly : Assembly) = 
+        if (assembly <> null) then 
+            try 
+                let repoType = assembly.GetTypes() |> Seq.find (fun t -> t.BaseType = baseType)
+                let repo = Activator.CreateInstance(repoType, manager) :?> 'TRepository
+                Some(repo)
+            with :? KeyNotFoundException -> None
+        else None
+    
+    static member private CreateListRepository<'TEntity, 'TDTO, 'TListDTO, 'TRepository when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct and 'TListDTO : equality and 'TListDTO : null and 'TListDTO : not struct and 'TRepository :> BaseListRepository<'TEntity, 'TDTO, 'TListDTO>>(manager : BaseUnitOfWork) = 
+        let baseType = typeof<'TRepository>
+        match Assembly.GetExecutingAssembly() 
+              |> GenericRepository.FindListRepositoryInAssembly<'TEntity, 'TDTO, 'TListDTO, 'TRepository> manager 
+                     baseType with
+        | Some(repo) -> repo
+        | None -> 
+            match Assembly.GetEntryAssembly() 
+                  |> GenericRepository.FindListRepositoryInAssembly<'TEntity, 'TDTO, 'TListDTO, 'TRepository> manager 
+                         baseType with
+            | Some(repo) -> repo
+            | None -> 
+                match Assembly.GetCallingAssembly() 
+                      |> GenericRepository.FindListRepositoryInAssembly<'TEntity, 'TDTO, 'TListDTO, 'TRepository> 
+                             manager baseType with
+                | Some(repo) -> repo
+                | None -> 
+                    (match baseType.IsGenericTypeDefinition with
+                     | true -> 
+                         Activator.CreateInstance
+                             (baseType.MakeGenericType(typeof<'TEntity>, typeof<'TDTO>, typeof<'TListDTO>))
+                     | _ -> Activator.CreateInstance(baseType, manager)) :?> 'TRepository
     
     static member private CreateRepository<'TEntity, 'TDTO, 'TRepository when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TRepository :> BaseRepository<'TEntity, 'TDTO>>(manager : BaseUnitOfWork) = 
         let baseType = typeof<'TRepository>
@@ -164,5 +203,8 @@ and [<Sealed; AbstractClass>] GenericRepository() =
                      | true -> Activator.CreateInstance(baseType.MakeGenericType(typeof<'TEntity>, typeof<'TDTO>))
                      | _ -> Activator.CreateInstance(baseType, manager)) :?> 'TRepository
     
-    static member CreateGenericRepository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null>(manager : BaseUnitOfWork) = 
+    static member CreateGenericRepository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>(manager : BaseUnitOfWork) = 
         GenericRepository.CreateRepository<'TEntity, 'TDTO, BaseRepository<'TEntity, 'TDTO>>(manager)
+    static member CreateGenericListRepository<'TEntity, 'TDTO, 'TListDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct and 'TListDTO : equality and 'TListDTO : null and 'TListDTO : not struct>(manager : BaseUnitOfWork) = 
+        GenericRepository.CreateListRepository<'TEntity, 'TDTO, 'TListDTO, BaseListRepository<'TEntity, 'TDTO, 'TListDTO>>
+            (manager)
