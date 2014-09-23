@@ -2,7 +2,6 @@
 
 open System
 open System.Data.Entity
-open System.Collections.Generic
 open System.Linq
 open System.Reflection
 open Caelan.Frameworks.BIZ.Interfaces
@@ -33,7 +32,7 @@ and BaseUnitOfWork internal (context : DbContext) =
     
     member this.Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>() = 
         this.Repository<BaseRepository<'TEntity, 'TDTO>>()
-    member this.ListRepository<'TEntity, 'TDTO, 'TListDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct and 'TListDTO : equality and 'TListDTO : null>() = 
+    member this.Repository<'TEntity, 'TDTO, 'TListDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct and 'TListDTO : equality and 'TListDTO : null and 'TListDTO : not struct>() = 
         this.Repository<BaseListRepository<'TEntity, 'TDTO, 'TListDTO>>()
     member __.Dispose() = ()
     interface IDisposable with
@@ -142,69 +141,36 @@ and [<AbstractClass>] BaseUnitOfWork<'TContext when 'TContext :> DbContext>() =
 
 and [<Sealed; AbstractClass>] GenericRepository() = 
     
-    static member private FindRepositoryInAssembly<'TEntity, 'TDTO, 'TRepository when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TRepository :> BaseRepository<'TEntity, 'TDTO>> (manager : BaseUnitOfWork) 
-                  (baseType : Type) (assembly : Assembly) = 
-        if (assembly <> null) then 
-            try 
-                let repoType = assembly.GetTypes() |> Seq.find (fun t -> t.BaseType = baseType)
-                let repo = Activator.CreateInstance(repoType, manager) :?> 'TRepository
-                Some(repo)
-            with :? KeyNotFoundException -> None
-        else None
-    
-    static member private FindListRepositoryInAssembly<'TEntity, 'TDTO, 'TListDTO, 'TRepository when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct and 'TListDTO : equality and 'TListDTO : null and 'TListDTO : not struct and 'TRepository :> BaseRepository<'TEntity, 'TDTO>> (manager : BaseUnitOfWork) 
-                  (baseType : Type) (assembly : Assembly) = 
-        if (assembly <> null) then 
-            try 
-                let repoType = assembly.GetTypes() |> Seq.find (fun t -> t.BaseType = baseType)
-                let repo = Activator.CreateInstance(repoType, manager) :?> 'TRepository
-                Some(repo)
-            with :? KeyNotFoundException -> None
-        else None
-    
-    static member private CreateListRepository<'TEntity, 'TDTO, 'TListDTO, 'TRepository when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct and 'TListDTO : equality and 'TListDTO : null and 'TListDTO : not struct and 'TRepository :> BaseListRepository<'TEntity, 'TDTO, 'TListDTO>>(manager : BaseUnitOfWork) = 
-        let baseType = typeof<'TRepository>
-        match Assembly.GetExecutingAssembly() 
-              |> GenericRepository.FindListRepositoryInAssembly<'TEntity, 'TDTO, 'TListDTO, 'TRepository> manager 
-                     baseType with
-        | Some(repo) -> repo
-        | None -> 
-            match Assembly.GetEntryAssembly() 
-                  |> GenericRepository.FindListRepositoryInAssembly<'TEntity, 'TDTO, 'TListDTO, 'TRepository> manager 
-                         baseType with
-            | Some(repo) -> repo
-            | None -> 
-                match Assembly.GetCallingAssembly() 
-                      |> GenericRepository.FindListRepositoryInAssembly<'TEntity, 'TDTO, 'TListDTO, 'TRepository> 
-                             manager baseType with
+    static let findRepository ([<ParamArray>] args : obj []) (baseType, baseGenericType : Type) = 
+        let findRepository (assembly : Assembly) = 
+            match assembly with
+            | null -> None
+            | _ -> 
+                match assembly.GetTypes() |> Seq.tryFind (fun t -> t.BaseType = baseType) with
+                | Some(repoType) -> Some(Activator.CreateInstance(repoType, args) :?> 'TRepository)
+                | None -> None
+        
+        let rec getRepository asmList = 
+            match asmList with
+            | head :: tail -> 
+                match head |> findRepository with
                 | Some(repo) -> repo
-                | None -> 
-                    (match baseType.IsGenericTypeDefinition with
-                     | true -> 
-                         Activator.CreateInstance
-                             (baseType.MakeGenericType(typeof<'TEntity>, typeof<'TDTO>, typeof<'TListDTO>))
-                     | _ -> Activator.CreateInstance(baseType, manager)) :?> 'TRepository
-    
-    static member private CreateRepository<'TEntity, 'TDTO, 'TRepository when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TRepository :> BaseRepository<'TEntity, 'TDTO>>(manager : BaseUnitOfWork) = 
-        let baseType = typeof<'TRepository>
-        match Assembly.GetExecutingAssembly() 
-              |> GenericRepository.FindRepositoryInAssembly<'TEntity, 'TDTO, 'TRepository> manager baseType with
-        | Some(repo) -> repo
-        | None -> 
-            match Assembly.GetEntryAssembly() 
-                  |> GenericRepository.FindRepositoryInAssembly<'TEntity, 'TDTO, 'TRepository> manager baseType with
-            | Some(repo) -> repo
-            | None -> 
-                match Assembly.GetCallingAssembly() 
-                      |> GenericRepository.FindRepositoryInAssembly<'TEntity, 'TDTO, 'TRepository> manager baseType with
-                | Some(repo) -> repo
-                | None -> 
-                    (match baseType.IsGenericTypeDefinition with
-                     | true -> Activator.CreateInstance(baseType.MakeGenericType(typeof<'TEntity>, typeof<'TDTO>))
-                     | _ -> Activator.CreateInstance(baseType, manager)) :?> 'TRepository
+                | None -> tail |> getRepository
+            | [] -> 
+                (match baseType.IsGenericTypeDefinition with
+                 | true -> Activator.CreateInstance(baseGenericType)
+                 | _ -> Activator.CreateInstance(baseType, args)) :?> 'TRepository
+        
+        [ Assembly.GetExecutingAssembly()
+          Assembly.GetEntryAssembly()
+          Assembly.GetCallingAssembly() ]
+        |> getRepository
     
     static member CreateGenericRepository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>(manager : BaseUnitOfWork) = 
-        GenericRepository.CreateRepository<'TEntity, 'TDTO, BaseRepository<'TEntity, 'TDTO>>(manager)
+        let baseType = typeof<BaseRepository<'TEntity, 'TDTO>>
+        (baseType, baseType.MakeGenericType(typeof<'TEntity>, typeof<'TDTO>)) |> findRepository [| manager |]
+    
     static member CreateGenericListRepository<'TEntity, 'TDTO, 'TListDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct and 'TListDTO : equality and 'TListDTO : null and 'TListDTO : not struct>(manager : BaseUnitOfWork) = 
-        GenericRepository.CreateListRepository<'TEntity, 'TDTO, 'TListDTO, BaseListRepository<'TEntity, 'TDTO, 'TListDTO>>
-            (manager)
+        let baseType = typeof<BaseListRepository<'TEntity, 'TDTO, 'TListDTO>>
+        (baseType, baseType.MakeGenericType(typeof<'TEntity>, typeof<'TDTO>, typeof<'TListDTO>)) 
+        |> findRepository [| manager |]
