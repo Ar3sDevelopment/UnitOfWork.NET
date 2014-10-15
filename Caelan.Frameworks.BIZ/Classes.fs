@@ -79,14 +79,9 @@ and [<AllowNullLiteral>] BaseRepository<'TEntity, 'TDTO when 'TEntity : not stru
                         whereFunc : Expression<Func<'TEntity, bool>>) = 
         this.All(take, skip, sort, filter, whereFunc, this.DTOBuilder().BuildFullList)
     
-    member this.Single(expr : Func<'TEntity, bool>) = 
+    member this.Single(expr : Expression<Func<'TEntity, bool>>) = 
         this.DTOBuilder().BuildFull(match expr with
-                                    | null -> 
-                                        query { 
-                                            for item in this.Set() do
-                                                select item
-                                                headOrDefault
-                                        }
+                                    | null -> this.Set().FirstOrDefault()
                                     | _ -> this.Set().FirstOrDefault(expr))
     
     member this.SingleAsync([<ParamArray>] id : obj []) = async { return this.Single(id) } |> Async.StartAsTask
