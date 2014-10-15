@@ -136,7 +136,7 @@ and [<AllowNullLiteral>] BaseListRepository<'TEntity, 'TDTO, 'TListDTO when 'TEn
     inherit BaseRepository<'TEntity, 'TDTO>(manager)
     member val ListRepository = manager.Repository<'TEntity, 'TListDTO>() with get, set
 
-and [<AbstractClass>] BaseUnitOfWork<'TContext when 'TContext :> DbContext>() = 
+and UnitOfWork<'TContext when 'TContext :> DbContext>() = 
     inherit BaseUnitOfWork(Activator.CreateInstance<'TContext>())
 
 and [<Sealed; AbstractClass>] GenericRepository() = 
