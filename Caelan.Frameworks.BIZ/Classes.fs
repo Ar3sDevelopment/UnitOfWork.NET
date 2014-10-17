@@ -46,7 +46,7 @@ and UnitOfWork internal (context : DbContext) =
         (this :> IUnitOfWork).Repository<'TEntity, 'TDTO, 'TListDTO>() :?> ListRepository<'TEntity, 'TDTO, 'TListDTO>
     
     interface IDisposable with
-        member this.Dispose() = ()
+        member __.Dispose() = ()
 
     member this.Dispose() = (this :> IDisposable).Dispose()
 
