@@ -67,7 +67,8 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Caelan.DynamicLinq">
-      <HintPath>..\packages\Caelan.DynamicLinq.1.1.0\lib\Caelan.DynamicLinq.dll</HintPath>
+      <HintPath>..\packages\Caelan.DynamicLinq.1.2.0\lib\Caelan.DynamicLinq.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Caelan.Frameworks.Common">
       <HintPath>..\packages\Caelan.Frameworks.Common.2.2.0-q\lib\Caelan.Frameworks.Common.dll</HintPath>
