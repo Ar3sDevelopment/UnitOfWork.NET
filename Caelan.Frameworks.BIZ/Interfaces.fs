@@ -14,10 +14,6 @@ type IRepository =
     abstract GetUnitOfWork<'T when 'T :> IUnitOfWork> : unit -> 'T
 
 and [<AllowNullLiteral>] IRepository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct> =
-    (*inherit IRepository with
-        abstract member GetUnitOfWork : unit -> IUnitOfWork
-        abstract member GetUnitOfWork<'T when 'T :> IUnitOfWork> : unit -> 'T*)
-
     abstract DTOBuilder : unit -> BaseDTOBuilder<'TEntity, 'TDTO>
     abstract EntityBuilder: unit -> BaseEntityBuilder<'TDTO, 'TEntity>
     abstract Set : unit -> DbSet<'TEntity>
@@ -47,4 +43,4 @@ and [<AllowNullLiteral>] IUnitOfWork =
 
     abstract Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct> : unit -> IRepository<'TEntity, 'TDTO>
 
-    abstract Repository<'TEntity, 'TDTO, 'TListDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct and 'TListDTO : equality and 'TListDTO : null and 'TListDTO : not struct> : unit -> IRepository
+    abstract Repository<'TEntity, 'TDTO, 'TListDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct and 'TListDTO : equality and 'TListDTO : null and 'TListDTO : not struct> : unit -> IListRepository<'TEntity, 'TDTO, 'TListDTO>
