@@ -12,10 +12,12 @@ open System.Linq.Expressions
 [<AbstractClass>]
 [<AllowNullLiteral>]
 type Repository(manager) = 
-    interface IRepository
+    interface IRepository with
+        member this.GetUnitOfWork() = this.UnitOfWork
+        member this.GetUnitOfWork<'T when 'T :> IUnitOfWork>() = this.UnitOfWork :?> 'T
     member private __.UnitOfWork : IUnitOfWork = manager
-    member this.GetUnitOfWork() = this.UnitOfWork
-    member this.GetUnitOfWork<'T when 'T :> IUnitOfWork>() = this.UnitOfWork :?> 'T
+    member this.GetUnitOfWork() = (this :> IRepository).GetUnitOfWork()
+    member this.GetUnitOfWork<'T when 'T :> IUnitOfWork>() = (this :> IRepository).GetUnitOfWork<'T>()
 
 and UnitOfWork internal (context : DbContext) = 
     interface IUnitOfWork with
@@ -28,7 +30,7 @@ and UnitOfWork internal (context : DbContext) =
              | None -> Activator.CreateInstance(typeof<'TRepository>, this)) :?> 'TRepository
 
         member this.Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>() = 
-            this.Repository<Repository<'TEntity, 'TDTO>>() :> IRepository
+            this.Repository<Repository<'TEntity, 'TDTO>>() :> IRepository<'TEntity, 'TDTO>
         member this.Repository<'TEntity, 'TDTO, 'TListDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct and 'TListDTO : equality and 'TListDTO : null and 'TListDTO : not struct>() = 
             this.Repository<ListRepository<'TEntity, 'TDTO, 'TListDTO>>() :> IRepository
 
@@ -52,16 +54,22 @@ and UnitOfWork internal (context : DbContext) =
 
 and [<AllowNullLiteral>] Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>(manager) = 
     inherit Repository(manager : IUnitOfWork)
-    member __.DTOBuilder() = GenericBusinessBuilder.GenericDTOBuilder<'TEntity, 'TDTO>()
-    member __.EntityBuilder() = GenericBusinessBuilder.GenericEntityBuilder<'TDTO, 'TEntity>()
+    interface IRepository<'TEntity, 'TDTO> with
+        member __.DTOBuilder() = GenericBusinessBuilder.GenericDTOBuilder<'TEntity, 'TDTO>()
+        member __.EntityBuilder() = GenericBusinessBuilder.GenericEntityBuilder<'TDTO, 'TEntity>()
+        member this.Set() = (this.GetUnitOfWork() :?> UnitOfWork).DbSet() :> DbSet<'TEntity>
+        member this.Single([<ParamArray>] ids : obj []) = this.DTOBuilder().BuildFull(this.Set().Find(ids))
+
+    member this.DTOBuilder() = (this :> IRepository<'TEntity, 'TDTO>).DTOBuilder()
+    member this.EntityBuilder() = (this :> IRepository<'TEntity, 'TDTO>).EntityBuilder()
     member this.ListAsync(whereExpr : Expression<Func<'TEntity, bool>>) = 
         async { return this.List(whereExpr) } |> Async.StartAsTask
     member this.ListAsync() = async { return this.List() } |> Async.StartAsTask
     member this.AllAsync(take : int, skip : int, sort : seq<Sort>, filter : Filter, 
                          whereFunc : Expression<Func<'TEntity, bool>>) = 
         async { return this.All(take, skip, sort, filter, whereFunc) } |> Async.StartAsTask
-    member this.Set() = (this.GetUnitOfWork() :?> UnitOfWork).DbSet() :> DbSet<'TEntity>
-    member this.Single([<ParamArray>] ids : obj []) = this.DTOBuilder().BuildFull(this.Set().Find(ids))
+    member this.Set() = (this :> IRepository<'TEntity, 'TDTO>).Set()
+    member this.Single([<ParamArray>] ids : obj []) = (this :> IRepository<'TEntity, 'TDTO>).Single(ids)
     member this.List() = this.DTOBuilder().BuildList(this.All())
     member this.List(whereExpr : Expression<Func<'TEntity, bool>>) = this.DTOBuilder().BuildList(this.All(whereExpr))
     member this.All() = this.Set().AsQueryable()
@@ -75,10 +83,9 @@ and [<AllowNullLiteral>] Repository<'TEntity, 'TDTO when 'TEntity : not struct a
                             whereFunc : Expression<Func<'TEntity, bool>>, buildFunc : seq<'TEntity> -> seq<'TDTO>) = 
         let queryResult = 
             (match query { 
-                       for item in (typeof<'TEntity>).GetProperties(BindingFlags.Instance ||| BindingFlags.Public) 
-                                   |> Seq.map (fun t -> t.Name) do
-                           select item
-                           headOrDefault
+                            for item in (typeof<'TEntity>).GetProperties(BindingFlags.Instance ||| BindingFlags.Public) |> Seq.map (fun t -> t.Name) do
+                            select item
+                            headOrDefault
                    } with
              | null -> this.All(whereFunc)
              | defaultSort -> this.All(whereFunc).OrderBy(defaultSort)).ToDataSourceResult(take, skip, sort, filter)
