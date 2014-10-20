@@ -28,7 +28,7 @@ type Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equali
     
     interface IRepository<'TEntity, 'TDTO> with        
         member __.DTOBuilder() = Builder<'TEntity, 'TDTO>()
-        member __.EntityBuilder() = Builder<'TDTO, 'Entity>()
+        member __.EntityBuilder() = Builder<'TDTO, 'TEntity>()
         member this.Set() = (this.GetUnitOfWork() :?> UnitOfWork).DbSet() :> DbSet<'TEntity>
         member this.Single([<ParamArray>] ids) = this.DTOBuilder().Build(this.Set().Find(ids))
         
