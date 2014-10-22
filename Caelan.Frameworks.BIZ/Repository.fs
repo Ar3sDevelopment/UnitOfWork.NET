@@ -8,6 +8,7 @@ open System.Reflection
 open Caelan.DynamicLinq.Classes
 open Caelan.DynamicLinq.Extensions
 open Caelan.Frameworks.Common.Classes
+open Caelan.Frameworks.Common.Interfaces
 open Caelan.Frameworks.BIZ.Interfaces
 
 [<AbstractClass>]
@@ -26,7 +27,9 @@ type Repository(manager) =
 type Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>(manager) = 
     inherit Repository(manager : IUnitOfWork)
     
-    interface IRepository<'TEntity, 'TDTO> with        
+    interface IRepository<'TEntity, 'TDTO> with
+        member __.DTOBuilder(mapper) = Builder<'TEntity, 'TDTO>(mapper)
+        member __.EntityBuilder(mapper) = Builder<'TDTO, 'TEntity>(mapper)
         member __.DTOBuilder() = Builder<'TEntity, 'TDTO>()
         member __.EntityBuilder() = Builder<'TDTO, 'TEntity>()
         member this.Set() = (this.GetUnitOfWork() :?> UnitOfWork).DbSet() :> DbSet<'TEntity>
@@ -70,9 +73,17 @@ type Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equali
             this.Set().Remove(entity) |> ignore
         
         member this.Delete([<ParamArray>] ids : obj []) = this.Delete(this.Single(ids), ids)
-    
-    member this.DTOBuilder() = (this :> IRepository<'TEntity, 'TDTO>).DTOBuilder()
-    member this.EntityBuilder() = (this :> IRepository<'TEntity, 'TDTO>).EntityBuilder()
+
+    member val DTOMapper : IMapper<'TEntity, 'TDTO> = null with get, set
+    member val EntityMapper : IMapper<'TDTO, 'TEntity> = null with get, set
+    member this.DTOBuilder(mapper) = (this :> IRepository<'TEntity, 'TDTO>).DTOBuilder(mapper)
+    member this.EntityBuilder(mapper) = (this :> IRepository<'TEntity, 'TDTO>).EntityBuilder(mapper)
+    member this.DTOBuilder() = match this.DTOMapper with 
+                               | null -> (this :> IRepository<'TEntity, 'TDTO>).DTOBuilder()
+                               | _ -> this.DTOBuilder(this.DTOMapper)
+    member this.EntityBuilder() = match this.EntityMapper with 
+                               | null -> (this :> IRepository<'TEntity, 'TDTO>).EntityBuilder()
+                               | _ -> this.EntityBuilder(this.EntityMapper)
     member this.Set() = (this :> IRepository<'TEntity, 'TDTO>).Set()
     member this.Single([<ParamArray>] ids : obj []) = (this :> IRepository<'TEntity, 'TDTO>).Single(ids)
     member this.Single(expr : Expression<Func<'TEntity, bool>>) = (this :> IRepository<'TEntity, 'TDTO>).Single(expr)
