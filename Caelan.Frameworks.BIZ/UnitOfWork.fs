@@ -3,19 +3,25 @@
 open System
 open System.Data.Entity
 open System.Reflection
+open System.Collections.Generic
 open Caelan.Frameworks.BIZ.Interfaces
 
 [<AllowNullLiteral>]
 type UnitOfWork internal (context : DbContext) = 
+    let repositories = new Dictionary<Type, IRepository>()
+
     interface IUnitOfWork with
         member __.SaveChanges() = context.SaveChanges()
 
         member this.Repository<'TRepository when 'TRepository :> IRepository>() = 
-            (match this.GetType().GetProperties(BindingFlags.Instance) 
-                   |> Seq.tryFind (fun t -> t.PropertyType = typeof<'TRepository>) with
-             | Some(repositoryProp) -> repositoryProp.GetValue(this)
-             | None ->
-                 Activator.CreateInstance(typeof<'TRepository>, this)) :?> 'TRepository
+            let repoType = typeof<'TRepository>
+            if repositories.ContainsKey(repoType) = false then
+                (match this.GetType().GetProperties(BindingFlags.Instance) 
+                       |> Seq.tryFind (fun t -> t.PropertyType = repoType) with
+                 | Some(repositoryProp) -> repositories.Add(repoType, repositoryProp.GetValue(this) :?> IRepository)
+                 | None ->
+                     repositories.Add(typeof<'TRepository>, (Activator.CreateInstance(repoType, this)) :?> 'TRepository))
+            repositories.[repoType] :?> 'TRepository
 
 
         member this.Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>() = 
