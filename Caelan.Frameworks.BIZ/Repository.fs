@@ -50,9 +50,10 @@ type Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equali
         member this.Insert(dto : 'TDTO) = this.Set().Add(this.EntityBuilder().Build(dto)) |> ignore
         member this.Insert(entity : 'TEntity) = this.Set().Add(entity) |> ignore
         member this.Update(dto : 'TDTO, [<ParamArray>] ids) = 
-            let newEntity = ref(this.Set().Find(ids))
+            let entity = this.Set().Find(ids)
+            let newEntity = ref null
             this.EntityBuilder().Build(dto, newEntity)
-            (manager :?> UnitOfWork).Entry(this.Set().Find(ids)).CurrentValues.SetValues(!newEntity)
+            (manager :?> UnitOfWork).Entry(entity).CurrentValues.SetValues(!newEntity)
         member this.Update(entity : 'TEntity, [<ParamArray>] ids) = (manager :?> UnitOfWork).Entry(this.Set().Find(ids)).CurrentValues.SetValues(entity)
         member this.Delete(_ : 'TDTO, [<ParamArray>] ids) = this.Set().Remove(this.Set().Find(ids)) |> ignore
         member this.Delete(_ : 'TEntity, [<ParamArray>] ids) = this.Set().Remove(this.Set().Find(ids)) |> ignore
