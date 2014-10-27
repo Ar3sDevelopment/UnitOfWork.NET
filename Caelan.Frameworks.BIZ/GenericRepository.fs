@@ -9,7 +9,7 @@ let findRepository ([<ParamArray>] args : obj []) (baseType, baseGenericType : T
         match assembly with
         | null -> None
         | _ -> 
-            match assembly.GetTypes() |> Seq.tryFind (fun t -> t.BaseType = baseType || baseType.IsAssignableFrom(t)) with
+            match assembly.GetTypes() |> Seq.tryFind (fun t -> t.BaseType = baseType || (baseType.IsAssignableFrom (t) && baseType <> t)) with
             | Some(repoType) -> Some(Activator.CreateInstance(repoType, args))
             | None -> None
     
@@ -36,11 +36,11 @@ let findRepository ([<ParamArray>] args : obj []) (baseType, baseGenericType : T
     |> getRepository
 
 let CreateGenericRepository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>(manager : IUnitOfWork) = 
-    let baseType = typeof<IRepository<'TEntity, 'TDTO>>
+    let baseType = typedefof<IRepository<'TEntity, 'TDTO>>
     (baseType, baseType.MakeGenericType(typeof<'TEntity>, typeof<'TDTO>), typeof<Repository<'TEntity, 'TDTO>>) 
     |> findRepository [| manager |] :?> IRepository<'TEntity, 'TDTO>
 
 let CreateGenericListRepository<'TEntity, 'TDTO, 'TListDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct and 'TListDTO : equality and 'TListDTO : null and 'TListDTO : not struct>(manager : IUnitOfWork) = 
-    let baseType = typeof<IListRepository<'TEntity, 'TDTO, 'TListDTO>>
+    let baseType = typedefof<IListRepository<'TEntity, 'TDTO, 'TListDTO>>
     (baseType, baseType.MakeGenericType(typeof<'TEntity>, typeof<'TDTO>, typeof<'TListDTO>), 
      typeof<ListRepository<'TEntity, 'TDTO, 'TListDTO>>) |> findRepository [| manager |] :?> IListRepository<'TEntity, 'TDTO, 'TListDTO>
