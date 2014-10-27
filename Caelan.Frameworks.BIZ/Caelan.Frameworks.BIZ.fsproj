@@ -52,26 +52,16 @@
     <None Include="Script.fsx" />
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Interfaces.fs" />
-    <Compile Include="Builders.fs" />
-    <Compile Include="Classes.fs" />
+    <Compile Include="Repository.fs" />
+    <Compile Include="ListRepository.fs" />
+    <Compile Include="GenericRepository.fs" />
+    <Compile Include="UnitOfWork.fs" />
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="AutoMapper">
-      <HintPath>..\packages\AutoMapper.3.3.0-ci1027\lib\net40\AutoMapper.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="AutoMapper.Net4">
-      <HintPath>..\packages\AutoMapper.3.3.0-ci1027\lib\net40\AutoMapper.Net4.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="Caelan.DynamicLinq">
-      <HintPath>..\packages\Caelan.DynamicLinq.1.1.0\lib\Caelan.DynamicLinq.dll</HintPath>
-    </Reference>
-    <Reference Include="Caelan.Frameworks.Common">
-      <HintPath>..\packages\Caelan.Frameworks.Common.2.2.0-q\lib\Caelan.Frameworks.Common.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\packages\Caelan.DynamicLinq.1.2.0\lib\Caelan.DynamicLinq.dll</HintPath>
     </Reference>
     <Reference Include="EntityFramework">
       <HintPath>..\packages\EntityFramework.6.1.1\lib\net45\EntityFramework.dll</HintPath>
@@ -87,8 +77,10 @@
     <Reference Include="FSharp.Core, Version=4.3.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <Private>True</Private>
     </Reference>
+    <Reference Include="Caelan.Frameworks.Common">
+      <HintPath>..\packages\Caelan.Frameworks.Common.2.2.0-w\lib\Caelan.Frameworks.Common.dll</HintPath>
+    </Reference>
   </ItemGroup>
-  <Import Project="..\packages\AutoMapper.3.3.0-ci1027\tools\AutoMapper.targets" Condition="Exists('..\packages\AutoMapper.3.3.0-ci1027\tools\AutoMapper.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
