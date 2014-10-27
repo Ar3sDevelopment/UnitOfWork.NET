@@ -2,6 +2,7 @@
 
 open System
 open System.Data.Entity
+open System.Linq
 open System.Reflection
 open System.Collections.Generic
 open Caelan.Frameworks.BIZ.Interfaces
@@ -10,23 +11,41 @@ open Caelan.Frameworks.BIZ.Interfaces
 type UnitOfWork internal (context : DbContext) = 
     let repositories = new Dictionary<Type, IRepository>()
     
+    let findRepository (repoType : Type, implementation : unit -> IRepository) = 
+        let dictRepo = repositories.SingleOrDefault(fun t -> t.Key.IsAssignableFrom(repoType))
+        if dictRepo.Value = null then 
+            let repo = implementation()
+            repositories.Add(repo.GetType(), repo)
+            repo
+        else dictRepo.Value
+    
     interface IUnitOfWork with
         member __.SaveChanges() = context.SaveChanges()
         
         member this.Repository<'TRepository when 'TRepository :> IRepository>() = 
             let repoType = typeof<'TRepository>
-            if repositories.ContainsKey(repoType) = false then 
+            
+            let implementation = 
+                (fun () -> 
                 (match this.GetType().GetProperties(BindingFlags.Instance) 
                        |> Seq.tryFind (fun t -> t.PropertyType = repoType) with
-                 | Some(repositoryProp) -> repositories.Add(repoType, repositoryProp.GetValue(this) :?> IRepository)
-                 | None -> 
-                     repositories.Add(typeof<'TRepository>, (Activator.CreateInstance(repoType, this)) :?> 'TRepository))
-            repositories.[repoType] :?> 'TRepository
+                 | Some(repositoryProp) -> repositoryProp.GetValue(this)
+                 | None -> Activator.CreateInstance(repoType, this)) :?> IRepository)
+            ((repoType, implementation) |> findRepository) :?> 'TRepository
         
         member this.Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>() = 
-            GenericRepository.CreateGenericRepository<'TEntity, 'TDTO>(this)
+            let repoType = typeof<IRepository<'TEntity, 'TDTO>>
+            let implementation = 
+                (fun () -> GenericRepository.CreateGenericRepository<'TEntity, 'TDTO>(this) :> IRepository)
+            ((repoType, implementation) |> findRepository) :?> IRepository<'TEntity, 'TDTO>
+        
         member this.Repository<'TEntity, 'TDTO, 'TListDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct and 'TListDTO : equality and 'TListDTO : null and 'TListDTO : not struct>() = 
-            GenericRepository.CreateGenericListRepository<'TEntity, 'TDTO, 'TListDTO>(this)
+            let repoType = typeof<IListRepository<'TEntity, 'TDTO, 'TListDTO>>
+            let implementation = 
+                (fun () -> 
+                GenericRepository.CreateGenericListRepository<'TEntity, 'TDTO, 'TListDTO>(this) :> IRepository)
+            ((repoType, implementation) |> findRepository) :?> IListRepository<'TEntity, 'TDTO, 'TListDTO>
+        
         member __.Entry<'TEntity>(entity : 'TEntity) = context.Entry(entity)
         member __.DbSet<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>() = 
             context.Set<'TEntity>()
