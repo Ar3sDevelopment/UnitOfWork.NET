@@ -29,7 +29,7 @@ type UnitOfWork internal (context : DbContext) =
         member this.Repository<'TEntity, 'TDTO, 'TListDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct and 'TListDTO : equality and 'TListDTO : null and 'TListDTO : not struct>() = 
             GenericRepository.CreateGenericListRepository<'TEntity, 'TDTO, 'TListDTO>(this)
 
-    member internal __.DbSet<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null>() = 
+    member internal __.DbSet<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>() = 
         context.Set<'TEntity>()
     member this.SaveChanges() = (this :> IUnitOfWork).SaveChanges()
     member __.Entry<'TEntity>(entity : 'TEntity) = context.Entry(entity)

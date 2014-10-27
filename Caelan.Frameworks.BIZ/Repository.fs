@@ -32,7 +32,7 @@ type Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equali
         member __.EntityBuilder(mapper) = Builder<'TDTO, 'TEntity>(mapper)
         member __.DTOBuilder() = Builder<'TEntity, 'TDTO>()
         member __.EntityBuilder() = Builder<'TDTO, 'TEntity>()
-        member this.Set() = (this.GetUnitOfWork() :?> UnitOfWork).DbSet() :> DbSet<'TEntity>
+        member this.Set() = (this.GetUnitOfWork() :?> UnitOfWork).DbSet<'TEntity>()
         member this.Single([<ParamArray>] ids) = this.DTOBuilder().Build(this.Set().Find(ids))
         member this.Single(expr) = 
             let entity = match expr with

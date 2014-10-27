@@ -21,9 +21,12 @@ let findRepository ([<ParamArray>] args : obj []) (baseType, baseGenericType : T
             | Some(repo) -> repo
             | None -> tail |> getRepository
         | [] -> 
-            match baseType.IsGenericTypeDefinition with
-             | true -> Activator.CreateInstance(baseGenericType)
-             | _ -> Activator.CreateInstance(baseType, args)
+            match baseType.IsInterface with
+            | true -> null//Activator.CreateInstance(defaultImplementation)
+            | _ ->
+                match baseType.IsGenericTypeDefinition with
+                 | true -> Activator.CreateInstance(baseGenericType)
+                 | _ -> Activator.CreateInstance(baseType, args)
     
     [ Assembly.GetExecutingAssembly()
       Assembly.GetEntryAssembly()
