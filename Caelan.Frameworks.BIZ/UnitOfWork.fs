@@ -12,7 +12,7 @@ type UnitOfWork internal (context : DbContext) =
     let repositories = new Dictionary<Type, IRepository>()
     
     let findRepository (repoType : Type, implementation : unit -> IRepository) = 
-        let dictRepo = repositories.SingleOrDefault(fun t -> t.Key.IsAssignableFrom(repoType))
+        let dictRepo = repositories.SingleOrDefault(fun t -> t.Key.IsAssignableFrom(repoType) || repoType.IsAssignableFrom(t.Key))
         if dictRepo.Value = null then 
             let repo = implementation()
             repositories.Add(repo.GetType(), repo)

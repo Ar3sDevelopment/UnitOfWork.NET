@@ -21,7 +21,7 @@ and [<AllowNullLiteral>] IRepository<'TEntity, 'TDTO when 'TEntity : not struct 
     abstract DTOBuilder : unit -> Builder<'TEntity, 'TDTO>
     abstract EntityBuilder : unit -> Builder<'TDTO, 'TEntity>
     abstract Set : unit -> DbSet<'TEntity>
-    abstract Single : ids:obj [] -> 'TDTO
+    abstract Single : [<ParamArray>]ids:obj [] -> 'TDTO
     abstract Single : Expression<Func<'TEntity, bool>> -> 'TDTO
     abstract List : unit -> seq<'TDTO>
     abstract List : Expression<Func<'TEntity, bool>> -> seq<'TDTO>
@@ -30,11 +30,11 @@ and [<AllowNullLiteral>] IRepository<'TEntity, 'TDTO when 'TEntity : not struct 
     abstract All : int * int * seq<Sort> * Filter * Expression<Func<'TEntity, bool>> -> DataSourceResult<'TDTO>
     abstract Insert : 'TDTO -> unit
     abstract Insert : 'TEntity -> unit
-    abstract Update : 'TDTO * obj [] -> unit
-    abstract Update : 'TEntity * obj [] -> unit
-    abstract Delete : 'TDTO * obj [] -> unit
-    abstract Delete : 'TEntity * obj [] -> unit
-    abstract Delete : obj [] -> unit
+    abstract Update : 'TDTO * [<ParamArray>]ids:obj [] -> unit
+    abstract Update : 'TEntity * [<ParamArray>]ids:obj [] -> unit
+    abstract Delete : 'TDTO * [<ParamArray>]ids:obj [] -> unit
+    abstract Delete : 'TEntity * [<ParamArray>]ids:obj [] -> unit
+    abstract Delete : [<ParamArray>]ids:obj [] -> unit
 
 and [<AllowNullLiteral>] IListRepository<'TEntity, 'TDTO, 'TListDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct and 'TListDTO : equality and 'TListDTO : null and 'TListDTO : not struct> = 
     inherit IRepository<'TEntity, 'TDTO>
