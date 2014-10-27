@@ -1,11 +1,10 @@
-﻿module Caelan.Frameworks.BIZ.Classes.GenericRepository 
+﻿module Caelan.Frameworks.BIZ.Classes.GenericRepository
 
 open System
-open System.Linq
 open System.Reflection
 open Caelan.Frameworks.BIZ.Interfaces
 
-let findRepository ([<ParamArray>] args : obj []) (baseType, baseGenericType : Type) = 
+let findRepository ([<ParamArray>] args : obj []) (baseType, baseGenericType : Type, defaultImplementationType : Type) = 
     let findRepository (assembly : Assembly) = 
         match assembly with
         | null -> None
@@ -22,11 +21,14 @@ let findRepository ([<ParamArray>] args : obj []) (baseType, baseGenericType : T
             | None -> tail |> getRepository
         | [] -> 
             match baseType.IsInterface with
-            | true -> null//Activator.CreateInstance(defaultImplementation)
-            | _ ->
+            | true -> 
+                match defaultImplementationType.IsGenericTypeDefinition with
+                | true -> Activator.CreateInstance(defaultImplementationType)
+                | _ -> Activator.CreateInstance(defaultImplementationType, args)
+            | _ -> 
                 match baseType.IsGenericTypeDefinition with
-                 | true -> Activator.CreateInstance(baseGenericType)
-                 | _ -> Activator.CreateInstance(baseType, args)
+                | true -> Activator.CreateInstance(baseGenericType)
+                | _ -> Activator.CreateInstance(baseType, args)
     
     [ Assembly.GetExecutingAssembly()
       Assembly.GetEntryAssembly()
@@ -35,9 +37,10 @@ let findRepository ([<ParamArray>] args : obj []) (baseType, baseGenericType : T
 
 let CreateGenericRepository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>(manager : IUnitOfWork) = 
     let baseType = typeof<IRepository<'TEntity, 'TDTO>>
-    (baseType, baseType.MakeGenericType(typeof<'TEntity>, typeof<'TDTO>)) |> findRepository [| manager |] :?> IRepository<'TEntity, 'TDTO>
+    (baseType, baseType.MakeGenericType(typeof<'TEntity>, typeof<'TDTO>), typeof<Repository<'TEntity, 'TDTO>>) 
+    |> findRepository [| manager |] :?> IRepository<'TEntity, 'TDTO>
 
 let CreateGenericListRepository<'TEntity, 'TDTO, 'TListDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct and 'TListDTO : equality and 'TListDTO : null and 'TListDTO : not struct>(manager : IUnitOfWork) = 
     let baseType = typeof<IListRepository<'TEntity, 'TDTO, 'TListDTO>>
-    (baseType, baseType.MakeGenericType(typeof<'TEntity>, typeof<'TDTO>, typeof<'TListDTO>)) 
-    |> findRepository [| manager |] :?> IListRepository<'TEntity, 'TDTO, 'TListDTO>
+    (baseType, baseType.MakeGenericType(typeof<'TEntity>, typeof<'TDTO>, typeof<'TListDTO>), 
+     typeof<ListRepository<'TEntity, 'TDTO, 'TListDTO>>) |> findRepository [| manager |] :?> IListRepository<'TEntity, 'TDTO, 'TListDTO>

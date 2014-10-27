@@ -2,6 +2,7 @@
 
 open System
 open System.Data.Entity
+open System.Data.Entity.Infrastructure
 open System.Linq
 open System.Linq.Expressions
 open Caelan.Frameworks.Common.Classes
@@ -39,6 +40,9 @@ and [<AllowNullLiteral>] IListRepository<'TEntity, 'TDTO, 'TListDTO when 'TEntit
 
 and [<AllowNullLiteral>] IUnitOfWork = 
     abstract SaveChanges : unit -> int
+    abstract Entry<'TEntity> : 'TEntity -> DbEntityEntry
+    abstract DbSet<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null> : unit
+     -> DbSet<'TEntity>
     abstract Repository<'TRepository when 'TRepository :> IRepository> : unit -> 'TRepository
     abstract Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct> : unit
      -> IRepository<'TEntity, 'TDTO>
