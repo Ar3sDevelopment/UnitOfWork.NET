@@ -109,15 +109,24 @@ type Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equali
     
     member this.All(take, skip, sort, filter, whereFunc) = 
         (this :> IRepository<'TEntity, 'TDTO>).All(take, skip, sort, filter, whereFunc)
-    member this.Insert(dto : 'TDTO) = (this :> IRepository<'TEntity, 'TDTO>).Insert(dto)
-    member this.Insert(entity : 'TEntity) = (this :> IRepository<'TEntity, 'TDTO>).Insert(entity)
-    member this.Update(dto : 'TDTO, [<ParamArray>] ids) = (this :> IRepository<'TEntity, 'TDTO>).Update(dto, ids)
-    member this.Update(entity : 'TEntity, [<ParamArray>] ids) = 
+
+    abstract Insert : dto: 'TDTO -> unit
+    abstract Insert : entity : 'TEntity -> unit
+    abstract Update : 'TDTO * [<ParamArray>]ids:obj [] -> unit
+    abstract Update : 'TEntity * [<ParamArray>]ids:obj [] -> unit
+    abstract Delete : 'TDTO * [<ParamArray>]ids:obj [] -> unit
+    abstract Delete : 'TEntity * [<ParamArray>]ids:obj [] -> unit
+    abstract Delete : [<ParamArray>]ids:obj [] -> unit
+    
+    override this.Insert(dto : 'TDTO) = (this :> IRepository<'TEntity, 'TDTO>).Insert(dto)
+    override this.Insert(entity : 'TEntity) = (this :> IRepository<'TEntity, 'TDTO>).Insert(entity)
+    override this.Update(dto : 'TDTO, [<ParamArray>] ids) = (this :> IRepository<'TEntity, 'TDTO>).Update(dto, ids)
+    override this.Update(entity : 'TEntity, [<ParamArray>] ids) = 
         (this :> IRepository<'TEntity, 'TDTO>).Update(entity, ids)
-    member this.Delete(dto : 'TDTO, [<ParamArray>] ids) = (this :> IRepository<'TEntity, 'TDTO>).Delete(dto, ids)
-    member this.Delete(entity : 'TEntity, [<ParamArray>] ids) = 
+    override this.Delete(dto : 'TDTO, [<ParamArray>] ids) = (this :> IRepository<'TEntity, 'TDTO>).Delete(dto, ids)
+    override this.Delete(entity : 'TEntity, [<ParamArray>] ids) = 
         (this :> IRepository<'TEntity, 'TDTO>).Delete(entity, ids)
-    member this.Delete([<ParamArray>] ids : obj []) = (this :> IRepository<'TEntity, 'TDTO>).Delete(ids)
+    override this.Delete([<ParamArray>] ids : obj []) = (this :> IRepository<'TEntity, 'TDTO>).Delete(ids)
     member this.InsertAsync(dto : 'TDTO) = async { this.Insert(dto) } |> Async.StartAsTask
     member this.UpdateAsync(dto : 'TDTO, ids) = async { this.Update(dto, ids) } |> Async.StartAsTask
     member this.InsertAsync(entity : 'TEntity) = async { this.Insert(entity) } |> Async.StartAsTask
