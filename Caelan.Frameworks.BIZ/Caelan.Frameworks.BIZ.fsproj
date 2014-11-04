@@ -56,6 +56,7 @@
     <Compile Include="ListRepository.fs" />
     <Compile Include="GenericRepository.fs" />
     <Compile Include="UnitOfWork.fs" />
+    <Compile Include="UnitOfWorkCaller.fs" />
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
@@ -65,7 +66,6 @@
     </Reference>
     <Reference Include="Caelan.Frameworks.Common">
       <HintPath>..\packages\Caelan.Frameworks.Common.2.2.2\lib\Caelan.Frameworks.Common.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="EntityFramework">
       <HintPath>..\packages\EntityFramework.6.1.1\lib\net45\EntityFramework.dll</HintPath>

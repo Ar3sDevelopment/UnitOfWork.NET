@@ -41,6 +41,7 @@ and [<AllowNullLiteral>] IListRepository<'TEntity, 'TDTO, 'TListDTO when 'TEntit
     abstract ListRepository : IRepository<'TEntity, 'TListDTO> with get, set
 
 and [<AllowNullLiteral>] IUnitOfWork = 
+    inherit IDisposable
     abstract SaveChanges : unit -> int
     abstract Entry<'TEntity> : 'TEntity -> DbEntityEntry
     abstract DbSet<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null> : unit
