@@ -63,7 +63,16 @@ type UnitOfWork internal (context : DbContext) =
     interface IDisposable with
         member __.Dispose() = ()
     
-    member this.Dispose() = (this :> IDisposable).Dispose()
+    abstract Dispose : unit -> unit
+    default this.Dispose() = (this :> IDisposable).Dispose()
 
-type UnitOfWork<'TContext when 'TContext :> DbContext>() = 
-    inherit UnitOfWork(Activator.CreateInstance<'TContext>())
+type UnitOfWork<'TContext when 'TContext :> DbContext> private (context) = 
+    inherit UnitOfWork(context)
+
+    override this.Dispose() =
+        context.Dispose()
+        base.Dispose()
+
+    new() =
+        let context = Activator.CreateInstance<'TContext>()
+        new UnitOfWork<'TContext>(context)
