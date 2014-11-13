@@ -57,9 +57,9 @@ type Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equali
         
         member this.Update(dto : 'TDTO, [<ParamArray>] ids) = 
             let entity = this.Set().Find(ids)
-            let newEntity = ref null
-            this.EntityBuilder().Build(dto, newEntity)
-            manager.Entry(entity).CurrentValues.SetValues(!newEntity)
+            let entry = manager.Entry(entity)
+            this.EntityBuilder().Build(dto, ref entity)
+            entry.CurrentValues.SetValues(entity)
         
         member this.Update(entity : 'TEntity, [<ParamArray>] ids) = 
             manager.Entry(this.Set().Find(ids)).CurrentValues.SetValues(entity)
