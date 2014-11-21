@@ -32,7 +32,10 @@ type Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equali
         member __.DTOBuilder() = Builder<'TEntity, 'TDTO>.Create()
         member __.EntityBuilder() = Builder<'TDTO, 'TEntity>.Create()
         member __.Set() = manager.DbSet<'TEntity>()
-        member this.Single([<ParamArray>] ids) = this.DTOBuilder().Build(this.Set().Find(ids))
+        member this.Single([<ParamArray>] ids) = 
+            match this.Set().Find(ids) with
+            | null -> null
+            | entity ->this.DTOBuilder().Build(entity)
         
         member this.Single(expr) = 
             let entity = 
