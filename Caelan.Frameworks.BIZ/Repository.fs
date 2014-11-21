@@ -39,7 +39,9 @@ type Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equali
                 match expr with
                 | null -> this.Set().FirstOrDefault()
                 | _ -> this.Set().FirstOrDefault(expr)
-            this.DTOBuilder().Build(entity)
+            match entity with
+            | null -> null
+            | _ -> this.DTOBuilder().Build(entity)
         
         member this.List() = this.DTOBuilder().BuildList(this.All())
         member this.List whereExpr = this.DTOBuilder().BuildList(this.All(whereExpr))
