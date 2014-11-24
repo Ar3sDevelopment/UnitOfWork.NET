@@ -32,12 +32,19 @@ type Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equali
         member __.DTOBuilder() = Builder<'TEntity, 'TDTO>.Create()
         member __.EntityBuilder() = Builder<'TDTO, 'TEntity>.Create()
         member __.Set() = manager.DbSet<'TEntity>()
-        member this.Single([<ParamArray>] ids) = 
+        member this.SingleEntity([<ParamArray>] ids) = this.Set().Find(ids)
+        
+        member this.SingleEntity(expr) = 
+            match expr with
+            | null -> this.Set().FirstOrDefault()
+            | _ -> this.Set().FirstOrDefault(expr)
+        
+        member this.SingleDTO([<ParamArray>] ids) = 
             match this.Set().Find(ids) with
             | null -> null
-            | entity ->this.DTOBuilder().Build(entity)
+            | entity -> this.DTOBuilder().Build(entity)
         
-        member this.Single(expr) = 
+        member this.SingleDTO(expr) = 
             let entity = 
                 match expr with
                 | null -> this.Set().FirstOrDefault()
@@ -70,7 +77,7 @@ type Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equali
             manager.Entry(this.Set().Find(ids)).CurrentValues.SetValues(entity)
         member this.Delete(_ : 'TDTO, [<ParamArray>] ids) = this.Set().Remove(this.Set().Find(ids)) |> ignore
         member this.Delete(_ : 'TEntity, [<ParamArray>] ids) = this.Set().Remove(this.Set().Find(ids)) |> ignore
-        member this.Delete([<ParamArray>] ids : obj []) = this.Delete(this.Single(ids), ids)
+        member this.Delete([<ParamArray>] ids : obj []) = this.Delete(this.SingleDTO(ids), ids)
     
     member val DTOMapper : IMapper<'TEntity, 'TDTO> = null with get, set
     member val EntityMapper : IMapper<'TDTO, 'TEntity> = null with get, set
@@ -88,8 +95,12 @@ type Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equali
         | _ -> this.EntityBuilder(this.EntityMapper)
     
     member this.Set() = (this :> IRepository<'TEntity, 'TDTO>).Set()
-    member this.Single([<ParamArray>] ids : obj []) = (this :> IRepository<'TEntity, 'TDTO>).Single(ids)
-    member this.Single(expr : Expression<Func<'TEntity, bool>>) = (this :> IRepository<'TEntity, 'TDTO>).Single(expr)
+    member this.SingleEntity([<ParamArray>] ids : obj []) = (this :> IRepository<'TEntity, 'TDTO>).SingleEntity(ids)
+    member this.SingleEntity(expr : Expression<Func<'TEntity, bool>>) = 
+        (this :> IRepository<'TEntity, 'TDTO>).SingleEntity(expr)
+    member this.SingleDTO([<ParamArray>] ids : obj []) = (this :> IRepository<'TEntity, 'TDTO>).SingleDTO(ids)
+    member this.SingleDTO(expr : Expression<Func<'TEntity, bool>>) = 
+        (this :> IRepository<'TEntity, 'TDTO>).SingleDTO(expr)
     member this.List() = (this :> IRepository<'TEntity, 'TDTO>).List()
     member this.List whereExpr = (this :> IRepository<'TEntity, 'TDTO>).List(whereExpr)
     member this.All() = (this :> IRepository<'TEntity, 'TDTO>).All()
@@ -114,15 +125,13 @@ type Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equali
     
     member this.All(take, skip, sort, filter, whereFunc) = 
         (this :> IRepository<'TEntity, 'TDTO>).All(take, skip, sort, filter, whereFunc)
-
-    abstract Insert : dto: 'TDTO -> unit
-    abstract Insert : entity : 'TEntity -> unit
-    abstract Update : 'TDTO * [<ParamArray>]ids:obj [] -> unit
-    abstract Update : 'TEntity * [<ParamArray>]ids:obj [] -> unit
-    abstract Delete : 'TDTO * [<ParamArray>]ids:obj [] -> unit
-    abstract Delete : 'TEntity * [<ParamArray>]ids:obj [] -> unit
-    abstract Delete : [<ParamArray>]ids:obj [] -> unit
-    
+    abstract Insert : dto:'TDTO -> unit
+    abstract Insert : entity:'TEntity -> unit
+    abstract Update : 'TDTO * ids:obj [] -> unit
+    abstract Update : 'TEntity * ids:obj [] -> unit
+    abstract Delete : 'TDTO * ids:obj [] -> unit
+    abstract Delete : 'TEntity * ids:obj [] -> unit
+    abstract Delete : ids:obj [] -> unit
     override this.Insert(dto : 'TDTO) = (this :> IRepository<'TEntity, 'TDTO>).Insert(dto)
     override this.Insert(entity : 'TEntity) = (this :> IRepository<'TEntity, 'TDTO>).Insert(entity)
     override this.Update(dto : 'TDTO, [<ParamArray>] ids) = (this :> IRepository<'TEntity, 'TDTO>).Update(dto, ids)
@@ -146,5 +155,9 @@ type Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equali
     member this.AllAsync(take : int, skip : int, sort : seq<Sort>, filter : Filter, 
                          whereFunc : Expression<Func<'TEntity, bool>>) = 
         async { return this.All(take, skip, sort, filter, whereFunc) } |> Async.StartAsTask
-    member this.SingleAsync([<ParamArray>] id : obj []) = async { return this.Single(id) } |> Async.StartAsTask
-    member this.SingleAsync(expr : 'TEntity -> bool) = async { return this.Single(expr) } |> Async.StartAsTask
+    member this.SingleDTOAsync([<ParamArray>] id : obj []) = async { return this.SingleDTO(id) } |> Async.StartAsTask
+    member this.SingleDTOAsync(expr : 'TEntity -> bool) = async { return this.SingleDTO(expr) } |> Async.StartAsTask
+    member this.SingleEntityAsync([<ParamArray>] id : obj []) = 
+        async { return this.SingleEntity(id) } |> Async.StartAsTask
+    member this.SingleEntityAsync(expr : 'TEntity -> bool) = 
+        async { return this.SingleEntity(expr) } |> Async.StartAsTask

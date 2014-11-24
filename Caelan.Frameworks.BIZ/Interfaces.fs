@@ -21,8 +21,10 @@ and [<AllowNullLiteral>] IRepository<'TEntity, 'TDTO when 'TEntity : not struct 
     abstract DTOBuilder : unit -> Builder<'TEntity, 'TDTO>
     abstract EntityBuilder : unit -> Builder<'TDTO, 'TEntity>
     abstract Set : unit -> DbSet<'TEntity>
-    abstract Single : [<ParamArray>]ids:obj [] -> 'TDTO
-    abstract Single : Expression<Func<'TEntity, bool>> -> 'TDTO
+    abstract SingleDTO : [<ParamArray>]ids:obj [] -> 'TDTO
+    abstract SingleDTO : Expression<Func<'TEntity, bool>> -> 'TDTO
+    abstract SingleEntity : [<ParamArray>]ids:obj [] -> 'TEntity
+    abstract SingleEntity : Expression<Func<'TEntity, bool>> -> 'TEntity
     abstract List : unit -> seq<'TDTO>
     abstract List : Expression<Func<'TEntity, bool>> -> seq<'TDTO>
     abstract All : unit -> IQueryable<'TEntity>
