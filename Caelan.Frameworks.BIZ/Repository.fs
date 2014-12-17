@@ -27,10 +27,10 @@ type Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equali
     inherit Repository(manager : IUnitOfWork)
     
     interface IRepository<'TEntity, 'TDTO> with
-        member __.DTOBuilder(mapper) = Builder<'TEntity, 'TDTO>.Create(mapper)
-        member __.EntityBuilder(mapper) = Builder<'TDTO, 'TEntity>.Create(mapper)
-        member __.DTOBuilder() = Builder<'TEntity, 'TDTO>.Create()
-        member __.EntityBuilder() = Builder<'TDTO, 'TEntity>.Create()
+        member __.DTOBuilder(mapper) = Builder.Source<'TEntity>().Destination<'TDTO>(mapper)
+        member __.EntityBuilder(mapper) = Builder.Source<'TDTO>().Destination<'TEntity>(mapper)
+        member __.DTOBuilder() = Builder.Source<'TEntity>().Destination<'TDTO>()
+        member __.EntityBuilder() = Builder.Source<'TDTO>().Destination<'TEntity>()
         member __.Set() = manager.DbSet<'TEntity>()
         member this.SingleEntity([<ParamArray>] ids) = this.Set().Find(ids)
         
