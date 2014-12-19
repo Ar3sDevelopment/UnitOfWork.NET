@@ -22,8 +22,14 @@ type Repository(manager) =
     member this.GetUnitOfWork() = (this :> IRepository).GetUnitOfWork()
     member this.GetUnitOfWork<'T when 'T :> IUnitOfWork>() = (this :> IRepository).GetUnitOfWork<'T>()
 
-[<AllowNullLiteral>]
-type Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>(manager) = 
+    static member Entity<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>(manager : IUnitOfWork) =
+        Repository<'TEntity>(manager)
+
+and Repository<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null> internal (manager : IUnitOfWork) =
+    member this.DTO<'TDTO when 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>() =
+        Repository<'TEntity, 'TDTO>(manager)
+
+and [<AllowNullLiteral>] Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>(manager) = 
     inherit Repository(manager : IUnitOfWork)
     
     interface IRepository<'TEntity, 'TDTO> with
