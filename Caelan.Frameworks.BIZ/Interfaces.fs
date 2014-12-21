@@ -53,6 +53,8 @@ and [<AllowNullLiteral>] IUnitOfWork =
      -> IRepository<'TEntity, 'TDTO>
     abstract Repository<'TEntity, 'TDTO, 'TListDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct and 'TListDTO : equality and 'TListDTO : null and 'TListDTO : not struct> : unit
      -> IListRepository<'TEntity, 'TDTO, 'TListDTO>
+    abstract Transaction : body: Action<IUnitOfWork> -> unit
+    abstract TransactionSaveChanges : body: Action<IUnitOfWork> -> bool
 
 type IUnitOfWorkCaller<'TUnitOfWork when 'TUnitOfWork :> IUnitOfWork and 'TUnitOfWork : (new : unit -> 'TUnitOfWork)> =
     abstract UnitOfWork<'T> : call: Func<IUnitOfWork, 'T> -> 'T
@@ -61,3 +63,5 @@ type IUnitOfWorkCaller<'TUnitOfWork when 'TUnitOfWork :> IUnitOfWork and 'TUnitO
     abstract Repository<'T, 'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : not struct and 'TDTO : equality and 'TDTO : null> : call: Func<IRepository<'TEntity, 'TDTO>, 'T> -> 'T
     abstract RepositoryList<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : not struct and 'TDTO : equality and 'TDTO : null> : unit -> seq<'TDTO>
     abstract UnitOfWorkCallSaveChanges : call: Action<IUnitOfWork> -> bool
+    abstract Transaction : body: Action<IUnitOfWork> -> unit
+    abstract TransactionSaveChanges : body: Action<IUnitOfWork> -> bool

@@ -23,6 +23,15 @@ type GenericUnitOfWorkCaller<'TUnitOfWork when 'TUnitOfWork :> IUnitOfWork and '
                 call.Invoke(t)
                 t.SaveChanges() <> 0)
 
+        member this.Transaction(body: Action<IUnitOfWork>) =
+            this.UnitOfWork(fun t ->
+                t.Transaction(body)
+            )
+        member this.TransactionSaveChanges(body: Action<IUnitOfWork>) =
+            this.UnitOfWork(fun t ->
+                t.TransactionSaveChanges(body)
+            )
+
     member this.UnitOfWork<'T>(call: Func<IUnitOfWork, 'T>) = (this :> IUnitOfWorkCaller<'TUnitOfWork>).UnitOfWork(call)
     member this.UnitOfWork(call: Action<IUnitOfWork>) = (this :> IUnitOfWorkCaller<'TUnitOfWork>).UnitOfWork(call)
 
@@ -37,6 +46,12 @@ type GenericUnitOfWorkCaller<'TUnitOfWork when 'TUnitOfWork :> IUnitOfWork and '
 
     member this.UnitOfWorkCallSaveChanges(call: Action<IUnitOfWork>) =
         (this :> IUnitOfWorkCaller<'TUnitOfWork>).UnitOfWorkCallSaveChanges(call)
+
+    member this.Transaction(body: Action<IUnitOfWork>) =
+        (this :> IUnitOfWorkCaller<'TUnitOfWork>).Transaction(body)
+
+    member this.TransactionSaveChanges(body: Action<IUnitOfWork>) =
+        (this :> IUnitOfWorkCaller<'TUnitOfWork>).TransactionSaveChanges(body)
 
 type UnitOfWorkCaller<'TContext when 'TContext :> DbContext>() = 
     class
