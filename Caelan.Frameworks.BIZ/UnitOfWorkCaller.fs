@@ -4,7 +4,7 @@ open System
 open System.Data.Entity
 open Caelan.Frameworks.BIZ.Interfaces
 
-type GenericUnitOfWorkCaller<'TUnitOfWork when 'TUnitOfWork :> IUnitOfWork and 'TUnitOfWork : (new : unit -> 'TUnitOfWork)>() = 
+type GenericUnitOfWorkCaller<'TUnitOfWork when 'TUnitOfWork :> IUnitOfWork and 'TUnitOfWork : (new : unit -> 'TUnitOfWork)> internal () = 
     interface IUnitOfWorkCaller<'TUnitOfWork> with
         member __.UnitOfWork<'T>(call: Func<IUnitOfWork, 'T>) = using (new 'TUnitOfWork()) (fun manager -> call.Invoke(manager))
         member __.UnitOfWork(call: Action<IUnitOfWork>) = using (new 'TUnitOfWork()) (fun manager -> call.Invoke(manager))
@@ -53,7 +53,14 @@ type GenericUnitOfWorkCaller<'TUnitOfWork when 'TUnitOfWork :> IUnitOfWork and '
     member this.TransactionSaveChanges(body: Action<IUnitOfWork>) =
         (this :> IUnitOfWorkCaller<'TUnitOfWork>).TransactionSaveChanges(body)
 
-type UnitOfWorkCaller<'TContext when 'TContext :> DbContext>() = 
+type UnitOfWorkCaller<'TContext when 'TContext :> DbContext> internal () = 
     class
     inherit GenericUnitOfWorkCaller<UnitOfWork<'TContext>>()
     end
+
+type UnitOfWorkCaller private () =
+    static member Context<'TContext when 'TContext :> DbContext>() =
+        UnitOfWorkCaller<'TContext>()
+
+    static member UnitOfWork<'TUnitOfWork when 'TUnitOfWork :> IUnitOfWork and 'TUnitOfWork : (new : unit -> 'TUnitOfWork)>() =
+        GenericUnitOfWorkCaller<'TUnitOfWork>()
