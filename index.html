@@ -1,43 +1,203 @@
-<!DOCTYPE html>
+<!doctype html>
+<!-- The Time Machine GitHub pages theme was designed and developed by Jon Rohan, on Feb 7, 2012. -->
+<!-- Follow him for fun. http://twitter.com/jonrohan. Tail his code on http://github.com/jonrohan -->
 <html>
-  <head>
-    <meta charset='utf-8'>
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+  <link rel="stylesheet" href="stylesheets/stylesheet.css" media="screen">
+  <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+  <script type="text/javascript" src="javascripts/script.js"></script>
 
-    <title>Caelan Frameworks - Business by Ar3sDevelopment</title>
-  </head>
+  <title>Caelan Frameworks - Business</title>
+  <meta name="description" content="Caelan.Frameworks.BIZ NuGet Package">
 
-  <body>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
 
+</head>
+
+<body>
+
+  <div class="wrapper">
     <header>
-      <div class="container">
-        <h1>Caelan Frameworks - Business</h1>
-        <h2>Caelan.Frameworks.BIZ NuGet Package</h2>
-
-        <section id="downloads">
-          <a href="https://github.com/Ar3sDevelopment/Caelan.Frameworks.BIZ/zipball/master" class="btn">Download as .zip</a>
-          <a href="https://github.com/Ar3sDevelopment/Caelan.Frameworks.BIZ/tarball/master" class="btn">Download as .tar.gz</a>
-          <a href="https://github.com/Ar3sDevelopment/Caelan.Frameworks.BIZ" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
-        </section>
-      </div>
+      <h1 class="title">Caelan Frameworks - Business</h1>
     </header>
-
-    <div class="container">
-      <section id="main_content">
-        <h1>
-<a name="caelanframeworksbiz-nuget-package" class="anchor" href="#caelanframeworksbiz-nuget-package"><span class="octicon octicon-link"></span></a>Caelan.Frameworks.BIZ NuGet Package</h1>
+    <div id="container">
+      <p class="tagline">Caelan.Frameworks.BIZ NuGet Package</p>
+      <div id="main" role="main">
+        <div class="download-bar">
+        <div class="inner">
+          <a href="https://github.com/Ar3sDevelopment/Caelan.Frameworks.BIZ/tarball/master" class="download-button tar"><span>Download</span></a>
+          <a href="https://github.com/Ar3sDevelopment/Caelan.Frameworks.BIZ/zipball/master" class="download-button zip"><span>Download</span></a>
+          <a href="https://github.com/Ar3sDevelopment/Caelan.Frameworks.BIZ" class="code">View Caelan Frameworks - Business on GitHub</a>
+        </div>
+        <span class="blc"></span><span class="trc"></span>
+        </div>
+        <article class="markdown-body">
+          <h1>
+<a id="caelanframeworksbiz-nuget-package" class="anchor" href="#caelanframeworksbiz-nuget-package" aria-hidden="true"><span class="octicon octicon-link"></span></a>Caelan.Frameworks.BIZ NuGet Package</h1>
 
 <h2>
-<a name="what-is-it" class="anchor" href="#what-is-it"><span class="octicon octicon-link"></span></a>What is it?</h2>
+<a id="what-is-it" class="anchor" href="#what-is-it" aria-hidden="true"><span class="octicon octicon-link"></span></a>What is it?</h2>
 
-<p>This package provides some utility classes for Business layer like DTOBuilders and EntityBuilders, based on Common.BaseBuilder of my Frameworks.Common package, two BaseRepository (one for List and one for CRUD operations) and 3 repository interfaces (Insert, Update, Delete) that CRUD already use, a repository manager to implement as a Unit Of Work, and a GenericBusinessBuilder for creating generic DTO and Entity builders that searches for existing derived class first. It provides also two IDTO interfaces, one empty for all DTOs to use with builders and one with a generic ID (like Frameworks.DAL IEntity) to provide an IEquatable ID to all DTOs you need. DTOBuilders uses IDTO to get DTO parameter and IEntity for Entity parameter, other builders can inherit from BaseBuilder (from Common package)</p>
-      </section>
+<p>This package provides some utilities for the business layer like repositories and units of work.</p>
+
+<h2>
+<a id="irepository" class="anchor" href="#irepository" aria-hidden="true"><span class="octicon octicon-link"></span></a><code>IRepository</code>
+</h2>
+
+<p>The <code>IRepository</code> interface is the base interface of Repositories used in this framework. It has two methods for getting the linked <code>IUnitOfWork</code> instance.
+<code>IRepository</code> has two methods because you can get a generic <code>IUnitOfWork</code> or a custom <code>UnitOfWork</code> type.</p>
+
+<h3>
+<a id="repository" class="anchor" href="#repository" aria-hidden="true"><span class="octicon octicon-link"></span></a><code>Repository</code>
+</h3>
+
+<p>The <code>Repository</code> class implements <code>IRepository</code> interface and has a static method for fluent notation for getting a <code>Repository&lt;TEntity, TDTO&gt;</code> specifying only <code>TEntity</code> and <code>TDTO</code>
+This class is abstract because I thought that is useless for other uses.</p>
+
+<h3>
+<a id="irepositorytentity-tdto" class="anchor" href="#irepositorytentity-tdto" aria-hidden="true"><span class="octicon octicon-link"></span></a><code>IRepository&lt;TEntity, TDTO&gt;</code>
+</h3>
+
+<p>The <code>IRepository&lt;TEntity, TDTO&gt;</code> interface inherits from <code>IRepository</code> and has more methods than its base and they're business related like basic CRUD operations.
+<code>IRepository&lt;TEntity, TDTO&gt;</code> has also a method for return paginated result.</p>
+
+<h4>
+<a id="repositorytentity-tdto" class="anchor" href="#repositorytentity-tdto" aria-hidden="true"><span class="octicon octicon-link"></span></a><code>Repository&lt;TEntity, TDTO&gt;</code>
+</h4>
+
+<p>The <code>Repository&lt;TEntity, TDTO&gt;</code> inherits from <code>Repository</code> and implements <code>IRepository&lt;TEntity, TDTO&gt;</code> interface with some <code>EntityFramework</code> code for doing CRUD operations.
+If you need some custom methods you can inherit from <code>Repository&lt;TEntity, TDTO&gt;</code> and use all the business ready methods.
+Supposing you need a method to get if a user is admin:</p>
+
+<div class="highlight highlight-csharp"><pre><span class="pl-s">public</span> <span class="pl-st">bool</span> IsAdmin(<span class="pl-st">int</span> id)
+{
+  <span class="pl-k">var</span> user = SingleEntity(id);
+  <span class="pl-k">return</span> user != <span class="pl-c1">null</span> ? user.Admin : <span class="pl-c1">false</span>;
+}</pre></div>
+
+<p>Or if you need a method that return all admin users:</p>
+
+<div class="highlight highlight-csharp"><pre><span class="pl-s">public</span> IEnumerable&lt;UserDTO&gt; AllAdmins()
+{
+  <span class="pl-k">return</span> List(t =&gt; t.Admin); <span class="pl-c">//DTOs</span>
+}
+
+<span class="pl-s">public</span> IEnumerable&lt;User&gt; AllAdminsEntities()
+{
+  <span class="pl-k">return</span> All(t =&gt; t.Admin);
+}
+
+<span class="pl-c">//using builders from my Common Framework</span>
+<span class="pl-s">public</span> IEnumerable&lt;User&gt; AllAdminsEntities()
+{
+  <span class="pl-k">return</span> DTOBuilder().BuildList(AllAdminsEntities());
+}</pre></div>
+
+<p>Last solution is preferred because you can methods that returns subset of records and when you need DTOs you can simply build them with provided <code>Builder</code>s methods: <code>DTOBuilder()</code> for Entity to DTO mappings and <code>EntityBuilder()</code> for DTO to Entity mappings.
+They use <code>Builder</code> class from my Common framework.</p>
+
+<p>The paginated result uses method All with pagination parameters. It returns a <code>DataSourceResult</code>, that can also be used in WCF, with the page record and the total. <code>Sort</code> and <code>Filter</code> classes are in my DynamicLinq framework and contains data for sorting and filtering data for the page you need.</p>
+
+<h4>
+<a id="ilistrepositorytentity-tdto-tlistdto" class="anchor" href="#ilistrepositorytentity-tdto-tlistdto" aria-hidden="true"><span class="octicon octicon-link"></span></a><code>IListRepository&lt;TEntity, TDTO, TListDTO&gt;</code>
+</h4>
+
+<p>The <code>IListRepository&lt;TEntity, TDTO, TListDTO&gt;</code> is an interface that inherits from <code>IRepository&lt;TEntity, TDTO&gt;</code> and has only one get-set property for another <code>IRepository</code> but for <code>TEntity</code> and <code>TListDTO</code> so you can have two DTO for the same type, one lighter for reading lists of DTOs and one complete for CRUD operations.
+I use it when I have to return data using WCF and data must navigate deep inside objects.</p>
+
+<h2>
+<a id="iunitofwork" class="anchor" href="#iunitofwork" aria-hidden="true"><span class="octicon octicon-link"></span></a><code>IUnitOfWork</code>
+</h2>
+
+<p>The <code>IUnitOfWork</code> interface contains base methods for the <code>UnitOfWork</code> like transactions, save changes and getting repositories.</p>
+
+<h3>
+<a id="unitofwork" class="anchor" href="#unitofwork" aria-hidden="true"><span class="octicon octicon-link"></span></a><code>UnitOfWork</code>
+</h3>
+
+<p>There are two <code>UnitOfWork</code> classes, one wants <code>DbContext</code> in constructor, the other inherits from this and wants only the <code>DbContext</code> type and instantiate it with default constructor.
+<code>UnitOfWork</code> implements the <code>IDisposable</code> interface so you can use it in the <code>using</code> closure and it disposes the context only if it's instatiated by the <code>UnitOfWork</code> otherwise you will be responsible for it.
+<code>UnitOfWork</code> class, like <code>Builder</code>, uses reflection for getting <code>IRepository</code> objects that are unknown. You can get the repository in two ways:</p>
+
+<div class="highlight highlight-csharp"><pre><span class="pl-k">using</span> (<span class="pl-k">var</span> uow = <span class="pl-s">new</span> UnitOfWork&lt;TestDbContext&gt;()) <span class="pl-c">//the uow object is responsible for disposing the context</span>
+{
+  <span class="pl-s">const</span> <span class="pl-st">int</span> id = <span class="pl-c1">1</span>;
+  <span class="pl-k">var</span> user = uow.Repository&lt;User, UserDTO&gt;().SingleDTO(id);
+  <span class="pl-k">if</span> (user != <span class="pl-c1">null</span> &amp;&amp; uow.Repository&lt;UserRepository&gt;().IsAdmin(user.Id))
+  {
+    <span class="pl-c">//user is admin</span>
+  }
+  <span class="pl-k">else</span> <span class="pl-k">if</span> (user != <span class="pl-c1">null</span>)
+  {
+    <span class="pl-c">//user exists but is not admin</span>
+  }
+  <span class="pl-k">else</span>
+  {
+    <span class="pl-c">//user not found</span>
+  }
+}</pre></div>
+
+<p>The <code>user</code> object is retrieved by <code>IRepository&lt;TEntity, TDTO&gt;</code> exposed methods because the repository type is not known at compile time. We can check the admin status by retrieving the repository by type so we know it at compile time and we can use its business related methods like <code>IsAdmin</code>.</p>
+
+<h3>
+<a id="iunitofworkcallertunitofwork" class="anchor" href="#iunitofworkcallertunitofwork" aria-hidden="true"><span class="octicon octicon-link"></span></a><code>IUnitOfWorkCaller&lt;TUnitOfWork&gt;</code>
+</h3>
+
+<p>The <code>IUnitOfWorkCaller&lt;TUnitOfWork&gt;</code> interface contains methods for a class that performs lambda expressions on a <code>UnitOfWork</code></p>
+
+<h4>
+<a id="unitofworkcaller" class="anchor" href="#unitofworkcaller" aria-hidden="true"><span class="octicon octicon-link"></span></a><code>UnitOfWorkCaller</code>
+</h4>
+
+<p><code>UnitOfWorkCaller</code> is a static class for fluently accessing to a <code>IUnitOfWork</code>: one by <code>DbContext</code> and you get a simple <code>IUnitOfWork</code> or one by <code>IUnitOfWork</code> and you get all custom methods you have customized.</p>
+
+<p>This class helps writing code because you have not to worry about creating and disposing <code>UnitOfWork</code> or <code>DbContext</code> objects.</p>
+
+<p>Previous <code>UnitOfWork</code> code can be written like:</p>
+
+<div class="highlight highlight-csharp"><pre>UnitOfWorkCaller.Context&lt;TestDbContext&gt;().UnitOfWork(uow =&gt;
+{
+  <span class="pl-s">const</span> <span class="pl-st">int</span> id = <span class="pl-c1">1</span>;
+  <span class="pl-k">var</span> user = uow.Repository&lt;User, UserDTO&gt;().SingleDTO(id);
+  <span class="pl-k">if</span> (user != <span class="pl-c1">null</span> &amp;&amp; uow.Repository&lt;UserRepository&gt;().IsAdmin(user.Id))
+  {
+    <span class="pl-c">//user is admin</span>
+  }
+  <span class="pl-k">else</span> <span class="pl-k">if</span> (user != <span class="pl-c1">null</span>)
+  {
+    <span class="pl-c">//user exists but is not admin</span>
+  }
+  <span class="pl-k">else</span>
+  {
+    <span class="pl-c">//user not found</span>
+  }
+});</pre></div>
+
+<p>If you need a return value from this lamda simply return it, it automatically returns it to the expression value.</p>
+        </article>
+      </div>
     </div>
+    <footer>
+      <div class="owner">
+      <p><a href="https://github.com/Ar3sDevelopment" class="avatar"><img src="https://avatars0.githubusercontent.com/u/6479849?v=3&amp;s=60" width="48" height="48"></a> <a href="https://github.com/Ar3sDevelopment">Ar3sDevelopment</a> maintains <a href="https://github.com/Ar3sDevelopment/Caelan.Frameworks.BIZ">Caelan Frameworks - Business</a></p>
 
-    
-  </body>
+
+      </div>
+      <div class="creds">
+        <small>This page generated using <a href="http://pages.github.com/">GitHub Pages</a><br>theme by <a href="https://twitter.com/jonrohan/">Jon Rohan</a></small>
+      </div>
+    </footer>
+  </div>
+  <div class="current-section">
+    <a href="#top">Scroll to top</a>
+    <a href="https://github.com/Ar3sDevelopment/Caelan.Frameworks.BIZ/tarball/master" class="tar">tar</a><a href="https://github.com/Ar3sDevelopment/Caelan.Frameworks.BIZ/zipball/master" class="zip">zip</a><a href="" class="code">source code</a>
+    <p class="name"></p>
+  </div>
+
+  
+</body>
 </html>
