@@ -49,6 +49,26 @@ type UnitOfWork internal (context : DbContext) =
         member __.Entry<'TEntity>(entity : 'TEntity) = context.Entry(entity)
         member __.DbSet<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>() = 
             context.Set<'TEntity>()
+        member this.Transaction(body: Action<IUnitOfWork>) =
+            using (context.Database.BeginTransaction()) (fun transaction ->
+                try
+                    body.Invoke(this)
+                    transaction.Commit()
+                with
+                    | _ -> transaction.Rollback()
+            )
+        member this.TransactionSaveChanges(body: Action<IUnitOfWork>) =
+            using (context.Database.BeginTransaction()) (fun transaction ->
+                try
+                    body.Invoke(this)
+                    let res = context.SaveChanges() <> 0
+                    transaction.Commit()
+                    res
+                with
+                    | _ ->
+                        transaction.Rollback()
+                        false
+            )
     
     member this.SaveChanges() = (this :> IUnitOfWork).SaveChanges()
     member this.Entry<'TEntity>(entity) = (this :> IUnitOfWork).Entry(entity)
@@ -59,11 +79,24 @@ type UnitOfWork internal (context : DbContext) =
     member this.Repository<'TEntity, 'TDTO, 'TListDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct and 'TListDTO : equality and 'TListDTO : null and 'TListDTO : not struct>() = 
         (this :> IUnitOfWork).Repository<'TEntity, 'TDTO, 'TListDTO>()
     member __.SaveChangesAsync() = async { return! context.SaveChangesAsync() |> Async.AwaitTask } |> Async.StartAsTask
+    member this.Transaction(body: Action<IUnitOfWork>) =
+        (this :> IUnitOfWork).Transaction(body)
+    member this.TransactionSaveChanges(body: Action<IUnitOfWork>) =
+        (this :> IUnitOfWork).TransactionSaveChanges(body)
     
     interface IDisposable with
         member __.Dispose() = ()
     
-    member this.Dispose() = (this :> IDisposable).Dispose()
+    abstract Dispose : unit -> unit
+    default this.Dispose() = (this :> IDisposable).Dispose()
 
-type UnitOfWork<'TContext when 'TContext :> DbContext>() = 
-    inherit UnitOfWork(Activator.CreateInstance<'TContext>())
+type UnitOfWork<'TContext when 'TContext :> DbContext> private (context) = 
+    inherit UnitOfWork(context)
+
+    override this.Dispose() =
+        context.Dispose()
+        base.Dispose()
+
+    new() =
+        let context = Activator.CreateInstance<'TContext>()
+        new UnitOfWork<'TContext>(context)

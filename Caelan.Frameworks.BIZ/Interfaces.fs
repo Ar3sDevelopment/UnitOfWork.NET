@@ -21,8 +21,10 @@ and [<AllowNullLiteral>] IRepository<'TEntity, 'TDTO when 'TEntity : not struct 
     abstract DTOBuilder : unit -> Builder<'TEntity, 'TDTO>
     abstract EntityBuilder : unit -> Builder<'TDTO, 'TEntity>
     abstract Set : unit -> DbSet<'TEntity>
-    abstract Single : [<ParamArray>]ids:obj [] -> 'TDTO
-    abstract Single : Expression<Func<'TEntity, bool>> -> 'TDTO
+    abstract SingleDTO : [<ParamArray>]ids:obj [] -> 'TDTO
+    abstract SingleDTO : Expression<Func<'TEntity, bool>> -> 'TDTO
+    abstract SingleEntity : [<ParamArray>]ids:obj [] -> 'TEntity
+    abstract SingleEntity : Expression<Func<'TEntity, bool>> -> 'TEntity
     abstract List : unit -> seq<'TDTO>
     abstract List : Expression<Func<'TEntity, bool>> -> seq<'TDTO>
     abstract All : unit -> IQueryable<'TEntity>
@@ -41,6 +43,7 @@ and [<AllowNullLiteral>] IListRepository<'TEntity, 'TDTO, 'TListDTO when 'TEntit
     abstract ListRepository : IRepository<'TEntity, 'TListDTO> with get, set
 
 and [<AllowNullLiteral>] IUnitOfWork = 
+    inherit IDisposable
     abstract SaveChanges : unit -> int
     abstract Entry<'TEntity> : 'TEntity -> DbEntityEntry
     abstract DbSet<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null> : unit
@@ -50,3 +53,15 @@ and [<AllowNullLiteral>] IUnitOfWork =
      -> IRepository<'TEntity, 'TDTO>
     abstract Repository<'TEntity, 'TDTO, 'TListDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct and 'TListDTO : equality and 'TListDTO : null and 'TListDTO : not struct> : unit
      -> IListRepository<'TEntity, 'TDTO, 'TListDTO>
+    abstract Transaction : body: Action<IUnitOfWork> -> unit
+    abstract TransactionSaveChanges : body: Action<IUnitOfWork> -> bool
+
+type IUnitOfWorkCaller<'TUnitOfWork when 'TUnitOfWork :> IUnitOfWork and 'TUnitOfWork : (new : unit -> 'TUnitOfWork)> =
+    abstract UnitOfWork<'T> : call: Func<IUnitOfWork, 'T> -> 'T
+    abstract UnitOfWork : call: Action<IUnitOfWork> -> unit
+    abstract Repository<'T, 'TRepository when 'TRepository :> IRepository> : call: Func<'TRepository, 'T> -> 'T
+    abstract Repository<'T, 'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : not struct and 'TDTO : equality and 'TDTO : null> : call: Func<IRepository<'TEntity, 'TDTO>, 'T> -> 'T
+    abstract RepositoryList<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : not struct and 'TDTO : equality and 'TDTO : null> : unit -> seq<'TDTO>
+    abstract UnitOfWorkCallSaveChanges : call: Action<IUnitOfWork> -> bool
+    abstract Transaction : body: Action<IUnitOfWork> -> unit
+    abstract TransactionSaveChanges : body: Action<IUnitOfWork> -> bool
