@@ -1,5 +1,6 @@
 #Business Framework
 The Caelan.Frameworks.BIZ NuGet Package
+If you need support or you want to contact me I'm [CaelanIt](https://twitter.com/CaelanIt) on Twitter
 
 ##What is it?
 This package provides some utilities for the business layer like repositories and units of work.
