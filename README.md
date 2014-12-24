@@ -20,6 +20,7 @@ The `Repository<TEntity, TDTO>` inherits from `Repository` and implements `IRepo
 If you need some custom methods you can inherit from `Repository<TEntity, TDTO>` and use all the business ready methods.
 Supposing you need a method to get if a user is admin:
 ```csharp
+//Custom `Repository` implemetation class
 public bool IsAdmin(int id)
 {
   var user = SingleEntity(id);
@@ -28,6 +29,7 @@ public bool IsAdmin(int id)
 ```
 Or if you need a method that return all admin users:
 ```csharp
+//Custom `Repository` implemetation class
 public IEnumerable<UserDTO> AllAdmins()
 {
   return List(t => t.Admin); //DTOs
@@ -48,6 +50,27 @@ Last solution is preferred because you can methods that returns subset of record
 They use `Builder` class from my Common framework.
 
 The paginated result uses method All with pagination parameters. It returns a `DataSourceResult`, that can also be used in WCF, with the page record and the total. `Sort` and `Filter` classes are in my DynamicLinq framework and contains data for sorting and filtering data for the page you need.
+
+####Accessing to other `Repository` from current
+If you need to use another `Repository` while doing operation in a `Repository` you can use the `UnitOfWork` method for going to container and access to other repositories like explained later.
+Here an example:
+```csharp
+public bool CheckLogin(string username, string password)
+{
+  var user = Single(t => t.Username == username && t.Password == passowrd); //not secure!!
+  var res = user != null;
+
+  if (res)
+  {
+    var access = new UserAccessDTO { IDUser = user.ID, Date = DateTime.Now };
+    UnitOfWork().Repository<UserAccess, UserAccessDTO>().Insert(access);
+  }
+
+  return res;
+}
+```
+With this code you can log a user access without leaving `UserRepository` class and delegate this to the caller method.
+Remember to keep `Repository` methods simple and without doing action out of their scope.
 
 ####`IListRepository<TEntity, TDTO, TListDTO>`
 The `IListRepository<TEntity, TDTO, TListDTO>` is an interface that inherits from `IRepository<TEntity, TDTO>` and has only one get-set property for another `IRepository` but for `TEntity` and `TListDTO` so you can have two DTO for the same type, one lighter for reading lists of DTOs and one complete for CRUD operations.

@@ -1,14 +1,14 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Caelan.Frameworks.BIZ/Repository.fs">
+  <MonoDevelop.Ide.Workbench>
     <Files>
-      <File FileName="Caelan.Frameworks.BIZ/Repository.fs" Line="17" Column="17" />
-      <File FileName="Caelan.Frameworks.BIZ/UnitOfWork.fs" Line="1" Column="1" />
-      <File FileName="Caelan.Frameworks.BIZ/GenericRepository.fs" Line="1" Column="1" />
-      <File FileName="Caelan.Frameworks.BIZ/ListRepository.fs" Line="1" Column="1" />
-      <File FileName="Caelan.Frameworks.BIZ/Interfaces.fs" Line="1" Column="1" />
+      <File FileName="Caelan.Frameworks.BIZ/Repository.fs" Line="21" Column="21" />
+      <File FileName="Caelan.Frameworks.BIZ/UnitOfWork.fs" Line="30" Column="30" />
+      <File FileName="Caelan.Frameworks.BIZ/GenericRepository.fs" Line="27" Column="27" />
+      <File FileName="Caelan.Frameworks.BIZ/ListRepository.fs" Line="25" Column="25" />
+      <File FileName="Caelan.Frameworks.BIZ/Interfaces.fs" Line="6" Column="6" />
       <File FileName="Caelan.Frameworks.BIZ/packages.config" Line="1" Column="1" />
-      <File FileName="Caelan.Frameworks.BIZ/UnitOfWorkCaller.fs" Line="1" Column="1" />
+      <File FileName="Caelan.Frameworks.BIZ/UnitOfWorkCaller.fs" Line="47" Column="47" />
       <File FileName="Caelan.Frameworks.BIZ/AssemblyInfo.fs" Line="1" Column="1" />
       <File FileName="Caelan.Frameworks.BIZ.Tests/BusinessTests.cs" Line="1" Column="1" />
     </Files>
