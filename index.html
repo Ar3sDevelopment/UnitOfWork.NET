@@ -68,7 +68,8 @@ This class is abstract because I thought that is useless for other uses.</p>
 If you need some custom methods you can inherit from <code>Repository&lt;TEntity, TDTO&gt;</code> and use all the business ready methods.
 Supposing you need a method to get if a user is admin:</p>
 
-<div class="highlight highlight-csharp"><pre><span class="pl-s">public</span> <span class="pl-st">bool</span> IsAdmin(<span class="pl-st">int</span> id)
+<div class="highlight highlight-csharp"><pre><span class="pl-c">//Custom `Repository` implemetation class</span>
+<span class="pl-s">public</span> <span class="pl-st">bool</span> IsAdmin(<span class="pl-st">int</span> id)
 {
   <span class="pl-k">var</span> user = SingleEntity(id);
   <span class="pl-k">return</span> user != <span class="pl-c1">null</span> ? user.Admin : <span class="pl-c1">false</span>;
@@ -76,7 +77,8 @@ Supposing you need a method to get if a user is admin:</p>
 
 <p>Or if you need a method that return all admin users:</p>
 
-<div class="highlight highlight-csharp"><pre><span class="pl-s">public</span> IEnumerable&lt;UserDTO&gt; AllAdmins()
+<div class="highlight highlight-csharp"><pre><span class="pl-c">//Custom `Repository` implemetation class</span>
+<span class="pl-s">public</span> IEnumerable&lt;UserDTO&gt; AllAdmins()
 {
   <span class="pl-k">return</span> List(t =&gt; t.Admin); <span class="pl-c">//DTOs</span>
 }
@@ -96,6 +98,29 @@ Supposing you need a method to get if a user is admin:</p>
 They use <code>Builder</code> class from my Common framework.</p>
 
 <p>The paginated result uses method All with pagination parameters. It returns a <code>DataSourceResult</code>, that can also be used in WCF, with the page record and the total. <code>Sort</code> and <code>Filter</code> classes are in my DynamicLinq framework and contains data for sorting and filtering data for the page you need.</p>
+
+<h4>
+<a id="accessing-to-other-repository-from-current" class="anchor" href="#accessing-to-other-repository-from-current" aria-hidden="true"><span class="octicon octicon-link"></span></a>Accessing to other <code>Repository</code> from current</h4>
+
+<p>If you need to use another <code>Repository</code> while doing operation in a <code>Repository</code> you can use the <code>UnitOfWork</code> method for going to container and access to other repositories like explained later.
+Here an example:</p>
+
+<div class="highlight highlight-csharp"><pre><span class="pl-s">public</span> <span class="pl-st">bool</span> CheckLogin(<span class="pl-st">string</span> username, <span class="pl-st">string</span> password)
+{
+  <span class="pl-k">var</span> user = Single(t =&gt; t.Username == username &amp;&amp; t.Password == passowrd); <span class="pl-c">//not secure!!</span>
+  <span class="pl-k">var</span> res = user != <span class="pl-c1">null</span>;
+
+  <span class="pl-k">if</span> (res)
+  {
+    <span class="pl-k">var</span> access = <span class="pl-s">new</span> UserAccessDTO { IDUser = user.ID, Date = DateTime.Now };
+    UnitOfWork().Repository&lt;UserAccess, UserAccessDTO&gt;().Insert(access);
+  }
+
+  <span class="pl-k">return</span> res;
+}</pre></div>
+
+<p>With this code you can log a user access without leaving <code>UserRepository</code> class and delegate this to the caller method.
+Remember to keep <code>Repository</code> methods simple and without doing action out of their scope.</p>
 
 <h4>
 <a id="ilistrepositorytentity-tdto-tlistdto" class="anchor" href="#ilistrepositorytentity-tdto-tlistdto" aria-hidden="true"><span class="octicon octicon-link"></span></a><code>IListRepository&lt;TEntity, TDTO, TListDTO&gt;</code>
