@@ -1,5 +1,5 @@
 #Business Framework
-##Caelan.Frameworks.BIZ NuGet Package
+The Caelan.Frameworks.BIZ NuGet Package
 
 ##What is it?
 This package provides some utilities for the business layer like repositories and units of work.
