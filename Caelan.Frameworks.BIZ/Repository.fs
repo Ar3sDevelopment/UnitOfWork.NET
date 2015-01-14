@@ -21,20 +21,19 @@ type Repository(manager) =
     member private __.UnitOfWork : IUnitOfWork = manager
     member this.GetUnitOfWork() = (this :> IRepository).GetUnitOfWork()
     member this.GetUnitOfWork<'T when 'T :> IUnitOfWork>() = (this :> IRepository).GetUnitOfWork<'T>()
-
-    static member Entity<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>(manager : IUnitOfWork) =
+    static member Entity<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>(manager : IUnitOfWork) = 
         Repository<'TEntity>(manager)
 
-and Repository<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null> internal (manager : IUnitOfWork) =
-    member this.DTO<'TDTO when 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>() =
+and Repository<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null> internal (manager : IUnitOfWork) = 
+    member this.DTO<'TDTO when 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>() = 
         Repository<'TEntity, 'TDTO>(manager)
 
 and [<AllowNullLiteral>] Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>(manager) = 
     inherit Repository(manager : IUnitOfWork)
     
     interface IRepository<'TEntity, 'TDTO> with
-        member __.DTOBuilder(mapper) = Builder.Source<'TEntity>().Destination<'TDTO>(mapper)
-        member __.EntityBuilder(mapper) = Builder.Source<'TDTO>().Destination<'TEntity>(mapper)
+        member __.DTOBuilder(mapper) = Builder.Source<'TEntity>().Destination<'TDTO> (mapper)
+        member __.EntityBuilder(mapper) = Builder.Source<'TDTO>().Destination<'TEntity> (mapper)
         member __.DTOBuilder() = Builder.Source<'TEntity>().Destination<'TDTO>()
         member __.EntityBuilder() = Builder.Source<'TDTO>().Destination<'TEntity>()
         member __.Set() = manager.DbSet<'TEntity>()
@@ -81,9 +80,9 @@ and [<AllowNullLiteral>] Repository<'TEntity, 'TDTO when 'TEntity : not struct a
         
         member this.Update(entity : 'TEntity, [<ParamArray>] ids) = 
             manager.Entry(this.Set().Find(ids)).CurrentValues.SetValues(entity)
-        member this.Delete(_ : 'TDTO, [<ParamArray>] ids) = this.Set().Remove(this.Set().Find(ids)) |> ignore
-        member this.Delete(_ : 'TEntity, [<ParamArray>] ids) = this.Set().Remove(this.Set().Find(ids)) |> ignore
-        member this.Delete([<ParamArray>] ids : obj []) = this.Delete(this.SingleDTO(ids), ids)
+        member this.Delete(_ : 'TDTO, [<ParamArray>] ids) = this.Delete(ids) |> ignore
+        member this.Delete(_ : 'TEntity, [<ParamArray>] ids) = this.Delete(ids) |> ignore
+        member this.Delete([<ParamArray>] ids : obj []) = this.Set().Remove(this.Set().Find(ids)) |> ignore
     
     member val DTOMapper : IMapper<'TEntity, 'TDTO> = null with get, set
     member val EntityMapper : IMapper<'TDTO, 'TEntity> = null with get, set
