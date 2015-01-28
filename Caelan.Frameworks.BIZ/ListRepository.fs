@@ -8,11 +8,11 @@ type ListRepository<'TEntity, 'TDTO, 'TListDTO when 'TEntity : not struct and 'T
     let mutable listRepository = manager.Repository<'TEntity, 'TListDTO>()
     
     interface IListRepository<'TEntity, 'TDTO, 'TListDTO> with
-        
-        member __.ListRepository 
-            with get () = listRepository
-            and set (value) = listRepository <- value
     
-    member this.ListRepository 
-        with get () = (this :> IListRepository<'TEntity, 'TDTO, 'TListDTO>).ListRepository
-        and set (value) = (this :> IListRepository<'TEntity, 'TDTO, 'TListDTO>).ListRepository <- value
+        member this.ListRepository 
+            with get () = this.ListRepository
+            and set (value) = this.ListRepository <- value
+
+    member __.ListRepository 
+        with get () = listRepository
+        and set (value) = listRepository <- value
