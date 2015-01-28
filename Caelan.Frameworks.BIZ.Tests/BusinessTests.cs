@@ -1,5 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Caelan.Frameworks.BIZ.Classes;
+using Caelan.Frameworks.BIZ.Tests.Models;
 
 namespace Caelan.Frameworks.BIZ.Tests
 {
@@ -7,8 +9,11 @@ namespace Caelan.Frameworks.BIZ.Tests
 	public class BusinessTests
 	{
 		[TestMethod]
-		public void TestMethod1()
+		public void TestUnitOfWork()
 		{
+			using (var uow = new UnitOfWork<TestDbContext>())
+			{
+			}
 		}
 	}
 }
