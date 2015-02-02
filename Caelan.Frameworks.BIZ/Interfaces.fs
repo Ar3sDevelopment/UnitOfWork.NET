@@ -14,29 +14,32 @@ type IRepository =
     abstract GetUnitOfWork : unit -> IUnitOfWork
     abstract GetUnitOfWork<'T when 'T :> IUnitOfWork> : unit -> 'T
 
-and [<AllowNullLiteral>] IRepository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct> = 
+and [<AllowNullLiteral>] IRepository<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null> =
     inherit IRepository
+    abstract Set : unit -> DbSet<'TEntity>
+    abstract SingleEntity : [<ParamArray>]ids:obj [] -> 'TEntity
+    abstract SingleEntity : Expression<Func<'TEntity, bool>> -> 'TEntity
+    abstract All : unit -> IQueryable<'TEntity>
+    abstract All : Expression<Func<'TEntity, bool>> -> IQueryable<'TEntity>
+    abstract Insert : 'TEntity -> unit
+    abstract Update : 'TEntity * [<ParamArray>]ids:obj [] -> unit
+    abstract Delete : 'TEntity * [<ParamArray>]ids:obj [] -> unit
+    abstract Delete : [<ParamArray>]ids:obj [] -> unit
+
+and [<AllowNullLiteral>] IRepository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct> = 
+    inherit IRepository<'TEntity>
     abstract DTOBuilder : IMapper<'TEntity, 'TDTO> -> Builder<'TEntity, 'TDTO>
     abstract EntityBuilder : IMapper<'TDTO, 'TEntity> -> Builder<'TDTO, 'TEntity>
     abstract DTOBuilder : unit -> Builder<'TEntity, 'TDTO>
     abstract EntityBuilder : unit -> Builder<'TDTO, 'TEntity>
-    abstract Set : unit -> DbSet<'TEntity>
     abstract SingleDTO : [<ParamArray>]ids:obj [] -> 'TDTO
     abstract SingleDTO : Expression<Func<'TEntity, bool>> -> 'TDTO
-    abstract SingleEntity : [<ParamArray>]ids:obj [] -> 'TEntity
-    abstract SingleEntity : Expression<Func<'TEntity, bool>> -> 'TEntity
     abstract List : unit -> seq<'TDTO>
     abstract List : Expression<Func<'TEntity, bool>> -> seq<'TDTO>
-    abstract All : unit -> IQueryable<'TEntity>
-    abstract All : Expression<Func<'TEntity, bool>> -> IQueryable<'TEntity>
     abstract All : int * int * seq<Sort> * Filter * Expression<Func<'TEntity, bool>> -> DataSourceResult<'TDTO>
     abstract Insert : 'TDTO -> unit
-    abstract Insert : 'TEntity -> unit
     abstract Update : 'TDTO * [<ParamArray>]ids:obj [] -> unit
-    abstract Update : 'TEntity * [<ParamArray>]ids:obj [] -> unit
     abstract Delete : 'TDTO * [<ParamArray>]ids:obj [] -> unit
-    abstract Delete : 'TEntity * [<ParamArray>]ids:obj [] -> unit
-    abstract Delete : [<ParamArray>]ids:obj [] -> unit
 
 and [<AllowNullLiteral>] IListRepository<'TEntity, 'TDTO, 'TListDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct and 'TListDTO : equality and 'TListDTO : null and 'TListDTO : not struct> = 
     inherit IRepository<'TEntity, 'TDTO>
