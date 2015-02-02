@@ -11,6 +11,33 @@ open Caelan.Frameworks.BIZ.Interfaces
 type UnitOfWork internal (context : DbContext) = 
     let repositories = new Dictionary<Type, IRepository>()
     
+    let findRepositoryInAssembly ([<ParamArray>] args : obj []) (baseType, defaultImplementationType) = 
+        let findRepositoryInAssembly (assembly : Assembly) = 
+            match assembly with
+            | null -> None
+            | _ -> 
+                assembly.GetTypes() 
+                |> Seq.tryFind (fun t -> t.BaseType = baseType || (baseType.IsAssignableFrom(t) && baseType <> t))
+        
+        let rec getRepository asmList = 
+            match asmList with
+            | head :: tail -> 
+                match head |> findRepositoryInAssembly with
+                | None -> tail |> getRepository
+                | Some(repo) -> repo
+            | [] -> 
+                match baseType.IsInterface with
+                | true -> defaultImplementationType
+                | _ -> baseType
+        
+        let repoType = 
+            [ Assembly.GetExecutingAssembly()
+              Assembly.GetEntryAssembly()
+              Assembly.GetCallingAssembly() ]
+            |> getRepository
+        
+        Activator.CreateInstance(repoType, args) :?> IRepository
+    
     let findRepository (repoType : Type, implementation : unit -> IRepository) = 
         let dictRepo = 
             repositories.SingleOrDefault(fun t -> t.Key.IsAssignableFrom(repoType) || repoType.IsAssignableFrom(t.Key))
@@ -22,14 +49,17 @@ type UnitOfWork internal (context : DbContext) =
     
     interface IUnitOfWork with
         member this.SaveChanges() = this.SaveChanges()
-        member this.DbSet<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>() = this.DbSet<'TEntity>()
+        member this.DbSet<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>() = 
+            this.DbSet<'TEntity>()
         member this.Entry<'TEntity>(entity) = this.Entry<'TEntity>(entity)
         member this.Repository<'TRepository when 'TRepository :> IRepository>() = this.Repository<'TRepository>()
-        member this.Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>() = this.Repository<'TEntity, 'TDTO>()
-        member this.Repository<'TEntity, 'TDTO, 'TListDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct and 'TListDTO : equality and 'TListDTO : null and 'TListDTO : not struct>() = this.Repository<'TEntity, 'TDTO, 'TListDTO>()
+        member this.Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>() = 
+            this.Repository<'TEntity, 'TDTO>()
+        member this.Repository<'TEntity, 'TDTO, 'TListDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct and 'TListDTO : equality and 'TListDTO : null and 'TListDTO : not struct>() = 
+            this.Repository<'TEntity, 'TDTO, 'TListDTO>()
         member this.Transaction(body : Action<IUnitOfWork>) = this.Transaction(body)
         member this.TransactionSaveChanges(body : Action<IUnitOfWork>) = this.TransactionSaveChanges(body)
-
+    
     member __.SaveChanges() = context.SaveChanges()
     member __.SaveChangesAsync() = async { return! context.SaveChangesAsync() |> Async.AwaitTask } |> Async.StartAsTask
     
@@ -47,14 +77,17 @@ type UnitOfWork internal (context : DbContext) =
     member this.Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>() = 
         let repoType = typeof<IRepository<'TEntity, 'TDTO>>
         let implementation = 
-            (fun () -> GenericRepository.CreateGenericRepository<'TEntity, 'TDTO>(this) :> IRepository)
+            (fun () -> 
+            (typeof<IRepository<'TEntity, 'TDTO>>, typeof<Repository<'TEntity, 'TDTO>>) 
+            |> findRepositoryInAssembly [| this |])
         ((repoType, implementation) |> findRepository) :?> IRepository<'TEntity, 'TDTO>
     
     member this.Repository<'TEntity, 'TDTO, 'TListDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct and 'TListDTO : equality and 'TListDTO : null and 'TListDTO : not struct>() = 
         let repoType = typeof<IListRepository<'TEntity, 'TDTO, 'TListDTO>>
         let implementation = 
             (fun () -> 
-            GenericRepository.CreateGenericListRepository<'TEntity, 'TDTO, 'TListDTO>(this) :> IRepository)
+            (typeof<IListRepository<'TEntity, 'TDTO, 'TListDTO>>, typeof<ListRepository<'TEntity, 'TDTO, 'TListDTO>>) 
+            |> findRepositoryInAssembly [| this |])
         ((repoType, implementation) |> findRepository) :?> IListRepository<'TEntity, 'TDTO, 'TListDTO>
     
     member __.Entry<'TEntity>(entity : 'TEntity) = context.Entry(entity)

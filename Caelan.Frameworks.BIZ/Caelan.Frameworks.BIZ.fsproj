@@ -54,7 +54,6 @@
     <Compile Include="Interfaces.fs" />
     <Compile Include="Repository.fs" />
     <Compile Include="ListRepository.fs" />
-    <Compile Include="GenericRepository.fs" />
     <Compile Include="UnitOfWork.fs" />
     <Compile Include="UnitOfWorkCaller.fs" />
     <None Include="App.config" />

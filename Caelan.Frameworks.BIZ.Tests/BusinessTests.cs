@@ -17,6 +17,16 @@ namespace Caelan.Frameworks.BIZ.Tests
 		{
 			using (var uow = UnitOfWorkCaller.Context<TestDbContext>())
 			{
+				var users = uow.RepositoryList<User, UserDTO>();
+
+				foreach (var user in users)
+				{
+					Console.WriteLine("{0} {1}", user.Id, user.Login);
+				}
+			}
+
+			using (var uow = UnitOfWorkCaller.Context<TestDbContext>())
+			{
 				var users = uow.UnitOfWork(t => t.Repository<UserRepository>().NewList());
 
 				foreach (var user in users)
