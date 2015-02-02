@@ -9,7 +9,8 @@ let findRepository ([<ParamArray>] args : obj []) (baseType, baseGenericType : T
         match assembly with
         | null -> None
         | _ -> 
-            match assembly.GetTypes() |> Seq.tryFind (fun t -> t.BaseType = baseType || (baseType.IsAssignableFrom (t) && baseType <> t)) with
+            match assembly.GetTypes() 
+                  |> Seq.tryFind (fun t -> t.BaseType = baseType || (baseType.IsAssignableFrom(t) && baseType <> t)) with
             | Some(repoType) -> Some(Activator.CreateInstance(repoType, args))
             | None -> None
     

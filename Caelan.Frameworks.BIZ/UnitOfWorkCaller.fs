@@ -5,6 +5,11 @@ open System.Data.Entity
 open Caelan.Frameworks.BIZ.Interfaces
 
 type GenericUnitOfWorkCaller<'TUnitOfWork when 'TUnitOfWork :> IUnitOfWork and 'TUnitOfWork : (new : unit -> 'TUnitOfWork)> internal () = 
+    let uow = new 'TUnitOfWork()
+    
+    interface IDisposable with
+        member this.Dispose() = this.Dispose()
+
     interface IUnitOfWorkCaller<'TUnitOfWork> with
         member this.UnitOfWork<'T>(call: Func<IUnitOfWork, 'T>) = this.UnitOfWork(call)
         member this.UnitOfWork(call: Action<IUnitOfWork>) = this.UnitOfWork(call)
@@ -21,8 +26,8 @@ type GenericUnitOfWorkCaller<'TUnitOfWork when 'TUnitOfWork :> IUnitOfWork and '
 
         member this.TransactionSaveChanges(body: Action<IUnitOfWork>) = this.TransactionSaveChanges(body)
 
-    member __.UnitOfWork<'T>(call: Func<IUnitOfWork, 'T>) = using (new 'TUnitOfWork()) (fun manager -> call.Invoke(manager))
-    member __.UnitOfWork(call: Action<IUnitOfWork>) = using (new 'TUnitOfWork()) (fun manager -> call.Invoke(manager))
+    member __.UnitOfWork<'T>(call: Func<IUnitOfWork, 'T>) = call.Invoke(uow)
+    member __.UnitOfWork(call: Action<IUnitOfWork>) = call.Invoke(uow)
 
     member this.Repository<'T, 'TRepository when 'TRepository :> IRepository>(call: Func<'TRepository, 'T>) =
         this.UnitOfWork(fun t -> call.Invoke(t.Repository<'TRepository>()))
@@ -47,6 +52,9 @@ type GenericUnitOfWorkCaller<'TUnitOfWork when 'TUnitOfWork :> IUnitOfWork and '
             t.TransactionSaveChanges(body)
         )
 
+    member __.Dispose() =
+        uow.Dispose()
+
 type UnitOfWorkCaller<'TContext when 'TContext :> DbContext> internal () = 
     class
     inherit GenericUnitOfWorkCaller<UnitOfWork<'TContext>>()
@@ -54,7 +62,7 @@ type UnitOfWorkCaller<'TContext when 'TContext :> DbContext> internal () =
 
 type UnitOfWorkCaller private () =
     static member Context<'TContext when 'TContext :> DbContext>() =
-        UnitOfWorkCaller<'TContext>()
+        new UnitOfWorkCaller<'TContext>()
 
     static member UnitOfWork<'TUnitOfWork when 'TUnitOfWork :> IUnitOfWork and 'TUnitOfWork : (new : unit -> 'TUnitOfWork)>() =
-        GenericUnitOfWorkCaller<'TUnitOfWork>()
+        new GenericUnitOfWorkCaller<'TUnitOfWork>()
