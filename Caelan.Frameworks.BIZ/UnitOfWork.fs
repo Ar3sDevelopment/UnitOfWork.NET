@@ -11,24 +11,22 @@ open Caelan.Frameworks.BIZ.Interfaces
 type UnitOfWork internal (context : DbContext) = 
     let repositories = new Dictionary<Type, IRepository>()
     
-    let findRepositoryInAssembly ([<ParamArray>] args : obj []) (baseType, defaultImplementationType) = 
+    let findRepositoryInAssemblies ([<ParamArray>] args : obj []) (baseType : Type) = 
         let findRepositoryInAssembly (assembly : Assembly) = 
             match assembly with
             | null -> None
             | _ -> 
                 assembly.GetTypes() 
-                |> Seq.tryFind (fun t -> t.BaseType = baseType || (baseType.IsAssignableFrom(t) && baseType <> t))
+                |> Seq.tryFind (fun t -> not t.IsInterface && not t.IsAbstract && ((t.BaseType <> null && t.BaseType.GUID = baseType.GUID) || (baseType.IsAssignableFrom(t) && baseType.GUID <> t.GUID) || t.GetInterfaces().Any(fun i -> i.GUID = baseType.GUID)))
         
         let rec getRepository asmList = 
             match asmList with
             | head :: tail -> 
                 match head |> findRepositoryInAssembly with
                 | None -> tail |> getRepository
+                | Some(repo) when repo.ContainsGenericParameters -> repo.MakeGenericType(baseType.GenericTypeArguments)
                 | Some(repo) -> repo
-            | [] -> 
-                match baseType.IsInterface with
-                | true -> defaultImplementationType
-                | _ -> baseType
+            | [] -> null
         
         let repoType = 
             [ Assembly.GetExecutingAssembly()
@@ -78,16 +76,16 @@ type UnitOfWork internal (context : DbContext) =
         let repoType = typeof<IRepository<'TEntity, 'TDTO>>
         let implementation = 
             (fun () -> 
-            (typeof<IRepository<'TEntity, 'TDTO>>, typeof<Repository<'TEntity, 'TDTO>>) 
-            |> findRepositoryInAssembly [| this |])
+            (typeof<IRepository<'TEntity, 'TDTO>>)
+            |> findRepositoryInAssemblies [| this |])
         ((repoType, implementation) |> findRepository) :?> IRepository<'TEntity, 'TDTO>
     
     member this.Repository<'TEntity, 'TDTO, 'TListDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct and 'TListDTO : equality and 'TListDTO : null and 'TListDTO : not struct>() = 
         let repoType = typeof<IListRepository<'TEntity, 'TDTO, 'TListDTO>>
         let implementation = 
             (fun () -> 
-            (typeof<IListRepository<'TEntity, 'TDTO, 'TListDTO>>, typeof<ListRepository<'TEntity, 'TDTO, 'TListDTO>>) 
-            |> findRepositoryInAssembly [| this |])
+            (typeof<IListRepository<'TEntity, 'TDTO, 'TListDTO>>)
+            |> findRepositoryInAssemblies [| this |])
         ((repoType, implementation) |> findRepository) :?> IListRepository<'TEntity, 'TDTO, 'TListDTO>
     
     member __.Entry<'TEntity>(entity : 'TEntity) = context.Entry(entity)
