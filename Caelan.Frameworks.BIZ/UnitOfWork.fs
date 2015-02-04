@@ -16,13 +16,13 @@ type UnitOfWork internal (context : DbContext) =
             match assembly with
             | null -> None
             | _ -> 
-                assembly.GetTypes() 
+                assembly.GetTypes()
                 |> Seq.tryFind 
                        (fun t -> 
                        not t.IsInterface && not t.IsAbstract 
-                       && ((t.BaseType <> null && t.BaseType.GUID = baseType.GUID) 
-                           || (baseType.IsAssignableFrom(t) && baseType.GUID <> t.GUID) 
-                           || t.GetInterfaces().Any(fun i -> i.GUID = baseType.GUID)))
+                       && (((t.BaseType = baseType && not t.BaseType.ContainsGenericParameters) || (t.BaseType.ContainsGenericParameters && t.BaseType.GenericTypeArguments.Length = baseType.GenericTypeArguments.Length && t.BaseType.MakeGenericType(baseType.GenericTypeArguments) = baseType))
+                           || (((baseType.IsAssignableFrom(t) && baseType <> t) && not t.ContainsGenericParameters) || (t.ContainsGenericParameters  && t.GenericTypeArguments.Length = baseType.GenericTypeArguments.Length && baseType.IsAssignableFrom(t.MakeGenericType(baseType.GenericTypeArguments))))
+                           || t.GetInterfaces().Any(fun i -> (not i.ContainsGenericParameters && i = baseType) || (i.ContainsGenericParameters && i.GenericTypeArguments.Length = baseType.GenericTypeArguments.Length && i.MakeGenericType(baseType.GenericTypeArguments) = baseType))))
         
         let rec getRepository asmList = 
             match asmList with
