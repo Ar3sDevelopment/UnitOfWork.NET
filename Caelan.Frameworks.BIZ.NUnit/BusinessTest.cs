@@ -52,6 +52,13 @@ namespace Caelan.Frameworks.BIZ.NUnit
 				}
 			}
 		}
+
+		[Test]
+		public void TestTypes()
+		{
+			Console.WriteLine(typeof(List<>).GetGenericArguments().Length);
+			Console.WriteLine(typeof(Dictionary<,>).GetGenericArguments().Length);
+		}
 	}
 }
 
