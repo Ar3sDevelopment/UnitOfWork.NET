@@ -18,19 +18,18 @@ type Repository(manager) =
     interface IRepository with
         member this.GetUnitOfWork() = this.GetUnitOfWork()
         member this.GetUnitOfWork<'T when 'T :> IUnitOfWork>() = this.GetUnitOfWork<'T>()
-
+    
     member private __.UnitOfWork : IUnitOfWork = manager
     member this.GetUnitOfWork() = this.UnitOfWork
     member this.GetUnitOfWork<'T when 'T :> IUnitOfWork>() = this.UnitOfWork :?> 'T
     static member Entity<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>(manager : IUnitOfWork) = 
         Repository<'TEntity>(manager)
 
-and [<AllowNullLiteral>] Repository<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null> internal (manager : IUnitOfWork) = 
+and [<AllowNullLiteral>] Repository<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>(manager : IUnitOfWork) = 
     inherit Repository(manager : IUnitOfWork)
-
     member this.DTO<'TDTO when 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>() = 
         Repository<'TEntity, 'TDTO>(manager)
-
+    
     interface IRepository<'TEntity> with
         member this.Set() = this.Set()
         member this.SingleEntity([<ParamArray>] ids : obj []) = this.SingleEntity(ids)
@@ -41,7 +40,7 @@ and [<AllowNullLiteral>] Repository<'TEntity when 'TEntity : not struct and 'TEn
         member this.Update(entity : 'TEntity, [<ParamArray>] ids) = this.Update(entity, ids)
         member this.Delete(entity : 'TEntity, [<ParamArray>] ids) = this.Delete(entity, ids)
         member this.Delete([<ParamArray>] ids : obj []) = this.Delete(ids)
-
+    
     member __.Set() = manager.DbSet<'TEntity>()
     member this.SingleEntity([<ParamArray>] ids) = this.Set().Find(ids)
     
@@ -78,13 +77,12 @@ and [<AllowNullLiteral>] Repository<'TEntity when 'TEntity : not struct and 'TEn
 
 and [<AllowNullLiteral>] Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>(manager) = 
     inherit Repository<'TEntity>(manager : IUnitOfWork)
-
+    
     interface IRepository<'TEntity, 'TDTO> with
         member this.DTOBuilder(mapper) = this.DTOBuilder(mapper)
         member this.EntityBuilder(mapper) = this.EntityBuilder(mapper)
         member this.DTOBuilder() = this.DTOBuilder()
         member this.EntityBuilder() = this.EntityBuilder()
-
         member this.SingleDTO([<ParamArray>] ids : obj []) = this.SingleDTO(ids)
         member this.SingleDTO(expr : Expression<Func<'TEntity, bool>>) = this.SingleDTO(expr)
         member this.List() = this.List()
@@ -96,6 +94,7 @@ and [<AllowNullLiteral>] Repository<'TEntity, 'TDTO when 'TEntity : not struct a
     
     member val DTOMapper : IMapper<'TEntity, 'TDTO> = null with get, set
     member val EntityMapper : IMapper<'TDTO, 'TEntity> = null with get, set
+    
     member this.DTOBuilder() = 
         match this.DTOMapper with
         | null -> Builder.Source<'TEntity>().Destination<'TDTO>()
@@ -105,10 +104,11 @@ and [<AllowNullLiteral>] Repository<'TEntity, 'TDTO when 'TEntity : not struct a
         match this.EntityMapper with
         | null -> Builder.Source<'TDTO>().Destination<'TEntity>()
         | _ -> this.EntityBuilder(this.EntityMapper)
+    
     member __.DTOBuilder(mapper) = Builder.Source<'TEntity>().Destination<'TDTO> (mapper)
     member __.EntityBuilder(mapper) = Builder.Source<'TDTO>().Destination<'TEntity> (mapper)
     
-    member this.SingleDTO([<ParamArray>] ids : obj[]) = 
+    member this.SingleDTO([<ParamArray>] ids : obj []) = 
         match this.SingleEntity(ids) with
         | null -> null
         | entity -> this.DTOBuilder().Build(entity)
