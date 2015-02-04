@@ -20,17 +20,18 @@ type UnitOfWork internal (context : DbContext) =
                 |> Seq.tryFind 
                        (fun t -> 
                        not t.IsInterface && not t.IsAbstract 
-                       && (((t.BaseType = baseType && not t.BaseType.IsGenericTypeDefinition) 
+                       && ((t.BaseType = baseType 
                             || (t.BaseType.IsGenericTypeDefinition 
                                 && t.BaseType.GenericTypeArguments.Length = baseType.GenericTypeArguments.Length 
                                 && t.BaseType.MakeGenericType(baseType.GenericTypeArguments) = baseType)) 
-                           || ((baseType.IsAssignableFrom(t) && baseType <> t && not t.IsGenericTypeDefinition) 
+                           || ((baseType.IsAssignableFrom(t) && baseType <> t) 
                                || (t.IsGenericTypeDefinition 
                                    && t.GenericTypeArguments.Length = baseType.GenericTypeArguments.Length 
-                                   && baseType.IsAssignableFrom(t.MakeGenericType(baseType.GenericTypeArguments)))) 
+                                   && baseType.IsAssignableFrom(t.MakeGenericType(baseType.GenericTypeArguments)) 
+                                   && baseType <> t.MakeGenericType(baseType.GenericTypeArguments))) 
                            || t.GetInterfaces()
                                .Any(fun i -> 
-                               (not i.IsGenericTypeDefinition && i = baseType) 
+                               i = baseType 
                                || (i.IsGenericTypeDefinition 
                                    && i.GenericTypeArguments.Length = baseType.GenericTypeArguments.Length 
                                    && i.MakeGenericType(baseType.GenericTypeArguments) = baseType))))
