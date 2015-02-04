@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
+# Visual Studio 2012
 VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Caelan.Frameworks.BIZ", "Caelan.Frameworks.BIZ\Caelan.Frameworks.BIZ.fsproj", "{884E5E82-289E-4EBE-A0AF-9735AE4BDA45}"
+Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "Caelan.Frameworks.BIZ", "Caelan.Frameworks.BIZ\Caelan.Frameworks.BIZ.fsproj", "{884E5E82-289E-4EBE-A0AF-9735AE4BDA45}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Caelan.Frameworks.BIZ.Tests", "Caelan.Frameworks.BIZ.Tests\Caelan.Frameworks.BIZ.Tests.csproj", "{1278F8FA-E3F6-40BA-A042-5F5656BDD7D9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Caelan.Frameworks.BIZ.NUnit", "Caelan.Frameworks.BIZ.NUnit\Caelan.Frameworks.BIZ.NUnit.csproj", "{55B2DC72-305C-4884-93DD-8B0F7490BD26}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,19 +15,20 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{884E5E82-289E-4EBE-A0AF-9735AE4BDA45}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{884E5E82-289E-4EBE-A0AF-9735AE4BDA45}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{884E5E82-289E-4EBE-A0AF-9735AE4BDA45}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{884E5E82-289E-4EBE-A0AF-9735AE4BDA45}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1278F8FA-E3F6-40BA-A042-5F5656BDD7D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1278F8FA-E3F6-40BA-A042-5F5656BDD7D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1278F8FA-E3F6-40BA-A042-5F5656BDD7D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1278F8FA-E3F6-40BA-A042-5F5656BDD7D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{55B2DC72-305C-4884-93DD-8B0F7490BD26}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{55B2DC72-305C-4884-93DD-8B0F7490BD26}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{55B2DC72-305C-4884-93DD-8B0F7490BD26}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{55B2DC72-305C-4884-93DD-8B0F7490BD26}.Release|Any CPU.Build.0 = Release|Any CPU
+		{884E5E82-289E-4EBE-A0AF-9735AE4BDA45}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{884E5E82-289E-4EBE-A0AF-9735AE4BDA45}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{884E5E82-289E-4EBE-A0AF-9735AE4BDA45}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{884E5E82-289E-4EBE-A0AF-9735AE4BDA45}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = Caelan.Frameworks.BIZ\Caelan.Frameworks.BIZ.fsproj
 	EndGlobalSection
 EndGlobal
