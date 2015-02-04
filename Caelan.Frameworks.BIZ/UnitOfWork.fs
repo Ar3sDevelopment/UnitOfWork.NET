@@ -16,13 +16,24 @@ type UnitOfWork internal (context : DbContext) =
             match assembly with
             | null -> None
             | _ -> 
-                assembly.GetTypes()
+                assembly.GetTypes() 
                 |> Seq.tryFind 
                        (fun t -> 
                        not t.IsInterface && not t.IsAbstract 
-                       && (((t.BaseType = baseType && not t.BaseType.ContainsGenericParameters) || (t.BaseType.ContainsGenericParameters && t.BaseType.GenericTypeArguments.Length = baseType.GenericTypeArguments.Length && t.BaseType.MakeGenericType(baseType.GenericTypeArguments) = baseType))
-                           || (((baseType.IsAssignableFrom(t) && baseType <> t) && not t.ContainsGenericParameters) || (t.ContainsGenericParameters  && t.GenericTypeArguments.Length = baseType.GenericTypeArguments.Length && baseType.IsAssignableFrom(t.MakeGenericType(baseType.GenericTypeArguments))))
-                           || t.GetInterfaces().Any(fun i -> (not i.ContainsGenericParameters && i = baseType) || (i.ContainsGenericParameters && i.GenericTypeArguments.Length = baseType.GenericTypeArguments.Length && i.MakeGenericType(baseType.GenericTypeArguments) = baseType))))
+                       && (((t.BaseType = baseType && not t.BaseType.IsGenericTypeDefinition) 
+                            || (t.BaseType.IsGenericTypeDefinition 
+                                && t.BaseType.GenericTypeArguments.Length = baseType.GenericTypeArguments.Length 
+                                && t.BaseType.MakeGenericType(baseType.GenericTypeArguments) = baseType)) 
+                           || ((baseType.IsAssignableFrom(t) && baseType <> t && not t.IsGenericTypeDefinition) 
+                               || (t.IsGenericTypeDefinition 
+                                   && t.GenericTypeArguments.Length = baseType.GenericTypeArguments.Length 
+                                   && baseType.IsAssignableFrom(t.MakeGenericType(baseType.GenericTypeArguments)))) 
+                           || t.GetInterfaces()
+                               .Any(fun i -> 
+                               (not i.IsGenericTypeDefinition && i = baseType) 
+                               || (i.IsGenericTypeDefinition 
+                                   && i.GenericTypeArguments.Length = baseType.GenericTypeArguments.Length 
+                                   && i.MakeGenericType(baseType.GenericTypeArguments) = baseType))))
         
         let rec getRepository asmList = 
             match asmList with
