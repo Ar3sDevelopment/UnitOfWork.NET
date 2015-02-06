@@ -53,23 +53,22 @@
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Interfaces.fs" />
     <Compile Include="Repository.fs" />
+    <Compile Include="RepositoryEntity.fs" />
+    <Compile Include="RepositoryDTO.fs" />
+    <Compile Include="RepositoryExtenders.fs" />
     <Compile Include="ListRepository.fs" />
+    <Compile Include="RepositoryReflection.fs" />
     <Compile Include="UnitOfWork.fs" />
     <Compile Include="UnitOfWorkCaller.fs" />
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Autofac">
-      <HintPath>..\packages\Autofac.3.5.2\lib\net40\Autofac.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="Caelan.DynamicLinq">
       <HintPath>..\packages\Caelan.DynamicLinq.1.2.0\lib\Caelan.DynamicLinq.dll</HintPath>
     </Reference>
     <Reference Include="Caelan.Frameworks.Common">
       <HintPath>..\packages\Caelan.Frameworks.Common.2.2.13\lib\Caelan.Frameworks.Common.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="System" />
