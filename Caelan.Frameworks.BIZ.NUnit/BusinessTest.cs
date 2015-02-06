@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Caelan.Frameworks.BIZ.Classes;
 using Caelan.Frameworks.BIZ.NUnit.DTO;
 using Caelan.Frameworks.BIZ.NUnit.Models;
@@ -14,6 +15,8 @@ namespace Caelan.Frameworks.BIZ.NUnit
 		[Test]
 		public void TestEntityRepository()
 		{
+			var stopWatch = new Stopwatch();
+			stopWatch.Start();
 			using (var uow = UnitOfWorkCaller.Context<TestDbContext>())
 			{
 				var users = uow.Repository<IEnumerable<User>, User>(t => t.All());
@@ -23,11 +26,15 @@ namespace Caelan.Frameworks.BIZ.NUnit
 					Console.WriteLine("{0} {1}", user.Id, user.Login);
 				}
 			}
+			stopWatch.Stop();
+			Console.WriteLine("{0} ms", stopWatch.ElapsedMilliseconds);
 		}
 
 		[Test]
 		public void TestRepository()
 		{
+			var stopWatch = new Stopwatch();
+			stopWatch.Start();
 			using (var uow = UnitOfWorkCaller.Context<TestDbContext>())
 			{
 				var users = uow.RepositoryList<User, UserDTO>();
@@ -37,11 +44,15 @@ namespace Caelan.Frameworks.BIZ.NUnit
 					Console.WriteLine("{0} {1}", user.Id, user.Login);
 				}
 			}
+			stopWatch.Stop();
+			Console.WriteLine("{0} ms", stopWatch.ElapsedMilliseconds);
 		}
 
 		[Test]
 		public void TestCustomRepository()
 		{
+			var stopWatch = new Stopwatch();
+			stopWatch.Start();
 			using (var uow = UnitOfWorkCaller.Context<TestDbContext>())
 			{
 				var users = uow.UnitOfWork(t => t.CustomRepository<UserRepository>().NewList());
@@ -51,13 +62,8 @@ namespace Caelan.Frameworks.BIZ.NUnit
 					Console.WriteLine("{0} {1}", user.Id, user.Login);
 				}
 			}
-		}
-
-		[Test]
-		public void TestTypes()
-		{
-			Console.WriteLine(typeof(List<>).GetGenericArguments().Length);
-			Console.WriteLine(typeof(Dictionary<,>).GetGenericArguments().Length);
+			stopWatch.Stop();
+			Console.WriteLine("{0} ms", stopWatch.ElapsedMilliseconds);
 		}
 	}
 }

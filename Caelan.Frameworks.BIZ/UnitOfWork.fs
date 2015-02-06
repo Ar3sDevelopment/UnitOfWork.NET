@@ -8,33 +8,37 @@ open System.Collections.Generic
 open Caelan.Frameworks.BIZ.Interfaces
 
 [<AllowNullLiteral>]
-type UnitOfWork internal (context : DbContext) = 
+type UnitOfWork(context : DbContext) = 
     let repositories = new Dictionary<Type, IRepository>()
     
     let findRepositoryInAssemblies ([<ParamArray>] args : obj []) (baseType : Type) = 
+        let typeEqualsTo = (fun t1 (t2 : Type) -> t2 = t1)
+        let isTypeAssignableTo = (fun t1 (t2 : Type) -> t2.IsAssignableFrom(t1))
+        let typeSameGeneric = 
+            (fun (t1 : Type) (t2 : Type) -> 
+            t1.IsGenericTypeDefinition && t1.GetGenericArguments().Length = t2.GenericTypeArguments.Length)
+        
+        let makeGenericSafe (t : Type) (types : Type []) = 
+            try 
+                t.MakeGenericType(types)
+            with _ -> null
+        
+        let rec compareTypes comparer (type1 : Type) (type2 : Type) = 
+            match type1 with
+            | null when type2 <> null -> false
+            | null when type2 = null -> true
+            | _ when (type1, type2) ||> comparer -> true
+            | _ when (type1, type2) ||> typeSameGeneric -> 
+                ((type1, type2.GenericTypeArguments) ||> makeGenericSafe, type2) ||> compareTypes comparer
+            | _ when (type2, type1) ||> typeSameGeneric -> 
+                (type1, (type2, type1.GenericTypeArguments) ||> makeGenericSafe) ||> compareTypes comparer
+            | _ -> false
+        
         let findRepositoryInAssembly (assembly : Assembly) = 
-            match assembly with
-            | null -> None
-            | _ -> 
-                assembly.GetTypes() 
-                |> Seq.tryFind 
-                       (fun t -> 
-                       not t.IsInterface && not t.IsAbstract 
-                       && ((t.BaseType = baseType 
-                            || (t.BaseType.IsGenericTypeDefinition 
-                                && t.BaseType.GetGenericArguments().Length = baseType.GenericTypeArguments.Length 
-                                && t.BaseType.MakeGenericType(baseType.GenericTypeArguments) = baseType)) 
-                           || ((baseType.IsAssignableFrom(t) && baseType <> t) 
-                               || (t.IsGenericTypeDefinition 
-                                   && t.GetGenericArguments().Length = baseType.GenericTypeArguments.Length 
-                                   && baseType.IsAssignableFrom(t.MakeGenericType(baseType.GenericTypeArguments)) 
-                                   && baseType <> t.MakeGenericType(baseType.GenericTypeArguments))) 
-                           || t.GetInterfaces()
-                               .Any(fun i -> 
-                               i = baseType 
-                               || (i.IsGenericTypeDefinition 
-                                   && i.GetGenericArguments().Length = baseType.GenericTypeArguments.Length 
-                                   && i.MakeGenericType(baseType.GenericTypeArguments) = baseType))))
+            let types = assembly.GetTypes() |> Seq.filter (fun t -> not t.IsInterface && not t.IsAbstract)
+            match types |> Seq.tryFind (fun t -> (t, baseType) ||> compareTypes typeEqualsTo) with
+            | None -> types |> Seq.tryFind (fun t -> (t, baseType) ||> compareTypes isTypeAssignableTo)
+            | t -> t
         
         let rec getRepository asmList = 
             match asmList with
@@ -49,11 +53,12 @@ type UnitOfWork internal (context : DbContext) =
             [ Assembly.GetExecutingAssembly()
               Assembly.GetEntryAssembly()
               Assembly.GetCallingAssembly() ]
+            |> List.filter (fun t -> t <> null)
             |> getRepository
         
         Activator.CreateInstance(repoType, args) :?> IRepository
     
-    let findRepository (repoType : Type, implementation : unit -> IRepository) = 
+    let findRepository (repoType : Type) (implementation : unit -> IRepository) = 
         let dictRepo = 
             repositories.SingleOrDefault(fun t -> t.Key.IsAssignableFrom(repoType) || repoType.IsAssignableFrom(t.Key))
         if dictRepo.Value = null then 
@@ -90,23 +95,23 @@ type UnitOfWork internal (context : DbContext) =
                    |> Seq.tryFind (fun t -> t.PropertyType = repoType) with
              | Some(repositoryProp) -> repositoryProp.GetValue(this)
              | None -> Activator.CreateInstance(repoType, this)) :?> IRepository)
-        ((repoType, implementation) |> findRepository) :?> 'TRepository
+        ((repoType, implementation) ||> findRepository) :?> 'TRepository
     
     member this.Repository<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>() = 
         let repoType = typeof<IRepository<'TEntity>>
         let implementation = (fun () -> (typeof<IRepository<'TEntity>>) |> findRepositoryInAssemblies [| this |])
-        ((repoType, implementation) |> findRepository) :?> IRepository<'TEntity>
+        ((repoType, implementation) ||> findRepository) :?> IRepository<'TEntity>
     
     member this.Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>() = 
         let repoType = typeof<IRepository<'TEntity, 'TDTO>>
         let implementation = (fun () -> (typeof<IRepository<'TEntity, 'TDTO>>) |> findRepositoryInAssemblies [| this |])
-        ((repoType, implementation) |> findRepository) :?> IRepository<'TEntity, 'TDTO>
+        ((repoType, implementation) ||> findRepository) :?> IRepository<'TEntity, 'TDTO>
     
     member this.Repository<'TEntity, 'TDTO, 'TListDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct and 'TListDTO : equality and 'TListDTO : null and 'TListDTO : not struct>() = 
         let repoType = typeof<IListRepository<'TEntity, 'TDTO, 'TListDTO>>
         let implementation = 
             (fun () -> (typeof<IListRepository<'TEntity, 'TDTO, 'TListDTO>>) |> findRepositoryInAssemblies [| this |])
-        ((repoType, implementation) |> findRepository) :?> IListRepository<'TEntity, 'TDTO, 'TListDTO>
+        ((repoType, implementation) ||> findRepository) :?> IListRepository<'TEntity, 'TDTO, 'TListDTO>
     
     member __.Entry<'TEntity>(entity : 'TEntity) = context.Entry(entity)
     member __.DbSet<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>() = 
