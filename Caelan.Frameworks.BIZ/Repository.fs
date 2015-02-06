@@ -78,16 +78,6 @@ and [<AllowNullLiteral>] Repository<'TEntity when 'TEntity : not struct and 'TEn
 and [<AllowNullLiteral>] Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>(manager) = 
     inherit Repository<'TEntity>(manager : IUnitOfWork)
     
-    let memoize f = 
-        let dict = new Dictionary<_, _>()
-        fun n -> 
-            match dict.TryGetValue(n) with
-            | (true, v) -> v
-            | _ -> 
-                let temp = f (n)
-                dict.Add(n, temp)
-                temp
-    
     interface IRepository<'TEntity, 'TDTO> with
         member this.DTOBuilder(mapper) = mapper |> this.DTOBuilder
         member this.EntityBuilder(mapper) = mapper |> this.EntityBuilder

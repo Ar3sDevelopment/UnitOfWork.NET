@@ -6,6 +6,7 @@ using Caelan.Frameworks.BIZ.Classes;
 using Caelan.Frameworks.BIZ.NUnit.DTO;
 using Caelan.Frameworks.BIZ.NUnit.Models;
 using Caelan.Frameworks.BIZ.NUnit.Repositories;
+using Caelan.Frameworks.Common.Helpers;
 
 namespace Caelan.Frameworks.BIZ.NUnit
 {

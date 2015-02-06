@@ -6,20 +6,10 @@ open System.Linq
 open System.Reflection
 open System.Collections.Generic
 open Caelan.Frameworks.BIZ.Interfaces
+open Caelan.Frameworks.Common.Helpers
 
 [<AllowNullLiteral>]
 type UnitOfWork(context : DbContext) = 
-    
-    let memoize f = 
-        let dict = new System.Collections.Generic.Dictionary<_, _>()
-        fun n -> 
-            match dict.TryGetValue(n) with
-            | (true, v) -> v
-            | _ -> 
-                let temp = f (n)
-                dict.Add(n, temp)
-                temp
-    
     let findRepositoryInAssemblies ([<ParamArray>] args : obj []) (baseType : Type) = 
         let typeEqualsTo = (fun t1 (t2 : Type) -> t2 = t1)
         let isTypeAssignableTo = (fun t1 (t2 : Type) -> t2.IsAssignableFrom(t1))
@@ -87,7 +77,7 @@ type UnitOfWork(context : DbContext) =
     member __.SaveChangesAsync() = async { return! context.SaveChangesAsync() |> Async.AwaitTask } |> Async.StartAsTask
     
     member this.CustomRepository<'TRepository when 'TRepository :> IRepository>() = 
-        typeof<'TRepository> |> memoize (fun tp -> 
+        typeof<'TRepository> |> MemoizeHelper.Memoize (fun tp -> 
                                     (match this.GetType().GetProperties(BindingFlags.Instance) 
                                            |> Seq.tryFind (fun t -> t.PropertyType = tp) with
                                      | Some(repositoryProp) -> repositoryProp.GetValue(this)
@@ -95,13 +85,13 @@ type UnitOfWork(context : DbContext) =
     
     member this.Repository<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>() = 
         typeof<IRepository<'TEntity>> 
-        |> memoize (fun t -> t |> findRepositoryInAssemblies [| this |] :?> IRepository<'TEntity>)
+        |> MemoizeHelper.Memoize (fun t -> t |> findRepositoryInAssemblies [| this |] :?> IRepository<'TEntity>)
     member this.Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>() = 
         typeof<IRepository<'TEntity, 'TDTO>> 
-        |> memoize (fun t -> t |> findRepositoryInAssemblies [| this |] :?> IRepository<'TEntity, 'TDTO>)
+        |> MemoizeHelper.Memoize (fun t -> t |> findRepositoryInAssemblies [| this |] :?> IRepository<'TEntity, 'TDTO>)
     member this.Repository<'TEntity, 'TDTO, 'TListDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct and 'TListDTO : equality and 'TListDTO : null and 'TListDTO : not struct>() = 
         typeof<IListRepository<'TEntity, 'TDTO, 'TListDTO>> 
-        |> memoize (fun t -> t |> findRepositoryInAssemblies [| this |] :?> IListRepository<'TEntity, 'TDTO, 'TListDTO>)
+        |> MemoizeHelper.Memoize (fun t -> t |> findRepositoryInAssemblies [| this |] :?> IListRepository<'TEntity, 'TDTO, 'TListDTO>)
     member __.Entry<'TEntity>(entity : 'TEntity) = context.Entry(entity)
     member __.DbSet<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>() = 
         context.Set<'TEntity>()
