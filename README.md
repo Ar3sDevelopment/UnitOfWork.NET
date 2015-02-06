@@ -13,8 +13,11 @@ The `IRepository` interface is the base interface of Repositories used in this f
 The `Repository` class implements `IRepository` interface and has a static method for fluent notation for getting a `Repository<TEntity, TDTO>` specifying only `TEntity` and `TDTO`
 This class is abstract because I thought that is useless for other uses.
 
+###`IRepository<TEntity>`
+The `IRepository<TEntity>` interface inherits from `IRepository` and has more methods than its base and they're business related like basic CRUD operations.
+
 ###`IRepository<TEntity, TDTO>`
-The `IRepository<TEntity, TDTO>` interface inherits from `IRepository` and has more methods than its base and they're business related like basic CRUD operations.
+The `IRepository<TEntity, TDTO>` interface inherits from `IRepository<TEntity>` and has more methods than its base and they're business related like basic CRUD operations.
 `IRepository<TEntity, TDTO>` has also a method for return paginated result.
 
 ####`Repository<TEntity, TDTO>`
@@ -90,7 +93,7 @@ using (var uow = new UnitOfWork<TestDbContext>()) //the uow object is responsibl
 {
   const int id = 1;
   var user = uow.Repository<User, UserDTO>().SingleDTO(id);
-  if (user != null && uow.Repository<UserRepository>().IsAdmin(user.Id))
+  if (user != null && uow.CustomRepository<UserRepository>().IsAdmin(user.Id))
   {
     //user is admin
   }
@@ -120,7 +123,7 @@ UnitOfWorkCaller.Context<TestDbContext>().UnitOfWork(uow =>
 {
   const int id = 1;
   var user = uow.Repository<User, UserDTO>().SingleDTO(id);
-  if (user != null && uow.Repository<UserRepository>().IsAdmin(user.Id))
+  if (user != null && uow.CustomRepository<UserRepository>().IsAdmin(user.Id))
   {
     //user is admin
   }
