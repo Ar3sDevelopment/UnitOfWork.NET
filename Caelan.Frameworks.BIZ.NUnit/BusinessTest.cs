@@ -13,6 +13,20 @@ namespace Caelan.Frameworks.BIZ.NUnit
 	public class BusinessTest
 	{
 		[Test]
+		public void TestContext()
+		{
+			using (var db = new TestDbContext())
+			{
+				var users = db.Users;
+
+				foreach (var user in users)
+				{
+					Console.WriteLine("{0} {1}", user.Id, user.Login);
+				}
+			}
+		}
+
+		[Test]
 		public void TestEntityRepository()
 		{
 			var stopWatch = new Stopwatch();

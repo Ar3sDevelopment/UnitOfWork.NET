@@ -9,7 +9,16 @@ open Caelan.Frameworks.BIZ.Interfaces
 
 [<AllowNullLiteral>]
 type UnitOfWork(context : DbContext) = 
-    let repositories = new Dictionary<Type, IRepository>()
+    
+    let memoize f = 
+        let dict = new System.Collections.Generic.Dictionary<_, _>()
+        fun n -> 
+            match dict.TryGetValue(n) with
+            | (true, v) -> v
+            | _ -> 
+                let temp = f (n)
+                dict.Add(n, temp)
+                temp
     
     let findRepositoryInAssemblies ([<ParamArray>] args : obj []) (baseType : Type) = 
         let typeEqualsTo = (fun t1 (t2 : Type) -> t2 = t1)
@@ -58,15 +67,6 @@ type UnitOfWork(context : DbContext) =
         
         Activator.CreateInstance(repoType, args) :?> IRepository
     
-    let findRepository (repoType : Type) (implementation : unit -> IRepository) = 
-        let dictRepo = 
-            repositories.SingleOrDefault(fun t -> t.Key.IsAssignableFrom(repoType) || repoType.IsAssignableFrom(t.Key))
-        if dictRepo.Value = null then 
-            let repo = implementation()
-            repositories.Add(repo.GetType(), repo)
-            repo
-        else dictRepo.Value
-    
     interface IUnitOfWork with
         member this.SaveChanges() = this.SaveChanges()
         member this.DbSet<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>() = 
@@ -87,32 +87,21 @@ type UnitOfWork(context : DbContext) =
     member __.SaveChangesAsync() = async { return! context.SaveChangesAsync() |> Async.AwaitTask } |> Async.StartAsTask
     
     member this.CustomRepository<'TRepository when 'TRepository :> IRepository>() = 
-        let repoType = typeof<'TRepository>
-        
-        let implementation = 
-            (fun () -> 
-            (match this.GetType().GetProperties(BindingFlags.Instance) 
-                   |> Seq.tryFind (fun t -> t.PropertyType = repoType) with
-             | Some(repositoryProp) -> repositoryProp.GetValue(this)
-             | None -> Activator.CreateInstance(repoType, this)) :?> IRepository)
-        ((repoType, implementation) ||> findRepository) :?> 'TRepository
+        typeof<'TRepository> |> memoize (fun tp -> 
+                                    (match this.GetType().GetProperties(BindingFlags.Instance) 
+                                           |> Seq.tryFind (fun t -> t.PropertyType = tp) with
+                                     | Some(repositoryProp) -> repositoryProp.GetValue(this)
+                                     | None -> Activator.CreateInstance(tp, this)) :?> 'TRepository)
     
     member this.Repository<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>() = 
-        let repoType = typeof<IRepository<'TEntity>>
-        let implementation = (fun () -> (typeof<IRepository<'TEntity>>) |> findRepositoryInAssemblies [| this |])
-        ((repoType, implementation) ||> findRepository) :?> IRepository<'TEntity>
-    
+        typeof<IRepository<'TEntity>> 
+        |> memoize (fun t -> t |> findRepositoryInAssemblies [| this |] :?> IRepository<'TEntity>)
     member this.Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>() = 
-        let repoType = typeof<IRepository<'TEntity, 'TDTO>>
-        let implementation = (fun () -> (typeof<IRepository<'TEntity, 'TDTO>>) |> findRepositoryInAssemblies [| this |])
-        ((repoType, implementation) ||> findRepository) :?> IRepository<'TEntity, 'TDTO>
-    
+        typeof<IRepository<'TEntity, 'TDTO>> 
+        |> memoize (fun t -> t |> findRepositoryInAssemblies [| this |] :?> IRepository<'TEntity, 'TDTO>)
     member this.Repository<'TEntity, 'TDTO, 'TListDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct and 'TListDTO : equality and 'TListDTO : null and 'TListDTO : not struct>() = 
-        let repoType = typeof<IListRepository<'TEntity, 'TDTO, 'TListDTO>>
-        let implementation = 
-            (fun () -> (typeof<IListRepository<'TEntity, 'TDTO, 'TListDTO>>) |> findRepositoryInAssemblies [| this |])
-        ((repoType, implementation) ||> findRepository) :?> IListRepository<'TEntity, 'TDTO, 'TListDTO>
-    
+        typeof<IListRepository<'TEntity, 'TDTO, 'TListDTO>> 
+        |> memoize (fun t -> t |> findRepositoryInAssemblies [| this |] :?> IListRepository<'TEntity, 'TDTO, 'TListDTO>)
     member __.Entry<'TEntity>(entity : 'TEntity) = context.Entry(entity)
     member __.DbSet<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>() = 
         context.Set<'TEntity>()

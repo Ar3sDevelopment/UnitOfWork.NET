@@ -78,45 +78,54 @@ and [<AllowNullLiteral>] Repository<'TEntity when 'TEntity : not struct and 'TEn
 and [<AllowNullLiteral>] Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>(manager) = 
     inherit Repository<'TEntity>(manager : IUnitOfWork)
     
+    let memoize f = 
+        let dict = new Dictionary<_, _>()
+        fun n -> 
+            match dict.TryGetValue(n) with
+            | (true, v) -> v
+            | _ -> 
+                let temp = f (n)
+                dict.Add(n, temp)
+                temp
+    
     interface IRepository<'TEntity, 'TDTO> with
-        member this.DTOBuilder(mapper) = this.DTOBuilder(mapper)
-        member this.EntityBuilder(mapper) = this.EntityBuilder(mapper)
+        member this.DTOBuilder(mapper) = mapper |> this.DTOBuilder
+        member this.EntityBuilder(mapper) = mapper |> this.EntityBuilder
         member this.DTOBuilder() = this.DTOBuilder()
         member this.EntityBuilder() = this.EntityBuilder()
-        member this.SingleDTO([<ParamArray>] ids : obj []) = this.SingleDTO(ids)
-        member this.SingleDTO(expr : Expression<Func<'TEntity, bool>>) = this.SingleDTO(expr)
+        member this.SingleDTO([<ParamArray>] ids : obj []) = ids |> this.SingleDTO
+        member this.SingleDTO(expr : Expression<Func<'TEntity, bool>>) = expr |> this.SingleDTO
         member this.List() = this.List()
-        member this.List whereExpr = this.List(whereExpr)
+        member this.List whereExpr = whereExpr |> this.List
         member this.All(take, skip, sort, filter, whereFunc) = this.All(take, skip, sort, filter, whereFunc)
-        member this.Insert(dto : 'TDTO) = this.Insert(dto)
+        member this.Insert(dto : 'TDTO) = dto |> this.Insert
         member this.Update(dto : 'TDTO, [<ParamArray>] ids) = this.Update(dto, ids)
         member this.Delete(dto : 'TDTO, [<ParamArray>] ids) = this.Delete(dto, ids)
     
     member val DTOMapper : IMapper<'TEntity, 'TDTO> = null with get, set
     member val EntityMapper : IMapper<'TDTO, 'TEntity> = null with get, set
+    member this.DTOBuilder() = this.DTOMapper |> this.DTOBuilder
+    member this.EntityBuilder() = this.EntityMapper |> this.EntityBuilder
     
-    member this.DTOBuilder() = 
-        match this.DTOMapper with
+    member __.DTOBuilder mapper = 
+        match mapper with
         | null -> Builder.Source<'TEntity>().Destination<'TDTO>()
-        | _ -> this.DTOBuilder(this.DTOMapper)
+        | _ -> Builder.Source<'TEntity>().Destination<'TDTO> mapper
     
-    member this.EntityBuilder() = 
-        match this.EntityMapper with
+    member __.EntityBuilder mapper = 
+        match mapper with
         | null -> Builder.Source<'TDTO>().Destination<'TEntity>()
-        | _ -> this.EntityBuilder(this.EntityMapper)
-    
-    member __.DTOBuilder(mapper) = Builder.Source<'TEntity>().Destination<'TDTO> (mapper)
-    member __.EntityBuilder(mapper) = Builder.Source<'TDTO>().Destination<'TEntity> (mapper)
+        | _ -> Builder.Source<'TDTO>().Destination<'TEntity> mapper
     
     member this.SingleDTO([<ParamArray>] ids : obj []) = 
         match this.SingleEntity(ids) with
         | null -> null
-        | entity -> this.DTOBuilder().Build(entity)
+        | entity -> entity |> this.DTOBuilder().Build
     
     member this.SingleDTO(expr : Expression<Func<'TEntity, bool>>) = 
         match this.SingleEntity(expr) with
         | null -> null
-        | entity -> this.DTOBuilder().Build(entity)
+        | entity -> entity |> this.DTOBuilder().Build
     
     member this.List() = this.DTOBuilder().BuildList(this.All() :> IEnumerable<'TEntity>)
     member this.List(whereExpr) = this.DTOBuilder().BuildList(this.All(whereExpr) :> IEnumerable<'TEntity>)
