@@ -16,19 +16,21 @@ open Caelan.Frameworks.BIZ.Interfaces
 type Repository(manager) = 
     
     interface IRepository with
-        member this.GetUnitOfWork() = this.GetUnitOfWork()
-        member this.GetUnitOfWork<'T when 'T :> IUnitOfWork>() = this.GetUnitOfWork<'T>()
+        member this.GetUnitOfWork() = this.UnitOfWork
+        member this.GetUnitOfWork<'T when 'T :> IUnitOfWork>() = (this.UnitOfWork :> IUnitOfWork) :?> 'T
+        member this.UnitOfWork = this.UnitOfWork
     
-    member private __.UnitOfWork : IUnitOfWork = manager
+    [<Obsolete("Use UnitOfWork property instead", true)>]
     member this.GetUnitOfWork() = this.UnitOfWork
-    member this.GetUnitOfWork<'T when 'T :> IUnitOfWork>() = this.UnitOfWork :?> 'T
-    static member Entity<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>(manager : IUnitOfWork) = 
-        Repository<'TEntity>(manager)
+    
+    [<Obsolete("Use UnitOfWork property instead", true)>]
+    member this.GetUnitOfWork<'T when 'T :> IUnitOfWork>() = this.UnitOfWork
+    
+    member val UnitOfWork = manager
 
-and [<AllowNullLiteral>] Repository<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>(manager : IUnitOfWork) = 
+[<AllowNullLiteral>]
+type Repository<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>(manager : IUnitOfWork) = 
     inherit Repository(manager : IUnitOfWork)
-    member this.DTO<'TDTO when 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>() = 
-        Repository<'TEntity, 'TDTO>(manager)
     
     interface IRepository<'TEntity> with
         member this.Set() = this.Set()
@@ -56,26 +58,26 @@ and [<AllowNullLiteral>] Repository<'TEntity when 'TEntity : not struct and 'TEn
         | null -> this.All()
         | _ -> this.Set().Where(whereExpr).AsQueryable()
     
-    abstract Insert : entity:'TEntity -> unit
+    abstract Insert : entity:'TEntity -> 'TEntity
     abstract Update : 'TEntity * ids:obj [] -> unit
     abstract Delete : 'TEntity * ids:obj [] -> unit
     abstract Delete : ids:obj [] -> unit
-    override this.Insert(entity : 'TEntity) = this.Set().Add(entity) |> ignore
-    override this.Update(entity : 'TEntity, [<ParamArray>] ids) = 
+    override this.Insert entity = this.Set().Add(entity)
+    override this.Update(entity, [<ParamArray>] ids) = 
         manager.Entry(this.Set().Find(ids)).CurrentValues.SetValues(entity)
-    override this.Delete(_ : 'TEntity, [<ParamArray>] ids) = this.Delete(ids) |> ignore
-    override this.Delete([<ParamArray>] ids : obj []) = this.Set().Remove(this.Set().Find(ids)) |> ignore
-    member this.InsertAsync(entity : 'TEntity) = async { this.Insert(entity) } |> Async.StartAsTask
-    member this.UpdateAsync(entity : 'TEntity, ids) = async { this.Update(entity, ids) } |> Async.StartAsTask
-    member this.DeleteAsync(entity : 'TEntity, [<ParamArray>] ids) = 
-        async { this.Delete(entity, ids) } |> Async.StartAsTask
-    member this.DeleteAsync(ids : obj []) = async { this.Delete(ids) } |> Async.StartAsTask
-    member this.SingleEntityAsync([<ParamArray>] id : obj []) = 
-        async { return this.SingleEntity(id) } |> Async.StartAsTask
-    member this.SingleEntityAsync(expr : 'TEntity -> bool) = 
+    override this.Delete(_, [<ParamArray>] ids) = this.Delete(ids) |> ignore
+    override this.Delete([<ParamArray>] ids) = this.Set().Remove(this.Set().Find(ids)) |> ignore
+    member this.InsertAsync entity = async { return this.Insert(entity) } |> Async.StartAsTask
+    member this.UpdateAsync(entity, ids) = async { this.Update(entity, ids) } |> Async.StartAsTask
+    member this.DeleteAsync(entity, [<ParamArray>] ids) = async { this.Delete(entity, ids) } |> Async.StartAsTask
+    member this.DeleteAsync(ids) = async { this.Delete(ids) } |> Async.StartAsTask
+    member this.SingleEntityAsync([<ParamArray>] ids : obj []) = 
+        async { return this.SingleEntity(ids) } |> Async.StartAsTask
+    member this.SingleEntityAsync(expr : Expression<Func<'TEntity, bool>>) = 
         async { return this.SingleEntity(expr) } |> Async.StartAsTask
 
-and [<AllowNullLiteral>] Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>(manager) = 
+[<AllowNullLiteral>]
+type Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>(manager) = 
     inherit Repository<'TEntity>(manager : IUnitOfWork)
     
     interface IRepository<'TEntity, 'TDTO> with
@@ -122,8 +124,7 @@ and [<AllowNullLiteral>] Repository<'TEntity, 'TDTO when 'TEntity : not struct a
     member this.All(take, skip, sort, filter, whereFunc) = 
         this.All(take, skip, sort, filter, whereFunc, this.DTOBuilder().BuildList)
     
-    member private this.All(take : int, skip : int, sort : seq<Sort>, filter : Filter, 
-                            whereFunc : Expression<Func<'TEntity, bool>>, buildFunc : seq<'TEntity> -> seq<'TDTO>) = 
+    member private this.All(take, skip, sort, filter, whereFunc, buildFunc : seq<'TEntity> -> seq<'TDTO>) = 
         let orderBy = 
             query { 
                 for item in (typeof<'TEntity>).GetProperties(BindingFlags.Instance ||| BindingFlags.Public) 
@@ -137,12 +138,12 @@ and [<AllowNullLiteral>] Repository<'TEntity, 'TDTO when 'TEntity : not struct a
              | null -> this.All(whereFunc)
              | defaultSort -> this.All(whereFunc).OrderBy(defaultSort)).ToDataSourceResult(take, skip, sort, filter)
         
-        DataSourceResult<'TDTO>(Data = buildFunc (queryResult.Data), Total = queryResult.Total)
+        DataSourceResult<_>(Data = buildFunc (queryResult.Data), Total = queryResult.Total)
     
-    abstract Insert : dto:'TDTO -> unit
+    abstract Insert : dto:'TDTO -> 'TDTO
     abstract Update : 'TDTO * ids:obj [] -> unit
     abstract Delete : 'TDTO * ids:obj [] -> unit
-    override this.Insert(dto : 'TDTO) = this.Set().Add(this.EntityBuilder().Build(dto)) |> ignore
+    override this.Insert(dto : 'TDTO) = this.DTOBuilder().Build(this.Set().Add(this.EntityBuilder().Build(dto)))
     
     override this.Update(dto : 'TDTO, [<ParamArray>] ids) = 
         let entity = this.Set().Find(ids)
@@ -151,7 +152,7 @@ and [<AllowNullLiteral>] Repository<'TEntity, 'TDTO when 'TEntity : not struct a
         entry.CurrentValues.SetValues(entity)
     
     override this.Delete(_ : 'TDTO, [<ParamArray>] ids) = this.Delete(ids) |> ignore
-    member this.InsertAsync(dto : 'TDTO) = async { this.Insert(dto) } |> Async.StartAsTask
+    member this.InsertAsync(dto : 'TDTO) = async { return this.Insert(dto) } |> Async.StartAsTask
     member this.UpdateAsync(dto : 'TDTO, ids) = async { this.Update(dto, ids) } |> Async.StartAsTask
     member this.DeleteAsync(dto : 'TDTO, [<ParamArray>] ids) = async { this.Delete(dto, ids) } |> Async.StartAsTask
     member this.ListAsync(whereExpr : Expression<Func<'TEntity, bool>>) = 
@@ -162,3 +163,11 @@ and [<AllowNullLiteral>] Repository<'TEntity, 'TDTO when 'TEntity : not struct a
         async { return this.All(take, skip, sort, filter, whereFunc) } |> Async.StartAsTask
     member this.SingleDTOAsync([<ParamArray>] id : obj []) = async { return this.SingleDTO(id) } |> Async.StartAsTask
     member this.SingleDTOAsync(expr : 'TEntity -> bool) = async { return this.SingleDTO(expr) } |> Async.StartAsTask
+
+type Repository with
+    static member Entity<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>(manager : IUnitOfWork) = 
+        Repository<'TEntity>(manager)
+
+type Repository<'TEntity> with
+    member this.DTO<'TDTO when 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>() = 
+        Repository<'TEntity, 'TDTO>(this.UnitOfWork)
