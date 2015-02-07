@@ -16,6 +16,8 @@ namespace Caelan.Frameworks.BIZ.NUnit
 		[Test]
 		public void TestContext()
 		{
+			var stopWatch = new Stopwatch();
+			stopWatch.Start();
 			using (var db = new TestDbContext())
 			{
 				var users = db.Users;
@@ -25,6 +27,8 @@ namespace Caelan.Frameworks.BIZ.NUnit
 					Console.WriteLine("{0} {1}", user.Id, user.Login);
 				}
 			}
+			stopWatch.Stop();
+			Console.WriteLine("{0} ms", stopWatch.ElapsedMilliseconds);
 		}
 
 		[Test]

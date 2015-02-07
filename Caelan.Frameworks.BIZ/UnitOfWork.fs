@@ -10,7 +10,9 @@ open Caelan.Frameworks.Common.Helpers
 open Caelan.Frameworks.BIZ.Modules
 
 [<AllowNullLiteral>]
-type UnitOfWork(context : DbContext) = 
+type UnitOfWork private (context : DbContext, autoContext) = 
+    member private __.AutoContext = autoContext
+
     interface IUnitOfWork with
         member this.SaveChanges() = this.SaveChanges()
         member this.DbSet<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>() = 
@@ -72,9 +74,16 @@ type UnitOfWork(context : DbContext) =
                 false)
     
     abstract Dispose : unit -> unit
-    override __.Dispose() = ()
+    override this.Dispose() =
+        if this.AutoContext then
+            context.Dispose()
 
-type UnitOfWork<'TContext when 'TContext :> DbContext> private (context) = 
+    new(connectionString:string) =
+        new UnitOfWork(new DbContext(connectionString), true)
+    new(context: DbContext) =
+        new UnitOfWork(context, false)
+
+type UnitOfWork<'TContext when 'TContext :> DbContext> private (context : DbContext) = 
     inherit UnitOfWork(context)
     
     override this.Dispose() = 
@@ -82,5 +91,4 @@ type UnitOfWork<'TContext when 'TContext :> DbContext> private (context) =
         base.Dispose()
     
     new() = 
-        let context = Activator.CreateInstance<'TContext>()
-        new UnitOfWork<'TContext>(context)
+        new UnitOfWork<'TContext>(Activator.CreateInstance<'TContext>())
