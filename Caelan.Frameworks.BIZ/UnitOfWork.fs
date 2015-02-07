@@ -9,7 +9,6 @@ open Caelan.Frameworks.BIZ.Interfaces
 open Caelan.Frameworks.Common.Helpers
 open Caelan.Frameworks.BIZ.Modules
 
-[<AllowNullLiteral>]
 type UnitOfWork private (context : DbContext, autoContext) = 
     member private __.AutoContext = autoContext
 

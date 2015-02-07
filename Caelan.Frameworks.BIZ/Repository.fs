@@ -12,7 +12,6 @@ open Caelan.Frameworks.Common.Interfaces
 open Caelan.Frameworks.BIZ.Interfaces
 
 [<AbstractClass>]
-[<AllowNullLiteral>]
 type Repository(manager) = 
     
     interface IRepository with

@@ -5,7 +5,6 @@ open System.Linq
 open System.Linq.Expressions
 open Caelan.Frameworks.BIZ.Interfaces
 
-[<AllowNullLiteral>]
 type Repository<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>(manager : IUnitOfWork) = 
     inherit Repository(manager : IUnitOfWork)
     

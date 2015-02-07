@@ -11,7 +11,6 @@ open Caelan.Frameworks.Common.Interfaces
 open Caelan.Frameworks.Common.Classes
 open Caelan.Frameworks.BIZ.Interfaces
 
-[<AllowNullLiteral>]
 type Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>(manager) = 
     inherit Repository<'TEntity>(manager : IUnitOfWork)
     
@@ -29,20 +28,20 @@ type Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equali
         member this.Update(dto : 'TDTO, [<ParamArray>] ids) = this.Update(dto, ids)
         member this.Delete(dto : 'TDTO, [<ParamArray>] ids) = this.Delete(dto, ids)
     
-    member val DTOMapper : IMapper<'TEntity, 'TDTO> = null with get, set
-    member val EntityMapper : IMapper<'TDTO, 'TEntity> = null with get, set
+    member val DTOMapper : IMapper<'TEntity, 'TDTO> option = None with get, set
+    member val EntityMapper : IMapper<'TDTO, 'TEntity> option = None with get, set
     member this.DTOBuilder() = this.DTOMapper |> this.DTOBuilder
     member this.EntityBuilder() = this.EntityMapper |> this.EntityBuilder
     
     member __.DTOBuilder mapper = 
         match mapper with
-        | null -> Builder.Source<'TEntity>().Destination<'TDTO>()
-        | _ -> Builder.Source<'TEntity>().Destination<'TDTO> mapper
+        | None -> Builder.Source<'TEntity>().Destination<'TDTO>()
+        | Some(m) -> Builder.Source<'TEntity>().Destination<'TDTO> m
     
     member __.EntityBuilder mapper = 
         match mapper with
-        | null -> Builder.Source<'TDTO>().Destination<'TEntity>()
-        | _ -> Builder.Source<'TDTO>().Destination<'TEntity> mapper
+        | None -> Builder.Source<'TDTO>().Destination<'TEntity>()
+        | Some(m) -> Builder.Source<'TDTO>().Destination<'TEntity> m
     
     member this.SingleDTO([<ParamArray>] ids : obj []) = 
         match this.SingleEntity(ids) with

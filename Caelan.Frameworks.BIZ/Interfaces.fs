@@ -9,9 +9,7 @@ open Caelan.Frameworks.Common.Classes
 open Caelan.DynamicLinq.Classes
 open Caelan.Frameworks.Common.Interfaces
 
-[<AllowNullLiteral>]
 type IRepository = 
-    
     [<Obsolete("Use UnitOfWork property instead", true)>]
     abstract GetUnitOfWork : unit -> IUnitOfWork
     
@@ -20,7 +18,7 @@ type IRepository =
     
     abstract UnitOfWork : IUnitOfWork
 
-and [<AllowNullLiteral>] IRepository<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null> = 
+and IRepository<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null> = 
     inherit IRepository
     abstract Set : unit -> DbSet<'TEntity>
     abstract SingleEntity : ids:obj [] -> 'TEntity
@@ -32,10 +30,10 @@ and [<AllowNullLiteral>] IRepository<'TEntity when 'TEntity : not struct and 'TE
     abstract Delete : entity:'TEntity * ids:obj [] -> unit
     abstract Delete : ids:obj [] -> unit
 
-and [<AllowNullLiteral>] IRepository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct> = 
+and IRepository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct> = 
     inherit IRepository<'TEntity>
-    abstract DTOBuilder : mapper:IMapper<'TEntity, 'TDTO> -> Builder<'TEntity, 'TDTO>
-    abstract EntityBuilder : mapper:IMapper<'TDTO, 'TEntity> -> Builder<'TDTO, 'TEntity>
+    abstract DTOBuilder : mapper:IMapper<'TEntity, 'TDTO> option -> Builder<'TEntity, 'TDTO>
+    abstract EntityBuilder : mapper:IMapper<'TDTO, 'TEntity> option -> Builder<'TDTO, 'TEntity>
     abstract DTOBuilder : unit -> Builder<'TEntity, 'TDTO>
     abstract EntityBuilder : unit -> Builder<'TDTO, 'TEntity>
     abstract SingleDTO : ids:obj [] -> 'TDTO
@@ -48,11 +46,11 @@ and [<AllowNullLiteral>] IRepository<'TEntity, 'TDTO when 'TEntity : not struct 
     abstract Update : dto:'TDTO * ids:obj [] -> unit
     abstract Delete : dto:'TDTO * ids:obj [] -> unit
 
-and [<AllowNullLiteral>] IListRepository<'TEntity, 'TDTO, 'TListDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct and 'TListDTO : equality and 'TListDTO : null and 'TListDTO : not struct> = 
+and IListRepository<'TEntity, 'TDTO, 'TListDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct and 'TListDTO : equality and 'TListDTO : null and 'TListDTO : not struct> = 
     inherit IRepository<'TEntity, 'TDTO>
     abstract ListRepository : IRepository<'TEntity, 'TListDTO> with get, set
 
-and [<AllowNullLiteral>] IUnitOfWork = 
+and IUnitOfWork = 
     inherit IDisposable
     abstract SaveChanges : unit -> int
     abstract Entry<'TEntity> : entity:'TEntity -> DbEntityEntry
