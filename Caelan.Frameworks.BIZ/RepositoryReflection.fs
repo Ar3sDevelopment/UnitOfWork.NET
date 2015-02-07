@@ -1,6 +1,7 @@
 ﻿namespace Caelan.Frameworks.BIZ.Modules
 open System
 open System.Reflection
+open Caelan.Frameworks.Common.Helpers
 open Caelan.Frameworks.BIZ.Interfaces
 
 module internal RepositoryReflection = 
@@ -30,10 +31,11 @@ module internal RepositoryReflection =
             | _ -> false
         
         let findRepositoryInAssembly (assembly : Assembly) = 
-            let types = assembly.GetTypes() |> Seq.filter (fun t -> not t.IsInterface && not t.IsAbstract)
-            match types |> Seq.tryFind (fun t -> (t, baseType) ||> compareTypes typeEqualsTo) with
-            | None -> types |> Seq.tryFind (fun t -> (t, baseType) ||> compareTypes isTypeAssignableTo)
-            | t -> t
+            assembly |> MemoizeHelper.Memoize(fun a ->
+                let types =  a.GetTypes() |> Seq.filter (fun t -> not t.IsInterface && not t.IsAbstract)
+                match types |> Seq.tryFind (fun t -> (t, baseType) ||> compareTypes typeEqualsTo) with
+                | None -> types |> Seq.tryFind (fun t -> (t, baseType) ||> compareTypes isTypeAssignableTo)
+                | t -> t)
         
         let rec getRepository asmList = 
             match asmList with
