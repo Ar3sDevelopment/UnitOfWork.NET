@@ -2,6 +2,7 @@
 
 open System
 open System.Data.Linq
+open System.Data.Entity
 open System.Linq
 open System.Linq.Expressions
 open System.Reflection
