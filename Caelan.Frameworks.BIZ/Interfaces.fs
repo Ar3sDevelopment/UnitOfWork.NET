@@ -66,7 +66,7 @@ and IUnitOfWork =
     abstract Repository<'TEntity, 'TDTO, 'TListDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct and 'TListDTO : equality and 'TListDTO : null and 'TListDTO : not struct> : unit
      -> IListRepository<'TEntity, 'TDTO, 'TListDTO>
 
-type IUnitOfWorkCaller<'TUnitOfWork when 'TUnitOfWork :> IUnitOfWork and 'TUnitOfWork : (new : unit -> 'TUnitOfWork)> = 
+type IUnitOfWorkCaller = 
     abstract UnitOfWork<'T> : call:Func<IUnitOfWork, 'T> -> 'T
     abstract UnitOfWork : call:Action<IUnitOfWork> -> unit
     abstract CustomRepository<'T, 'TRepository when 'TRepository :> IRepository> : call:Func<'TRepository, 'T> -> 'T

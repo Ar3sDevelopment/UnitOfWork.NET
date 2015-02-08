@@ -77,8 +77,6 @@ type UnitOfWork private (context : DbContext, autoContext) =
         if this.AutoContext then
             context.Dispose()
 
-    new(connectionString:string) =
-        new UnitOfWork(new DbContext(connectionString), true)
     new(context: DbContext) =
         new UnitOfWork(context, false)
 
