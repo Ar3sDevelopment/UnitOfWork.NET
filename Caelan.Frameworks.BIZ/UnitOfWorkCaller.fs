@@ -4,14 +4,11 @@ open System
 open System.Data.Entity
 open Caelan.Frameworks.BIZ.Interfaces
 
-type GenericUnitOfWorkCaller<'TUnitOfWork when 'TUnitOfWork :> IUnitOfWork and 'TUnitOfWork : (new : unit
-                                                                                                    -> 'TUnitOfWork)> internal () = 
-    let uow = new 'TUnitOfWork()
-    
+type GenericUnitOfWorkCaller internal (uow : IUnitOfWork) =     
     interface IDisposable with
         member this.Dispose() = this.Dispose()
     
-    interface IUnitOfWorkCaller<'TUnitOfWork> with
+    interface IUnitOfWorkCaller with
         member this.UnitOfWork<'T>(call : Func<IUnitOfWork, 'T>) = this.UnitOfWork(call)
         member this.UnitOfWork(call : Action<IUnitOfWork>) = this.UnitOfWork(call)
         member this.CustomRepository<'T, 'TRepository when 'TRepository :> IRepository>(call : Func<'TRepository, 'T>) = 
@@ -45,15 +42,17 @@ type GenericUnitOfWorkCaller<'TUnitOfWork when 'TUnitOfWork :> IUnitOfWork and '
     member this.Transaction(body : Action<IUnitOfWork>) = this.UnitOfWork(fun t -> t.Transaction(body))
     member this.TransactionSaveChanges(body : Action<IUnitOfWork>) = 
         this.UnitOfWork(fun t -> t.TransactionSaveChanges(body))
-    member __.Dispose() = uow.Dispose()
+    abstract Dispose : unit -> unit
+    override __.Dispose() = ()
 
-type UnitOfWorkCaller<'TContext when 'TContext :> DbContext> internal () = 
-    class
-        inherit GenericUnitOfWorkCaller<UnitOfWork<'TContext>>()
-    end
+type UnitOfWorkCaller<'TContext when 'TContext :> DbContext> private (uow) = 
+    inherit GenericUnitOfWorkCaller(uow)
+    override __.Dispose() = uow.Dispose()
+    internal new() = new UnitOfWorkCaller<'TContext>(new UnitOfWork<'TContext>())
 
-type UnitOfWorkCaller private () = 
+type UnitOfWorkCaller private (uow) = 
+    inherit GenericUnitOfWorkCaller(uow)
+    override __.Dispose() = uow.Dispose()
     static member Context<'TContext when 'TContext :> DbContext>() = new UnitOfWorkCaller<'TContext>()
-    static member UnitOfWork<'TUnitOfWork when 'TUnitOfWork :> IUnitOfWork and 'TUnitOfWork : (new : unit
-                                                                                                    -> 'TUnitOfWork)>() = 
-        new GenericUnitOfWorkCaller<'TUnitOfWork>()
+    static member UnitOfWork<'TUnitOfWork when 'TUnitOfWork :> IUnitOfWork and 'TUnitOfWork : (new : unit -> 'TUnitOfWork)>() = 
+        new GenericUnitOfWorkCaller(new 'TUnitOfWork())

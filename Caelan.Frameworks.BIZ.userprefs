@@ -2,32 +2,27 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.Workbench>
     <Files>
-      <File FileName="Caelan.Frameworks.BIZ/Repository.fs" Line="22" Column="22" />
-      <File FileName="Caelan.Frameworks.BIZ/UnitOfWork.fs" Line="32" Column="32" />
+      <File FileName="Caelan.Frameworks.BIZ/Repository.fs" Line="1" Column="1" />
+      <File FileName="Caelan.Frameworks.BIZ/UnitOfWork.fs" Line="1" Column="1" />
       <File FileName="Caelan.Frameworks.BIZ/ListRepository.fs" Line="1" Column="1" />
       <File FileName="Caelan.Frameworks.BIZ/Interfaces.fs" Line="1" Column="1" />
       <File FileName="Caelan.Frameworks.BIZ/packages.config" Line="1" Column="1" />
       <File FileName="Caelan.Frameworks.BIZ/UnitOfWorkCaller.fs" Line="1" Column="1" />
       <File FileName="Caelan.Frameworks.BIZ/AssemblyInfo.fs" Line="1" Column="1" />
-      <File FileName="Caelan.Frameworks.BIZ.Tests/BusinessTests.cs" Line="1" Column="1" />
       <File FileName="Caelan.Frameworks.BIZ/App.config" Line="1" Column="1" />
       <File FileName="Caelan.Frameworks.BIZ.NUnit/BusinessTest.cs" Line="1" Column="1" />
+      <File FileName="Caelan.Frameworks.BIZ/RepositoryExtenders.fs" Line="1" Column="1" />
+      <File FileName="Caelan.Frameworks.BIZ/RepositoryEntity.fs" Line="27" Column="27" />
+      <File FileName="Caelan.Frameworks.BIZ/RepositoryDTO.fs" Line="21" Column="21" />
+      <File FileName="Caelan.Frameworks.BIZ/RepositoryReflection.fs" Line="1" Column="1" />
+      <File FileName="Caelan.Frameworks.BIZ.NUnit/App.config" Line="1" Column="1" />
+      <File FileName="Caelan.Frameworks.BIZ/Script.fsx" Line="1" Column="1" />
+      <File FileName="Caelan.Frameworks.BIZ.NUnit/packages.config" Line="1" Column="1" />
+      <File FileName="../Caelan.Frameworks.BIZ.diff" Line="1" Column="1" />
     </Files>
     <Pads>
       <Pad Id="MonoDevelop.NUnit.TestPad">
-        <State expanded="True">
-          <Node name="Caelan.Frameworks.BIZ.NUnit" expanded="True">
-            <Node name="Caelan" expanded="True">
-              <Node name="Frameworks" expanded="True">
-                <Node name="BIZ" expanded="True">
-                  <Node name="NUnit" expanded="True">
-                    <Node name="BusinessTest" expanded="True" selected="True" />
-                  </Node>
-                </Node>
-              </Node>
-            </Node>
-          </Node>
-        </State>
+        <State expanded="True" selected="True" />
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
