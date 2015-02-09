@@ -1,6 +1,7 @@
 ﻿namespace Caelan.Frameworks.BIZ.Modules
 open System
 open System.Reflection
+open Caelan.Frameworks.Common.Extenders
 open Caelan.Frameworks.Common.Helpers
 open Caelan.Frameworks.BIZ.Interfaces
 
@@ -53,4 +54,4 @@ module internal RepositoryReflection =
             |> List.filter (fun t -> t <> null)
             |> getRepository
         
-        Activator.CreateInstance(repoType, args) :?> IRepository
+        Activator.CreateInstance<IRepository>(repoType, args)
