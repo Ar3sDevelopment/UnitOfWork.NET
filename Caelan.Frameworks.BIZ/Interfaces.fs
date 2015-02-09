@@ -10,6 +10,7 @@ open Caelan.DynamicLinq.Classes
 open Caelan.Frameworks.Common.Interfaces
 
 type IRepository = 
+    
     [<Obsolete("Use UnitOfWork property instead", true)>]
     abstract GetUnitOfWork : unit -> IUnitOfWork
     
@@ -21,14 +22,14 @@ type IRepository =
 and IRepository<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null> = 
     inherit IRepository
     abstract Set : unit -> DbSet<'TEntity>
-    abstract SingleEntity : ids:obj [] -> 'TEntity
+    abstract SingleEntity : [<ParamArray>]ids:obj [] -> 'TEntity
     abstract SingleEntity : where:Expression<Func<'TEntity, bool>> -> 'TEntity
     abstract All : unit -> IQueryable<'TEntity>
     abstract All : where:Expression<Func<'TEntity, bool>> -> IQueryable<'TEntity>
     abstract Insert : entity:'TEntity -> 'TEntity
-    abstract Update : entity:'TEntity * ids:obj [] -> unit
-    abstract Delete : entity:'TEntity * ids:obj [] -> unit
-    abstract Delete : ids:obj [] -> unit
+    abstract Update : entity:'TEntity * [<ParamArray>]ids:obj [] -> unit
+    abstract Delete : entity:'TEntity * [<ParamArray>]ids:obj [] -> unit
+    abstract Delete : [<ParamArray>]ids:obj [] -> unit
 
 and IRepository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct> = 
     inherit IRepository<'TEntity>
@@ -36,15 +37,15 @@ and IRepository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equali
     abstract EntityBuilder : mapper:IMapper<'TDTO, 'TEntity> option -> Builder<'TDTO, 'TEntity>
     abstract DTOBuilder : unit -> Builder<'TEntity, 'TDTO>
     abstract EntityBuilder : unit -> Builder<'TDTO, 'TEntity>
-    abstract SingleDTO : ids:obj [] -> 'TDTO
+    abstract SingleDTO : [<ParamArray>]ids:obj [] -> 'TDTO
     abstract SingleDTO : where:Expression<Func<'TEntity, bool>> -> 'TDTO
     abstract List : unit -> seq<'TDTO>
     abstract List : Expression<Func<'TEntity, bool>> -> seq<'TDTO>
     abstract All : take:int * skip:int * sort:seq<Sort> * filter:Filter * where:Expression<Func<'TEntity, bool>>
      -> DataSourceResult<'TDTO>
     abstract Insert : dto:'TDTO -> 'TDTO
-    abstract Update : dto:'TDTO * ids:obj [] -> unit
-    abstract Delete : dto:'TDTO * ids:obj [] -> unit
+    abstract Update : dto:'TDTO * [<ParamArray>]ids:obj [] -> unit
+    abstract Delete : dto:'TDTO * [<ParamArray>]ids:obj [] -> unit
 
 and IListRepository<'TEntity, 'TDTO, 'TListDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct and 'TListDTO : equality and 'TListDTO : null and 'TListDTO : not struct> = 
     inherit IRepository<'TEntity, 'TDTO>
