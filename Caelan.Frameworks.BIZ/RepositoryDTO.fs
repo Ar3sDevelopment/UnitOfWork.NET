@@ -81,7 +81,10 @@ type Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equali
     override this.Insert(dto : 'TDTO) = this.DTOBuilder().Build(this.Insert(this.EntityBuilder().Build(dto)))
     
     override this.Update(dto : 'TDTO, [<ParamArray>] ids) = 
-        this.Update(this.EntityBuilder().Build(dto), ids)
+        let entity = this.Set().Find(ids)
+        let entry = manager.Entry(entity)
+        this.EntityBuilder().Build(dto, ref entity)
+        entry.CurrentValues.SetValues(entity)
     
     override this.Delete(_ : 'TDTO, [<ParamArray>] ids) = this.Delete(ids) |> ignore
     member this.InsertAsync(dto : 'TDTO) = async { return this.Insert(dto) } |> Async.StartAsTask
