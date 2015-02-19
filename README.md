@@ -1,4 +1,4 @@
-#Business Framework
+#Business Framework [![Build status](https://ci.appveyor.com/api/projects/status/arm3x6ls8vulmgin?svg=true)](https://ci.appveyor.com/project/Ar3s/caelan-frameworks-biz)
 The Caelan.Frameworks.BIZ NuGet Package
 If you need support or you want to contact me I'm [CaelanIt](https://twitter.com/CaelanIt) on Twitter
 
