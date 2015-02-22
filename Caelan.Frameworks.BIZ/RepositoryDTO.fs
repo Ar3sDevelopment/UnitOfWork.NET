@@ -80,11 +80,8 @@ type Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equali
     abstract Delete : 'TDTO * ids:obj [] -> unit
     override this.Insert(dto : 'TDTO) = this.DTOBuilder().Build(this.Insert(this.EntityBuilder().Build(dto)))
     
-    override this.Update(dto : 'TDTO, [<ParamArray>] ids) = 
-        let entity = this.Set().Find(ids)
-        let entry = manager.Entry(entity)
-        this.EntityBuilder().Build(dto, ref entity)
-        entry.CurrentValues.SetValues(entity)
+    override this.Update(dto : 'TDTO, [<ParamArray>] ids:obj[]) = 
+        this.Update(this.EntityBuilder().Build(dto, this.SingleEntity(ids)), ids)
     
     override this.Delete(_ : 'TDTO, [<ParamArray>] ids) = this.Delete(ids) |> ignore
     member this.InsertAsync(dto : 'TDTO) = async { return this.Insert(dto) } |> Async.StartAsTask
@@ -97,4 +94,4 @@ type Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equali
                          whereFunc : Expression<Func<'TEntity, bool>>) = 
         async { return this.All(take, skip, sort, filter, whereFunc) } |> Async.StartAsTask
     member this.SingleDTOAsync([<ParamArray>] id : obj []) = async { return this.SingleDTO(id) } |> Async.StartAsTask
-    member this.SingleDTOAsync(expr : 'TEntity -> bool) = async { return this.SingleDTO(expr) } |> Async.StartAsTask
+    member this.SingleDTOAsync(expr : Expression<Func<'TEntity, bool>>) = async { return this.SingleDTO(expr) } |> Async.StartAsTask

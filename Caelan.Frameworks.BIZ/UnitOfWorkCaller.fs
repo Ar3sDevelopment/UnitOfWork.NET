@@ -19,7 +19,7 @@ type GenericUnitOfWorkCaller internal (uow : IUnitOfWork) =
             this.Repository<'T, 'TEntity, 'TDTO>(call)
         member this.RepositoryList<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : not struct and 'TDTO : equality and 'TDTO : null>() = 
             this.RepositoryList<'TEntity, 'TDTO>()
-        member this.UnitOfWorkCallSaveChanges(call : Action<IUnitOfWork>) = this.UnitOfWorkCallSaveChanges(call)
+        member this.UnitOfWorkSaveChanges(call : Action<IUnitOfWork>) = this.UnitOfWorkSaveChanges(call)
         member this.Transaction(body : Action<IUnitOfWork>) = this.Transaction(body)
         member this.TransactionSaveChanges(body : Action<IUnitOfWork>) = this.TransactionSaveChanges(body)
     
@@ -34,7 +34,7 @@ type GenericUnitOfWorkCaller internal (uow : IUnitOfWork) =
     member this.RepositoryList<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : not struct and 'TDTO : equality and 'TDTO : null>() = 
         this.Repository<seq<'TDTO>, 'TEntity, 'TDTO>(fun t -> t.List())
     
-    member this.UnitOfWorkCallSaveChanges(call : Action<IUnitOfWork>) = 
+    member this.UnitOfWorkSaveChanges(call : Action<IUnitOfWork>) = 
         this.UnitOfWork(fun t -> 
             call.Invoke(t)
             t.SaveChanges() <> 0)

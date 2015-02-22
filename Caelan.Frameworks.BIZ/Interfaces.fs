@@ -9,14 +9,7 @@ open Caelan.Frameworks.Common.Classes
 open Caelan.DynamicLinq.Classes
 open Caelan.Frameworks.Common.Interfaces
 
-type IRepository = 
-    
-    [<Obsolete("Use UnitOfWork property instead", true)>]
-    abstract GetUnitOfWork : unit -> IUnitOfWork
-    
-    [<Obsolete("Use UnitOfWork property instead", true)>]
-    abstract GetUnitOfWork<'T when 'T :> IUnitOfWork> : unit -> 'T
-    
+type IRepository =     
     abstract UnitOfWork : IUnitOfWork
 
 and IRepository<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null> = 
@@ -77,6 +70,6 @@ type IUnitOfWorkCaller =
      -> 'T
     abstract RepositoryList<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : not struct and 'TDTO : equality and 'TDTO : null> : unit
      -> seq<'TDTO>
-    abstract UnitOfWorkCallSaveChanges : call:Action<IUnitOfWork> -> bool
+    abstract UnitOfWorkSaveChanges : call:Action<IUnitOfWork> -> bool
     abstract Transaction : body:Action<IUnitOfWork> -> unit
     abstract TransactionSaveChanges : body:Action<IUnitOfWork> -> bool

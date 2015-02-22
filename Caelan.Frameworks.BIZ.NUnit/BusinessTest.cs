@@ -44,13 +44,27 @@ namespace Caelan.Frameworks.BIZ.NUnit
 				{
 					Console.WriteLine("{0} {1}", user.Id, user.Login);
 				}
+
+				var entity = new User {
+					Login = "test",
+					Password = "test"
+				};
+
+				uow.UnitOfWorkSaveChanges(t => entity = t.Repository<User>().Insert(entity));
+
+				Console.WriteLine(entity.Id);
+
+				entity.Password = "test2";
+
+				uow.UnitOfWorkSaveChanges(t => t.Repository<User>().Update(entity, entity.Id));
+				uow.UnitOfWorkSaveChanges(t => t.Repository<User>().Delete(entity, entity.Id));
 			}
 			stopWatch.Stop();
 			Console.WriteLine("{0} ms", stopWatch.ElapsedMilliseconds);
 		}
 
 		[Test]
-		public void TestRepository()
+		public void TestDTORepository()
 		{
 			var stopWatch = new Stopwatch();
 			stopWatch.Start();
@@ -62,6 +76,22 @@ namespace Caelan.Frameworks.BIZ.NUnit
 				{
 					Console.WriteLine("{0} {1}", user.Id, user.Login);
 				}
+
+				var dto = new UserDTO {
+					Login = "test",
+					Password = "test"
+				};
+
+				uow.UnitOfWorkSaveChanges(t => dto = t.Repository<User, UserDTO>().Insert(dto));
+
+				dto = uow.UnitOfWork(t => t.Repository<User, UserDTO>().SingleDTO(d => d.Login == dto.Login));
+
+				Console.WriteLine(dto.Id);
+
+				dto.Password = "test2";
+
+				uow.UnitOfWorkSaveChanges(t => t.Repository<User, UserDTO>().Update(dto, dto.Id));
+				uow.UnitOfWorkSaveChanges(t => t.Repository<User, UserDTO>().Delete(dto, dto.Id));
 			}
 			stopWatch.Stop();
 			Console.WriteLine("{0} ms", stopWatch.ElapsedMilliseconds);
@@ -80,6 +110,22 @@ namespace Caelan.Frameworks.BIZ.NUnit
 				{
 					Console.WriteLine("{0} {1}", user.Id, user.Login);
 				}
+
+				var dto = new UserDTO {
+					Login = "test",
+					Password = "test"
+				};
+
+				uow.UnitOfWorkSaveChanges(t => t.CustomRepository<UserRepository>().Insert(dto));
+
+				dto = uow.UnitOfWork(t => t.CustomRepository<UserRepository>().SingleDTO(d => d.Login == dto.Login));
+
+				Console.WriteLine(dto.Id);
+
+				dto.Password = "test2";
+
+				uow.UnitOfWorkSaveChanges(t => t.CustomRepository<UserRepository>().Update(dto, dto.Id));
+				uow.UnitOfWorkSaveChanges(t => t.CustomRepository<UserRepository>().Delete(dto, dto.Id));
 			}
 			stopWatch.Stop();
 			Console.WriteLine("{0} ms", stopWatch.ElapsedMilliseconds);
