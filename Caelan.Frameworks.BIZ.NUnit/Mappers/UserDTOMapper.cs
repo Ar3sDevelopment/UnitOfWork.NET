@@ -6,7 +6,7 @@ namespace Caelan.Frameworks.BIZ.NUnit.Mappers
 {
 	public class UserDTOMapper : DefaultMapper<User, UserDTO>
 	{
-		public override void Map(User source, ref UserDTO destination)
+		public override void Map(User source, UserDTO destination)
 		{
 			destination.Id = source.Id;
 			destination.Login = source.Login;
