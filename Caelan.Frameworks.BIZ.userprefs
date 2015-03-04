@@ -2,10 +2,10 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.Workbench>
     <Files>
-      <File FileName="Caelan.Frameworks.BIZ/Repository.fs" Line="32" Column="32" />
+      <File FileName="Caelan.Frameworks.BIZ/Repository.fs" Line="18" Column="18" />
       <File FileName="Caelan.Frameworks.BIZ/UnitOfWork.fs" Line="1" Column="1" />
       <File FileName="Caelan.Frameworks.BIZ/ListRepository.fs" Line="1" Column="1" />
-      <File FileName="Caelan.Frameworks.BIZ/Interfaces.fs" Line="34" Column="34" />
+      <File FileName="Caelan.Frameworks.BIZ/Interfaces.fs" Line="1" Column="1" />
       <File FileName="Caelan.Frameworks.BIZ/packages.config" Line="1" Column="1" />
       <File FileName="Caelan.Frameworks.BIZ/UnitOfWorkCaller.fs" Line="1" Column="1" />
       <File FileName="Caelan.Frameworks.BIZ/AssemblyInfo.fs" Line="1" Column="1" />
@@ -13,15 +13,15 @@
       <File FileName="Caelan.Frameworks.BIZ.NUnit/BusinessTest.cs" Line="1" Column="1" />
       <File FileName="Caelan.Frameworks.BIZ/RepositoryExtenders.fs" Line="1" Column="1" />
       <File FileName="Caelan.Frameworks.BIZ/RepositoryEntity.fs" Line="1" Column="1" />
-      <File FileName="Caelan.Frameworks.BIZ/RepositoryDTO.fs" Line="5" Column="5" />
+      <File FileName="Caelan.Frameworks.BIZ/RepositoryDTO.fs" Line="1" Column="1" />
       <File FileName="Caelan.Frameworks.BIZ/RepositoryReflection.fs" Line="1" Column="1" />
       <File FileName="Caelan.Frameworks.BIZ.NUnit/App.config" Line="1" Column="1" />
       <File FileName="Caelan.Frameworks.BIZ/Script.fsx" Line="1" Column="1" />
       <File FileName="Caelan.Frameworks.BIZ.NUnit/packages.config" Line="1" Column="1" />
       <File FileName="Caelan.Frameworks.BIZ/Caelan.Frameworks.BIZ.nuspec" Line="1" Column="1" />
       <File FileName="Caelan.Frameworks.BIZ.NUnit/Models/User.cs" Line="1" Column="1" />
-      <File FileName="Caelan.Frameworks.BIZ.NUnit/Mappers/UserMapper.cs" Line="3" Column="3" />
-      <File FileName="Caelan.Frameworks.BIZ.NUnit/Mappers/UserDTOMapper.cs" Line="41" Column="41" />
+      <File FileName="Caelan.Frameworks.BIZ.NUnit/Mappers/UserMapper.cs" Line="29" Column="29" />
+      <File FileName="Caelan.Frameworks.BIZ.NUnit/Mappers/UserDTOMapper.cs" Line="22" Column="22" />
     </Files>
     <Pads>
       <Pad Id="MonoDevelop.NUnit.TestPad">
