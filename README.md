@@ -4,6 +4,7 @@ If you need support or you want to contact me I'm [CaelanIt](https://twitter.com
 
 ##Build
 Travis CI: [![Build Status](https://travis-ci.org/Ar3sDevelopment/Caelan.Frameworks.BIZ.svg?branch=autofac)](https://travis-ci.org/Ar3sDevelopment/Caelan.Frameworks.BIZ)
+
 AppVeyor: [![Build status](https://ci.appveyor.com/api/projects/status/arm3x6ls8vulmgin?svg=true)](https://ci.appveyor.com/project/Ar3s/caelan-frameworks-biz)
 
 ##What is it?
