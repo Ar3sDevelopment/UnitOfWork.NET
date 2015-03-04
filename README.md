@@ -7,6 +7,11 @@ Travis CI: [![Build Status](https://travis-ci.org/Ar3sDevelopment/Caelan.Framewo
 
 AppVeyor: [![Build status](https://ci.appveyor.com/api/projects/status/arm3x6ls8vulmgin?svg=true)](https://ci.appveyor.com/project/Ar3s/caelan-frameworks-biz)
 
+##Requests##
+Pull Requests: [![Issue Stats](http://issuestats.com/github/Ar3sDevelopment/Caelan.Frameworks.BIZ/badge/pr)](http://issuestats.com/github/Ar3sDevelopment/Caelan.Frameworks.BIZ)
+
+Issues: [![Issue Stats](http://issuestats.com/github/Ar3sDevelopment/Caelan.Frameworks.BIZ/badge/issue)](http://issuestats.com/github/Ar3sDevelopment/Caelan.Frameworks.BIZ)
+
 ##What is it?
 This package provides some utilities for the business layer like repositories and units of work.
 
