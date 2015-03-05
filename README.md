@@ -1,17 +1,18 @@
-[![Stories in Ready](https://badge.waffle.io/Ar3sDevelopment/Caelan.Frameworks.BIZ.png?label=ready&title=Ready)](https://waffle.io/Ar3sDevelopment/Caelan.Frameworks.BIZ)
 #Business Framework
 The Caelan.Frameworks.BIZ NuGet Package
 If you need support or you want to contact me I'm [CaelanIt](https://twitter.com/CaelanIt) on Twitter
 
 ##Build
-Travis CI: [![Build Status](https://travis-ci.org/Ar3sDevelopment/Caelan.Frameworks.BIZ.svg?branch=master)](https://travis-ci.org/Ar3sDevelopment/Caelan.Frameworks.BIZ)
+Travis CI (Mono): [![Build Status](https://travis-ci.org/Ar3sDevelopment/Caelan.Frameworks.BIZ.svg?branch=master)](https://travis-ci.org/Ar3sDevelopment/Caelan.Frameworks.BIZ)
 
-AppVeyor: [![Build status](https://ci.appveyor.com/api/projects/status/arm3x6ls8vulmgin?svg=true)](https://ci.appveyor.com/project/matteobruni/caelan-frameworks-biz)
+AppVeyor (Windows): [![Build status](https://ci.appveyor.com/api/projects/status/arm3x6ls8vulmgin?svg=true)](https://ci.appveyor.com/project/matteobruni/caelan-frameworks-biz)
 
 ##Requests##
 Pull Requests: [![Issue Stats](http://issuestats.com/github/Ar3sDevelopment/Caelan.Frameworks.BIZ/badge/pr)](http://issuestats.com/github/Ar3sDevelopment/Caelan.Frameworks.BIZ)
 
 Issues: [![Issue Stats](http://issuestats.com/github/Ar3sDevelopment/Caelan.Frameworks.BIZ/badge/issue)](http://issuestats.com/github/Ar3sDevelopment/Caelan.Frameworks.BIZ)
+
+Waffle.io: [![Stories in Ready](https://badge.waffle.io/Ar3sDevelopment/Caelan.Frameworks.BIZ.png?label=ready&title=Ready)](https://waffle.io/Ar3sDevelopment/Caelan.Frameworks.BIZ)
 
 ##What is it?
 This package provides some utilities for the business layer like repositories and units of work.
