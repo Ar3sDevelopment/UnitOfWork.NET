@@ -26,10 +26,6 @@ and IRepository<'TEntity when 'TEntity : not struct and 'TEntity : equality and 
 
 and IRepository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct> = 
     inherit IRepository<'TEntity>
-    abstract DTOBuilder : mapper:IMapper<'TEntity, 'TDTO> option -> Builder<'TEntity, 'TDTO>
-    abstract EntityBuilder : mapper:IMapper<'TDTO, 'TEntity> option -> Builder<'TDTO, 'TEntity>
-    abstract DTOBuilder : unit -> Builder<'TEntity, 'TDTO>
-    abstract EntityBuilder : unit -> Builder<'TDTO, 'TEntity>
     abstract SingleDTO : [<ParamArray>]ids:obj [] -> 'TDTO
     abstract SingleDTO : where:Expression<Func<'TEntity, bool>> -> 'TDTO
     abstract List : unit -> seq<'TDTO>
