@@ -12,7 +12,6 @@
         <language>en-US</language>
         <projectUrl>https://github.com/Ar3sDevelopment/Caelan.Frameworks.BIZ</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <description>A business framework with some abstract classes</description>
         <dependencies>
             <group targetFramework=".NETFramework4.5">
                 <dependency id="EntityFramework" version="6.1.1" />
