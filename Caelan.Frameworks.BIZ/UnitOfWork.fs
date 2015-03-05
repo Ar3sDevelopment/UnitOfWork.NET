@@ -2,9 +2,7 @@
 
 open System
 open System.Data.Entity
-open System.Linq
 open System.Reflection
-open System.Collections.Generic
 open Caelan.Frameworks.BIZ.Interfaces
 open Caelan.Frameworks.Common.Helpers
 open Caelan.Frameworks.BIZ.Modules
@@ -83,7 +81,7 @@ type UnitOfWork private (context : DbContext, autoContext) =
 type UnitOfWork<'TContext when 'TContext :> DbContext> private (context : DbContext) = 
     inherit UnitOfWork(context)
     
-    override this.Dispose() = 
+    override __.Dispose() = 
         context.Dispose()
         base.Dispose()
     
