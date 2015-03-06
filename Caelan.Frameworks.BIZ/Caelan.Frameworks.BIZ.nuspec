@@ -1,14 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
     <metadata>
-        <id>Caelan.Frameworks.BIZ</id>
-        <version>3.0.0</version>
+        <id>$id$</id>
+        <version>$version$</version>
         <title>Caelan.Frameworks.BIZ</title>
-        <authors>Caelan</authors>
+        <authors>$author$</authors>
         <owners>Matteo Bruni</owners>
+        <description>$description$</description>
+        <releaseNotes></releaseNotes>
+        <summary>$description$</summary>
+        <language>en-US</language>
         <projectUrl>https://github.com/Ar3sDevelopment/Caelan.Frameworks.BIZ</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <description>A business framework with some abstract classes</description>
         <dependencies>
             <group targetFramework=".NETFramework4.5">
                 <dependency id="EntityFramework" version="6.1.1" />
@@ -19,6 +22,6 @@
         </dependencies>
     </metadata>
     <files>
-        <file src="bin\Release\Caelan.Frameworks.BIZ.dll" target="lib\Caelan.Frameworks.BIZ.dll" />
+        <file src="bin\$configuration$\$id$.dll" target="lib\$id$.dll" />
     </files>
 </package>

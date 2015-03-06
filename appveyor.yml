@@ -1,6 +1,9 @@
 version: 3.0.0.{build}
+branches:
+  except:
+  - gh-pages
+skip_tags: true
 configuration: Release
-platform: Any CPU
 assembly_info:
   patch: true
   file: '**\AssemblyInfo.*'
