@@ -6,7 +6,7 @@ open Caelan.Frameworks.Common.Helpers
 open Caelan.Frameworks.BIZ.Interfaces
 
 module internal RepositoryReflection = 
-    let FindRepositoryInAssemblies ([<ParamArray>] args : obj []) (baseType : Type) = 
+    let FindRepositoryInAssemblies<'T when 'T :> IRepository>([<ParamArray>] args : obj []) (baseType : Type) = 
         let typeEqualsTo = (fun t1 t2 -> t2 = t1)
         let isTypeAssignableTo = (fun t1 (t2 : Type) -> t2.IsAssignableFrom(t1))
         let typeSameGeneric = 
@@ -54,4 +54,4 @@ module internal RepositoryReflection =
             |> List.filter (fun t -> t <> null)
             |> getRepository
         
-        Activator.CreateInstance<IRepository>(repoType, args)
+        Activator.CreateInstance<'T>(repoType, args)

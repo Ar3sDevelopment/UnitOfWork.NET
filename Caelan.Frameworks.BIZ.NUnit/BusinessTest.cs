@@ -51,12 +51,19 @@ namespace Caelan.Frameworks.BIZ.NUnit
 
 				uow.UnitOfWorkSaveChanges(t => entity = t.Repository<User>().Insert(entity));
 
+				Assert.AreNotEqual (entity.Id, 0);
+
 				Console.WriteLine(entity.Id);
 
 				entity.Password = "test2";
 
 				uow.UnitOfWorkSaveChanges(t => t.Repository<User>().Update(entity, entity.Id));
+
+				Assert.AreEqual (entity.Password, uow.UnitOfWork(t => t.Repository<User>().SingleEntity(entity.Id).Password));
+
 				uow.UnitOfWorkSaveChanges(t => t.Repository<User>().Delete(entity, entity.Id));
+
+				Assert.IsNull (uow.UnitOfWork(t => t.Repository<User>().SingleEntity(entity.Id)));
 			}
 			stopWatch.Stop();
 			Console.WriteLine("{0} ms", stopWatch.ElapsedMilliseconds);
@@ -67,6 +74,9 @@ namespace Caelan.Frameworks.BIZ.NUnit
 		{
 			var stopWatch = new Stopwatch();
 			stopWatch.Start();
+
+			var rnd = new Random ();
+
 			using (var uow = UnitOfWorkCaller.Context<TestDbContext>())
 			{
 				var users = uow.RepositoryList<User, UserDTO>();
@@ -77,7 +87,7 @@ namespace Caelan.Frameworks.BIZ.NUnit
 				}
 
 				var dto = new UserDTO {
-					Login = "test",
+					Login = "test_" + rnd.Next (),
 					Password = "test"
 				};
 
@@ -85,12 +95,20 @@ namespace Caelan.Frameworks.BIZ.NUnit
 
 				dto = uow.UnitOfWork(t => t.Repository<User, UserDTO>().SingleDTO(d => d.Login == dto.Login));
 
+				Assert.IsNotNull (dto);
+				Assert.AreNotEqual (dto.Id, 0);
+
 				Console.WriteLine(dto.Id);
 
 				dto.Password = "test2";
 
 				uow.UnitOfWorkSaveChanges(t => t.Repository<User, UserDTO>().Update(dto, dto.Id));
+
+				Assert.AreEqual (dto.Password, uow.UnitOfWork(t => t.Repository<User, UserDTO>().SingleDTO(dto.Id).Password));
+
 				uow.UnitOfWorkSaveChanges(t => t.Repository<User, UserDTO>().Delete(dto, dto.Id));
+
+				Assert.IsNull (uow.UnitOfWork(t => t.Repository<User, UserDTO>().SingleDTO(dto.Id)));
 			}
 			stopWatch.Stop();
 			Console.WriteLine("{0} ms", stopWatch.ElapsedMilliseconds);
@@ -101,6 +119,9 @@ namespace Caelan.Frameworks.BIZ.NUnit
 		{
 			var stopWatch = new Stopwatch();
 			stopWatch.Start();
+
+			var rnd = new Random ();
+
 			using (var uow = UnitOfWorkCaller.Context<TestDbContext>())
 			{
 				var users = uow.UnitOfWork(t => t.CustomRepository<UserRepository>().NewList());
@@ -111,7 +132,7 @@ namespace Caelan.Frameworks.BIZ.NUnit
 				}
 
 				var dto = new UserDTO {
-					Login = "test",
+					Login = "test_" + rnd.Next (),
 					Password = "test"
 				};
 
@@ -119,12 +140,22 @@ namespace Caelan.Frameworks.BIZ.NUnit
 
 				dto = uow.UnitOfWork(t => t.CustomRepository<UserRepository>().SingleDTO(d => d.Login == dto.Login));
 
+				Assert.IsNotNull (dto);
+				Assert.AreNotEqual (dto.Id, 0);
+
 				Console.WriteLine(dto.Id);
 
 				dto.Password = "test2";
 
+				uow.UnitOfWorkSaveChanges(t => t.Repository<User, UserDTO>().Update(dto, dto.Id));
+
 				uow.UnitOfWorkSaveChanges(t => t.CustomRepository<UserRepository>().Update(dto, dto.Id));
+
+				Assert.AreEqual (dto.Password, uow.UnitOfWork(t => t.CustomRepository<UserRepository>().SingleDTO(dto.Id).Password));
+
 				uow.UnitOfWorkSaveChanges(t => t.CustomRepository<UserRepository>().Delete(dto, dto.Id));
+
+				Assert.IsNull (uow.UnitOfWork(t => t.Repository<User, UserDTO>().SingleDTO(dto.Id)));
 			}
 			stopWatch.Stop();
 			Console.WriteLine("{0} ms", stopWatch.ElapsedMilliseconds);

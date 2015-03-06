@@ -66,7 +66,7 @@ type Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equali
     
     override this.Update(dto : 'TDTO, [<ParamArray>] ids:obj[]) = 
         let entity = this.SingleEntity(ids)
-        Builder.Build(dto).To(entity)
+        Builder.Build(dto).To(entity) |> ignore
         this.Update(entity, ids)
     
     override this.Delete(_ : 'TDTO, [<ParamArray>] ids) = this.Delete(ids) |> ignore

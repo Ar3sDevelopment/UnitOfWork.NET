@@ -7,7 +7,7 @@ open Caelan.Frameworks.BIZ.Interfaces
 open Caelan.Frameworks.Common.Helpers
 open Caelan.Frameworks.BIZ.Modules
 
-type UnitOfWork private (context : DbContext, autoContext) = 
+type UnitOfWork internal (context : DbContext, autoContext)=     
     member private __.AutoContext = autoContext
 
     interface IUnitOfWork with
@@ -39,15 +39,16 @@ type UnitOfWork private (context : DbContext, autoContext) =
                                      | Some(repositoryProp) -> repositoryProp.GetValue(this)
                                      | None -> Activator.CreateInstance(tp, this)) :?> 'TRepository)
     
+     member private this.GetRepository<'TRepository when 'TRepository :> IRepository>()=
+        typeof<'TRepository> 
+        |> MemoizeHelper.Memoize (fun t -> t |> RepositoryReflection.FindRepositoryInAssemblies<'TRepository> [| this |])
     member this.Repository<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>() = 
-        typeof<IRepository<'TEntity>> 
-        |> MemoizeHelper.Memoize (fun t -> t |> RepositoryReflection.FindRepositoryInAssemblies [| this |] :?> IRepository<'TEntity>)
+        this.GetRepository<IRepository<'TEntity>>()
     member this.Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>() = 
-        typeof<IRepository<'TEntity, 'TDTO>> 
-        |> MemoizeHelper.Memoize (fun t -> t |> RepositoryReflection.FindRepositoryInAssemblies [| this |] :?> IRepository<'TEntity, 'TDTO>)
+        this.GetRepository<IRepository<'TEntity, 'TDTO>>()
     member this.Repository<'TEntity, 'TDTO, 'TListDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct and 'TListDTO : equality and 'TListDTO : null and 'TListDTO : not struct>() = 
-        typeof<IListRepository<'TEntity, 'TDTO, 'TListDTO>> 
-        |> MemoizeHelper.Memoize (fun t -> t |> RepositoryReflection.FindRepositoryInAssemblies [| this |] :?> IListRepository<'TEntity, 'TDTO, 'TListDTO>)
+        this.GetRepository<IListRepository<'TEntity, 'TDTO, 'TListDTO>>()
+    
     member __.Entry<'TEntity>(entity : 'TEntity) = context.Entry(entity)
     member __.DbSet<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>() = 
         context.Set<'TEntity>()
@@ -79,11 +80,7 @@ type UnitOfWork private (context : DbContext, autoContext) =
         new UnitOfWork(context, false)
 
 type UnitOfWork<'TContext when 'TContext :> DbContext> private (context : DbContext) = 
-    inherit UnitOfWork(context)
-    
-    override __.Dispose() = 
-        context.Dispose()
-        base.Dispose()
+    inherit UnitOfWork(context, true)
     
     new() = 
         new UnitOfWork<'TContext>(Activator.CreateInstance<'TContext>())
