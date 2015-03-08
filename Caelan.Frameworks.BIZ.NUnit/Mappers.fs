@@ -3,6 +3,8 @@
 open Caelan.Frameworks.Common.Classes
 
 module Mappers =
+    open Caelan.Frameworks.BIZ.NUnit.Data.Models
+
     type UserMapper() =
         inherit DefaultMapper<UserDTO, User>()
 
