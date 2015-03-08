@@ -1,13 +1,9 @@
 ﻿namespace Caelan.Frameworks.BIZ.NUnit
 
-open System
-open System.Collections.Generic
 open System.Diagnostics
 open NUnit.Framework
-open Caelan.Frameworks.Common.Classes
 open Caelan.Frameworks.BIZ.Classes
-open Caelan.Frameworks.BIZ.NUnit.Repositories
-open Caelan.Frameworks.BIZ.NUnit.Context
+open Caelan.Frameworks.BIZ.NUnit.Data.Models
 
 [<TestFixture>]
 type BusinessTest() = 
@@ -16,8 +12,8 @@ type BusinessTest() =
         let stopwatch = Stopwatch()
         stopwatch.Start()
 
-        use context = new TestDbContext()
-        let users = context.Users
+        use db = new TestDbContext()
+        let users = db.Users
 
         for user in users do
             (user.Id, user.Login) ||> printfn "%d %s"
@@ -50,10 +46,50 @@ type BusinessTest() =
 
         (!entity).Password <- "test2"
 
-        uow.UnitOfWorkSaveChanges(fun t -> t.Repository<User>().Update(!entity)) |> ignore
+        uow.UnitOfWorkSaveChanges(fun t -> t.Repository<User>().Update(!entity, (!entity).Id)) |> ignore
 
         Assert.AreEqual ((!entity).Password, uow.UnitOfWork(fun t -> t.Repository<User>().SingleEntity((!entity).Id).Password))
 
-        uow.UnitOfWorkSaveChanges(fun t -> t.Repository<User>().Delete(entity, (!entity).Id)) |> ignore
+        uow.UnitOfWorkSaveChanges(fun t -> t.Repository<User>().Delete((!entity).Id)) |> ignore
 
         Assert.IsNull (uow.UnitOfWork(fun t -> t.Repository<User>().SingleEntity((!entity).Id)))
+
+    [<Test>]
+    member __.TestDTORepository() =
+        let stopwatch = Stopwatch()
+        stopwatch.Start()
+
+        use uow = UnitOfWorkCaller.Context<TestDbContext>()
+
+        let users = uow.RepositoryList<User, UserDTO>()
+
+        stopwatch.Stop()
+        stopwatch.ElapsedMilliseconds |> printfn "%dms"
+
+        for user in users do
+            (user.Id, user.Login) ||> printfn "%d %s"
+
+        let dto = ref(UserDTO(Login = "test", Password = "test"))
+
+        uow.UnitOfWorkSaveChanges(fun t -> dto := t.Repository<User, UserDTO>().Insert(!dto)) |> ignore
+
+        dto := uow.UnitOfWork(fun t ->
+            let login = (!dto).Login
+            t.Repository<User, UserDTO>().SingleDTO(fun d -> d.Login = login)
+        )
+
+        Assert.IsNotNull(!dto)
+
+        Assert.AreNotEqual(decimal((!dto).Id), 0m)
+
+        (!dto).Id |> printfn "%d"
+
+        (!dto).Password <- "test2"
+
+        uow.UnitOfWorkSaveChanges(fun t -> t.Repository<User, UserDTO>().Update(!dto, (!dto).Id)) |> ignore
+
+        Assert.AreEqual ((!dto).Password, uow.UnitOfWork(fun t -> t.Repository<User, UserDTO>().SingleDTO((!dto).Id).Password))
+
+        uow.UnitOfWorkSaveChanges(fun t -> t.Repository<User, UserDTO>().Delete((!dto).Id)) |> ignore
+
+        Assert.IsNull (uow.UnitOfWork(fun t -> t.Repository<User, UserDTO>().SingleDTO((!dto).Id)))

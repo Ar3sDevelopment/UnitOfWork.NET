@@ -32,11 +32,23 @@
     <ConsolePause>false</ConsolePause>
     <Tailcalls>true</Tailcalls>
   </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.1\Framework\v4.0\Microsoft.FSharp.Targets" />
+  <ItemGroup>
+    <Compile Include="DTO.fs" />
+    <Compile Include="Mappers.fs" />
+    <Compile Include="Repositories.fs" />
+    <Compile Include="BusinessTest.fs" />
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
+    <Reference Include="nunit.framework">
+      <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="nunit.framework" />
     <Reference Include="EntityFramework">
       <HintPath>..\packages\EntityFramework.6.1.2\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
@@ -57,23 +69,17 @@
     <Reference Include="Caelan.DynamicLinq">
       <HintPath>..\packages\Caelan.DynamicLinq.1.2.0\lib\Caelan.DynamicLinq.dll</HintPath>
     </Reference>
-  </ItemGroup>
-  <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.1\Framework\v4.0\Microsoft.FSharp.Targets" />
-  <ItemGroup>
-    <Compile Include="EF.fs" />
-    <Compile Include="DTO.fs" />
-    <Compile Include="Mappers.fs" />
-    <Compile Include="Repositories.fs" />
-    <Compile Include="BusinessTest.fs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
+    <ProjectReference Include="..\Caelan.Frameworks.BIZ.NUnit.Data\Caelan.Frameworks.BIZ.NUnit.Data.csproj">
+      <Name>Caelan.Frameworks.BIZ.NUnit.Data</Name>
+      <Project>{2100b07c-fa1d-4a34-8698-8da3ac661898}</Project>
+      <Private>True</Private>
+    </ProjectReference>
     <ProjectReference Include="..\Caelan.Frameworks.BIZ\Caelan.Frameworks.BIZ.fsproj">
       <Project>{884E5E82-289E-4EBE-A0AF-9735AE4BDA45}</Project>
       <Name>Caelan.Frameworks.BIZ</Name>
     </ProjectReference>
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
 </Project>
