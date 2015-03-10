@@ -60,8 +60,8 @@ type Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equali
         DataSourceResult<_>(Data = buildFunc (queryResult.Data), Total = queryResult.Total)
     
     abstract Insert : dto:'TDTO -> 'TDTO
-    abstract Update : 'TDTO * ids:obj [] -> unit
-    abstract Delete : 'TDTO * ids:obj [] -> unit
+    abstract Update : 'TDTO * [<ParamArray>]ids:obj [] -> unit
+    abstract Delete : 'TDTO * [<ParamArray>]ids:obj [] -> unit
     override this.Insert(dto : 'TDTO) = Builder.Build(this.Insert(Builder.Build(dto).To<'TEntity>())).To<'TDTO>()
     
     override this.Update(dto : 'TDTO, [<ParamArray>] ids:obj[]) = 

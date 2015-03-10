@@ -35,9 +35,9 @@ type Repository<'TEntity when 'TEntity : not struct and 'TEntity : equality and 
         | _ -> this.Set().Where(whereExpr).AsQueryable()
     
     abstract Insert : entity:'TEntity -> 'TEntity
-    abstract Update : 'TEntity * ids:obj [] -> unit
-    abstract Delete : 'TEntity * ids:obj [] -> unit
-    abstract Delete : ids:obj [] -> unit
+    abstract Update : 'TEntity * [<ParamArray>]ids:obj [] -> unit
+    abstract Delete : 'TEntity * [<ParamArray>]ids:obj [] -> unit
+    abstract Delete : [<ParamArray>]ids:obj [] -> unit
     override this.Insert entity = this.Set().Add(entity)
     override this.Update(entity, [<ParamArray>] ids) = 
         manager.Entry(this.Set().Find(ids)).CurrentValues.SetValues(entity)
