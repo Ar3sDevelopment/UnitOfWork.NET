@@ -40,12 +40,12 @@ module internal RepositoryReflection =
         
         let rec getRepository asmList = 
             match asmList with
+            | [] -> null
             | head :: tail -> 
                 match head |> findRepositoryInAssembly with
-                | None -> tail |> getRepository
                 | Some(repo) when repo.ContainsGenericParameters -> repo.MakeGenericType(baseType.GenericTypeArguments)
                 | Some(repo) -> repo
-            | [] -> null
+                | None -> tail |> getRepository
         
         let repoType = 
             [ Assembly.GetExecutingAssembly()
