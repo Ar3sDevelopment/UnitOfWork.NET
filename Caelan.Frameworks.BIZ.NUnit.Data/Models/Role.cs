@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 
-namespace Caelan.Frameworks.BIZ.NUnit.Models
+namespace Caelan.Frameworks.BIZ.NUnit.Data.Models
 {
     public partial class Role
     {
         public Role()
         {
-            this.UserRoles = new List<UserRole>();
+            UserRoles = new List<UserRole>();
         }
 
         public int Id { get; set; }

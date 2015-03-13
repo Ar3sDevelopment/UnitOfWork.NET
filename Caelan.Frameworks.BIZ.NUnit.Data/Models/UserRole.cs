@@ -1,4 +1,4 @@
-namespace Caelan.Frameworks.BIZ.NUnit.Models
+namespace Caelan.Frameworks.BIZ.NUnit.Data.Models
 {
     public partial class UserRole
     {

@@ -60,13 +60,13 @@ type Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equali
         DataSourceResult<_>(Data = buildFunc (queryResult.Data), Total = queryResult.Total)
     
     abstract Insert : dto:'TDTO -> 'TDTO
-    abstract Update : 'TDTO * ids:obj [] -> unit
-    abstract Delete : 'TDTO * ids:obj [] -> unit
+    abstract Update : 'TDTO * [<ParamArray>]ids:obj [] -> unit
+    abstract Delete : 'TDTO * [<ParamArray>]ids:obj [] -> unit
     override this.Insert(dto : 'TDTO) = Builder.Build(this.Insert(Builder.Build(dto).To<'TEntity>())).To<'TDTO>()
     
     override this.Update(dto : 'TDTO, [<ParamArray>] ids:obj[]) = 
         let entity = this.SingleEntity(ids)
-        Builder.Build(dto).To(entity)
+        Builder.Build(dto).To(entity) |> ignore
         this.Update(entity, ids)
     
     override this.Delete(_ : 'TDTO, [<ParamArray>] ids) = this.Delete(ids) |> ignore
