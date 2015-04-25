@@ -1,17 +1,16 @@
 ﻿namespace Caelan.Frameworks.BIZ.Modules
-open System
-open System.Reflection
+
+open Caelan.Frameworks.BIZ.Interfaces
 open Caelan.Frameworks.Common.Extenders
 open Caelan.Frameworks.Common.Helpers
-open Caelan.Frameworks.BIZ.Interfaces
+open System
+open System.Reflection
 
 module internal RepositoryReflection = 
-    let FindRepositoryInAssemblies<'T when 'T :> IRepository>([<ParamArray>] args : obj []) (baseType : Type) = 
-        let typeEqualsTo = (fun t1 t2 -> t2 = t1)
-        let isTypeAssignableTo = (fun t1 (t2 : Type) -> t2.IsAssignableFrom(t1))
-        let typeSameGeneric = 
-            (fun (t1 : Type) (t2 : Type) -> 
-            t1.IsGenericTypeDefinition && t1.GetGenericArguments().Length = t2.GenericTypeArguments.Length)
+    let FindRepositoryInAssemblies<'T when 'T :> IRepository> ([<ParamArray>] args : obj []) (baseType : Type) = 
+        let typeEqualsTo t1 t2 = t2 = t1
+        let isTypeAssignableTo t1 (t2 : Type) = t1 |> t2.IsAssignableFrom
+        let typeSameGeneric (t1 : Type) (t2 : Type) = t1.IsGenericTypeDefinition && t1.GetGenericArguments().Length = t2.GenericTypeArguments.Length
         
         let makeGenericSafe (t : Type) types = 
             try 
@@ -32,19 +31,19 @@ module internal RepositoryReflection =
             | _ -> false
         
         let findRepositoryInAssembly (assembly : Assembly) = 
-            assembly |> MemoizeHelper.Memoize(fun a ->
-                let types =  a.GetTypes() |> Seq.filter (fun t -> not t.IsInterface && not t.IsAbstract)
-                match types |> Seq.tryFind (fun t -> (t, baseType) ||> compareTypes typeEqualsTo) with
-                | None -> types |> Seq.tryFind (fun t -> (t, baseType) ||> compareTypes isTypeAssignableTo)
-                | t -> t)
+            assembly |> MemoizeHelper.Memoize(fun a -> 
+                            let types = a.GetTypes() |> Seq.filter (fun t -> not t.IsInterface && not t.IsAbstract)
+                            match types |> Seq.tryFind (fun t -> (t, baseType) ||> compareTypes typeEqualsTo) with
+                            | None -> types |> Seq.tryFind (fun t -> (t, baseType) ||> compareTypes isTypeAssignableTo)
+                            | t -> t)
         
         let rec getRepository asmList = 
             match asmList with
             | [] -> null
             | head :: tail -> 
                 match head |> findRepositoryInAssembly with
-                | Some(repo) when repo.ContainsGenericParameters -> repo.MakeGenericType(baseType.GenericTypeArguments)
-                | Some(repo) -> repo
+                | Some repo when repo.ContainsGenericParameters -> repo.MakeGenericType(baseType.GenericTypeArguments)
+                | Some repo -> repo
                 | None -> tail |> getRepository
         
         let repoType = 
