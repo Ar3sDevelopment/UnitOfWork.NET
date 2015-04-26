@@ -5,16 +5,14 @@ open System.Data.Entity
 open System.Data.Entity.Infrastructure
 open System.Linq
 open System.Linq.Expressions
-open Caelan.Frameworks.Common.Classes
 open Caelan.DynamicLinq.Classes
-open Caelan.Frameworks.Common.Interfaces
 
 type IRepository =     
     abstract UnitOfWork : IUnitOfWork
 
 and IRepository<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null> = 
     inherit IRepository
-    abstract Set : unit -> DbSet<'TEntity>
+    abstract Set : DbSet<'TEntity>
     abstract SingleEntity : [<ParamArray>]ids:obj [] -> 'TEntity
     abstract SingleEntity : where:Expression<Func<'TEntity, bool>> -> 'TEntity
     abstract All : unit -> IQueryable<'TEntity>

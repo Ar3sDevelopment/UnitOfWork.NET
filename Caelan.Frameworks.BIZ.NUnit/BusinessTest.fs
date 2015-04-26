@@ -6,7 +6,7 @@ open Caelan.Frameworks.BIZ.Classes
 open Caelan.Frameworks.BIZ.NUnit.Data.Models
 
 [<TestFixture>]
-type BusinessTest() = 
+type BusinessTest() =  
     [<Test>]
     member __.TestContext() =
         let stopwatch = Stopwatch()
@@ -36,14 +36,12 @@ type BusinessTest() =
         for user in users do
             (user.Id, user.Login) ||> printfn "%d %s"
 
-        let entity = ref(User(Login = "test", Password = "test"))
+        let entity = ref <| User(Login = "test", Password = "test")
 
-        uow.UnitOfWorkSaveChanges(fun t -> entity := t.Repository<User>().Insert(!entity)) |> ignore
+        uow.UnitOfWorkSaveChanges(fun t -> entity := t.Repository<User>().Insert <| !entity ) |> ignore
 
-        Assert.AreNotEqual(decimal((!entity).Id), 0m)
-
+        ((!entity).Id |> decimal, 0m) |> Assert.AreNotEqual
         (!entity).Id |> printfn "%d"
-
         (!entity).Password <- "test2"
 
         uow.UnitOfWorkSaveChanges(fun t -> t.Repository<User>().Update(!entity, (!entity).Id)) |> ignore
@@ -69,7 +67,7 @@ type BusinessTest() =
         for user in users do
             (user.Id, user.Login) ||> printfn "%d %s"
 
-        let dto = ref(UserDTO(Login = "test", Password = "test"))
+        let dto = ref <| UserDTO(Login = "test", Password = "test")
 
         uow.UnitOfWorkSaveChanges(fun t -> dto := t.Repository<User, UserDTO>().Insert(!dto)) |> ignore
 
@@ -79,7 +77,6 @@ type BusinessTest() =
         )
 
         Assert.IsNotNull(!dto)
-
         Assert.AreNotEqual(decimal((!dto).Id), 0m)
 
         (!dto).Id |> printfn "%d"
@@ -109,7 +106,7 @@ type BusinessTest() =
         for user in users do
             (user.Id, user.Login) ||> printfn "%d %s"
 
-        let dto = ref(UserDTO(Login = "test", Password = "test"))
+        let dto = ref <| UserDTO(Login = "test", Password = "test")
 
         uow.UnitOfWorkSaveChanges(fun t -> dto := t.CustomRepository<UserRepository>().Insert(!dto)) |> ignore
 
@@ -119,11 +116,9 @@ type BusinessTest() =
         )
 
         Assert.IsNotNull(!dto)
-
         Assert.AreNotEqual(decimal((!dto).Id), 0m)
 
         (!dto).Id |> printfn "%d"
-
         (!dto).Password <- "test2"
 
         uow.UnitOfWorkSaveChanges(fun t -> t.CustomRepository<UserRepository>().Update(!dto, (!dto).Id)) |> ignore

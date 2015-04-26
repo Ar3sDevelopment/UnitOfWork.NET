@@ -40,15 +40,13 @@ type Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equali
     
     member this.List() = Builder.BuildList(this.All() :> seq<'TEntity>).ToList<'TDTO>()
     member this.List(whereExpr) = Builder.BuildList(this.All(whereExpr) :> seq<'TEntity>).ToList<'TDTO>()
-    member this.All(take, skip, sort, filter, whereFunc) = 
-        this.All(take, skip, sort, filter, whereFunc, fun t -> Builder.BuildList(t).ToList<'TDTO>())
+    member this.All(take, skip, sort, filter, whereFunc) = this.All(take, skip, sort, filter, whereFunc, fun t -> Builder.BuildList(t).ToList<'TDTO>())
     
     member private this.All(take, skip, sort, filter, whereFunc, buildFunc : seq<'TEntity> -> seq<'TDTO>) = 
         let orderBy = 
             query { 
-                for item in (typeof<'TEntity>).GetProperties(BindingFlags.Instance ||| BindingFlags.Public) 
-                            |> Seq.map (fun t -> t.Name) do
-                    select item
+                for item in (typeof<'TEntity>).GetProperties(BindingFlags.Instance ||| BindingFlags.Public) do
+                    select item.Name
                     headOrDefault
             }
         
@@ -57,12 +55,12 @@ type Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equali
              | null -> this.All(whereFunc)
              | defaultSort -> this.All(whereFunc).OrderBy(defaultSort)).ToDataSourceResult(take, skip, sort, filter)
         
-        DataSourceResult<_>(Data = buildFunc (queryResult.Data), Total = queryResult.Total)
+        DataSourceResult<'TDTO>(Data = buildFunc (queryResult.Data), Total = queryResult.Total)
     
     abstract Insert : dto:'TDTO -> 'TDTO
     abstract Update : 'TDTO * [<ParamArray>]ids:obj [] -> unit
     abstract Delete : 'TDTO * [<ParamArray>]ids:obj [] -> unit
-    override this.Insert(dto : 'TDTO) = Builder.Build(this.Insert(Builder.Build(dto).To<'TEntity>())).To<'TDTO>()
+    override this.Insert(dto : 'TDTO) = Builder.Build(Builder.Build(dto).To<'TEntity>() |> this.Insert).To<'TDTO>()
     
     override this.Update(dto : 'TDTO, [<ParamArray>] ids:obj[]) = 
         let entity = this.SingleEntity(ids)
@@ -70,14 +68,12 @@ type Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equali
         this.Update(entity, ids)
     
     override this.Delete(_ : 'TDTO, [<ParamArray>] ids) = this.Delete(ids) |> ignore
+
     member this.InsertAsync(dto : 'TDTO) = async { return this.Insert(dto) } |> Async.StartAsTask
     member this.UpdateAsync(dto : 'TDTO, ids) = async { this.Update(dto, ids) } |> Async.StartAsTask
     member this.DeleteAsync(dto : 'TDTO, [<ParamArray>] ids) = async { this.Delete(dto, ids) } |> Async.StartAsTask
-    member this.ListAsync(whereExpr : Expression<Func<'TEntity, bool>>) = 
-        async { return this.List(whereExpr) } |> Async.StartAsTask
+    member this.ListAsync(whereExpr : Expression<Func<'TEntity, bool>>) = async { return this.List(whereExpr) } |> Async.StartAsTask
     member this.ListAsync() = async { return this.List() } |> Async.StartAsTask
-    member this.AllAsync(take : int, skip : int, sort : seq<Sort>, filter : Filter, 
-                         whereFunc : Expression<Func<'TEntity, bool>>) = 
-        async { return this.All(take, skip, sort, filter, whereFunc) } |> Async.StartAsTask
+    member this.AllAsync(take : int, skip : int, sort : seq<Sort>, filter : Filter, whereFunc : Expression<Func<'TEntity, bool>>) = async { return this.All(take, skip, sort, filter, whereFunc) } |> Async.StartAsTask
     member this.SingleDTOAsync([<ParamArray>] id : obj []) = async { return this.SingleDTO(id) } |> Async.StartAsTask
     member this.SingleDTOAsync(expr : Expression<Func<'TEntity, bool>>) = async { return this.SingleDTO(expr) } |> Async.StartAsTask
