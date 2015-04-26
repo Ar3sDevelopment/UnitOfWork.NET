@@ -33,11 +33,13 @@ type UnitOfWork internal (context : DbContext, autoContext)=
     member __.SaveChangesAsync() = async { return! context.SaveChangesAsync() |> Async.AwaitTask } |> Async.StartAsTask
     
     member this.CustomRepository<'TRepository when 'TRepository :> IRepository>() = 
-        typeof<'TRepository> |> MemoizeHelper.Memoize(fun tp -> 
-                                    (match this.GetType().GetProperties(BindingFlags.Instance) 
-                                           |> Seq.tryFind (fun t -> t.PropertyType = tp) with
-                                     | Some(repositoryProp) -> repositoryProp.GetValue(this)
-                                     | None -> Activator.CreateInstance(tp, this)) :?> 'TRepository)
+        typeof<'TRepository>
+        |> MemoizeHelper.Memoize(fun tp -> 
+                                    let repository =
+                                        match this.GetType().GetProperties(BindingFlags.Instance) |> Seq.tryFind (fun t -> t.PropertyType = tp) with
+                                        | Some(repositoryProp) -> repositoryProp.GetValue(this)
+                                        | None -> Activator.CreateInstance(tp, this)
+                                    repository :?> 'TRepository)
     
      member private this.GetRepository<'TRepository when 'TRepository :> IRepository>()=
         typeof<'TRepository> 
@@ -54,33 +56,29 @@ type UnitOfWork internal (context : DbContext, autoContext)=
         context.Set<'TEntity>()
     
     member this.Transaction(body : Action<IUnitOfWork>) = 
-        using (context.Database.BeginTransaction()) (fun transaction -> 
-            try 
-                this |> body.Invoke
-                transaction.Commit()
-            with _ -> transaction.Rollback())
+        use transaction = context.Database.BeginTransaction()
+        try 
+            this |> body.Invoke
+            transaction.Commit()
+        with _ -> transaction.Rollback()
     
     member this.TransactionSaveChanges(body : Action<IUnitOfWork>) = 
-        using (context.Database.BeginTransaction()) (fun transaction -> 
-            try 
-                this |> body.Invoke
-                let res = context.SaveChanges() <> 0
-                transaction.Commit()
-                res
-            with _ -> 
-                transaction.Rollback()
-                false)
+        use transaction = context.Database.BeginTransaction()
+        try 
+            this |> body.Invoke
+            let res = context.SaveChanges() <> 0
+            transaction.Commit()
+            res
+        with _ -> 
+            transaction.Rollback()
+            false
     
     abstract Dispose : unit -> unit
-    override this.Dispose() =
-        if this.AutoContext then
-            context.Dispose()
+    override this.Dispose() = if this.AutoContext then context.Dispose()
 
-    new(context: DbContext) =
-        new UnitOfWork(context, false)
+    new(context: DbContext) = new UnitOfWork(context, false)
 
 type UnitOfWork<'TContext when 'TContext :> DbContext> private (context : DbContext) = 
     inherit UnitOfWork(context, true)
     
-    new() = 
-        new UnitOfWork<'TContext>(Activator.CreateInstance<'TContext>())
+    new() = new UnitOfWork<'TContext>(Activator.CreateInstance<'TContext>())
