@@ -23,7 +23,6 @@ type Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equali
         member this.All(take, skip, sort, filter, whereFunc) = this.All(take, skip, sort, filter, whereFunc)
         member this.Insert(dto : 'TDTO) = dto |> this.Insert
         member this.Update(dto : 'TDTO, [<ParamArray>] ids) = this.Update(dto, ids)
-        member this.Delete(dto : 'TDTO, [<ParamArray>] ids) = this.Delete(dto, ids)
     
     member val DTOMapper : IMapper<'TEntity, 'TDTO> option = None with get, set
     member val EntityMapper : IMapper<'TDTO, 'TEntity> option = None with get, set
@@ -59,15 +58,12 @@ type Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equali
     
     abstract Insert : dto:'TDTO -> 'TDTO
     abstract Update : 'TDTO * [<ParamArray>]ids:obj [] -> unit
-    abstract Delete : 'TDTO * [<ParamArray>]ids:obj [] -> unit
     override this.Insert(dto : 'TDTO) = Builder.Build(Builder.Build(dto).To<'TEntity>() |> this.Insert).To<'TDTO>()
     
     override this.Update(dto : 'TDTO, [<ParamArray>] ids:obj[]) = 
         let entity = this.SingleEntity(ids)
         Builder.Build(dto).To(entity) |> ignore
         this.Update(entity, ids)
-    
-    override this.Delete(_ : 'TDTO, [<ParamArray>] ids) = this.Delete(ids) |> ignore
 
     member this.InsertAsync(dto : 'TDTO) = async { return this.Insert(dto) } |> Async.StartAsTask
     member this.UpdateAsync(dto : 'TDTO, ids) = async { this.Update(dto, ids) } |> Async.StartAsTask

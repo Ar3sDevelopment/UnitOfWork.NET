@@ -19,7 +19,6 @@ and IRepository<'TEntity when 'TEntity : not struct and 'TEntity : equality and 
     abstract All : where:Expression<Func<'TEntity, bool>> -> IQueryable<'TEntity>
     abstract Insert : entity:'TEntity -> 'TEntity
     abstract Update : entity:'TEntity * [<ParamArray>]ids:obj [] -> unit
-    abstract Delete : entity:'TEntity * [<ParamArray>]ids:obj [] -> unit
     abstract Delete : [<ParamArray>]ids:obj [] -> unit
 
 and IRepository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct> = 
@@ -32,7 +31,6 @@ and IRepository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equali
      -> DataSourceResult<'TDTO>
     abstract Insert : dto:'TDTO -> 'TDTO
     abstract Update : dto:'TDTO * [<ParamArray>]ids:obj [] -> unit
-    abstract Delete : dto:'TDTO * [<ParamArray>]ids:obj [] -> unit
 
 and IListRepository<'TEntity, 'TDTO, 'TListDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct and 'TListDTO : equality and 'TListDTO : null and 'TListDTO : not struct> = 
     inherit IRepository<'TEntity, 'TDTO>
