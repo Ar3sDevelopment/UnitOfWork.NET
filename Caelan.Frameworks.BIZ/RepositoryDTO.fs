@@ -54,7 +54,7 @@ type Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equali
              | null -> this.All(whereFunc)
              | defaultSort -> this.All(whereFunc).OrderBy(defaultSort)).ToDataSourceResult(take, skip, sort, filter)
         
-        DataSourceResult<'TDTO>(Data = buildFunc (queryResult.Data), Total = queryResult.Total)
+        DataSourceResult<'TDTO>(Data = (buildFunc (queryResult.Data)).ToList(), Total = queryResult.Total)
     
     abstract Insert : dto:'TDTO -> 'TDTO
     abstract Update : 'TDTO * [<ParamArray>]ids:obj [] -> unit
