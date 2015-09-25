@@ -11,6 +11,7 @@ open Caelan.DynamicLinq.Extensions
 open Caelan.Frameworks.Common.Interfaces
 open Caelan.Frameworks.Common.Classes
 open Caelan.Frameworks.BIZ.Interfaces
+open System.Linq.Dynamic
 
 type Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>(manager) = 
     inherit Repository<'TEntity>(manager : IUnitOfWork)

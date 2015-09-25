@@ -54,9 +54,6 @@
     <Reference Include="Autofac">
       <HintPath>..\packages\Autofac.3.5.2\lib\net40\Autofac.dll</HintPath>
     </Reference>
-    <Reference Include="Caelan.DynamicLinq">
-      <HintPath>..\packages\Caelan.DynamicLinq.1.2.0\lib\Caelan.DynamicLinq.dll</HintPath>
-    </Reference>
     <ProjectReference Include="..\Caelan.Frameworks.BIZ.NUnit.Data\Caelan.Frameworks.BIZ.NUnit.Data.csproj">
       <Name>Caelan.Frameworks.BIZ.NUnit.Data</Name>
       <Project>{2100B07C-FA1D-4A34-8698-8DA3AC661898}</Project>
@@ -79,6 +76,12 @@
     </Reference>
     <Reference Include="Caelan.Frameworks.Common">
       <HintPath>..\packages\Caelan.Frameworks.Common.3.1.0.128\lib\net45\Caelan.Frameworks.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Linq.Dynamic">
+      <HintPath>..\packages\System.Linq.Dynamic.1.0.4\lib\net40\System.Linq.Dynamic.dll</HintPath>
+    </Reference>
+    <Reference Include="Caelan.DynamicLinq">
+      <HintPath>..\packages\Caelan.DynamicLinq.2.0.13.0\lib\net40\Caelan.DynamicLinq.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>
