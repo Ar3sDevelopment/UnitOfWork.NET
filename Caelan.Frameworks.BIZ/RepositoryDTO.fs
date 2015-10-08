@@ -6,6 +6,7 @@ open System.Data.Entity
 open System.Linq
 open System.Linq.Expressions
 open System.Reflection
+open System.Collections.Generic
 open Caelan.DynamicLinq.Classes
 open Caelan.DynamicLinq.Extensions
 open Caelan.Frameworks.Common.Interfaces
@@ -71,6 +72,6 @@ type Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equali
     member this.DeleteAsync(dto : 'TDTO, [<ParamArray>] ids) = async { this.Delete(dto, ids) } |> Async.StartAsTask
     member this.ListAsync(whereExpr : Expression<Func<'TEntity, bool>>) = async { return this.List(whereExpr) } |> Async.StartAsTask
     member this.ListAsync() = async { return this.List() } |> Async.StartAsTask
-    member this.AllAsync(take : int, skip : int, sort : seq<Sort>, filter : Filter, whereFunc : Expression<Func<'TEntity, bool>>) = async { return this.All(take, skip, sort, filter, whereFunc) } |> Async.StartAsTask
+    member this.AllAsync(take : int, skip : int, sort : ICollection<Sort>, filter : Filter, whereFunc : Expression<Func<'TEntity, bool>>) = async { return this.All(take, skip, sort, filter, whereFunc) } |> Async.StartAsTask
     member this.SingleDTOAsync([<ParamArray>] id : obj []) = async { return this.SingleDTO(id) } |> Async.StartAsTask
     member this.SingleDTOAsync(expr : Expression<Func<'TEntity, bool>>) = async { return this.SingleDTO(expr) } |> Async.StartAsTask
