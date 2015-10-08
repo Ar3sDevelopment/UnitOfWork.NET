@@ -5,6 +5,7 @@ open System.Data.Entity
 open System.Data.Entity.Infrastructure
 open System.Linq
 open System.Linq.Expressions
+open System.Collections.Generic
 open Caelan.DynamicLinq.Classes
 
 type IRepository =     
@@ -27,7 +28,7 @@ and IRepository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equali
     abstract SingleDTO : where:Expression<Func<'TEntity, bool>> -> 'TDTO
     abstract List : unit -> seq<'TDTO>
     abstract List : Expression<Func<'TEntity, bool>> -> seq<'TDTO>
-    abstract All : take:int * skip:int * sort:seq<Sort> * filter:Filter * where:Expression<Func<'TEntity, bool>>
+    abstract All : take:int * skip:int * sort:ICollection<Sort> * filter:Filter * where:Expression<Func<'TEntity, bool>>
      -> DataSourceResult<'TDTO>
     abstract Insert : dto:'TDTO -> 'TDTO
     abstract Update : dto:'TDTO * [<ParamArray>]ids:obj [] -> unit
