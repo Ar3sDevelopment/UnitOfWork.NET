@@ -9,9 +9,9 @@ open System.Runtime.InteropServices
 [<AssemblyConfiguration("")>]
 [<AssemblyCompany("Caelan")>]
 [<AssemblyProduct("Caelan.Frameworks.BIZ")>]
-[<AssemblyCopyright("Caelan © 2014")>]
+[<AssemblyCopyright("Caelan © 2015")>]
 [<AssemblyTrademark("")>]
 [<ComVisible(false)>]
 [<Guid("673111df-595f-43a5-9c2f-cf702b2aea34")>]
-[<AssemblyVersion("3.1.0.*")>]
+[<AssemblyVersion("3.2.0.*")>]
 ()
