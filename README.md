@@ -1,4 +1,6 @@
 #Business Framework
+
+[![Join the chat at https://gitter.im/Ar3sDevelopment/Caelan.Frameworks.BIZ](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Ar3sDevelopment/Caelan.Frameworks.BIZ?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 The Caelan.Frameworks.BIZ NuGet Package [![NuGet version](https://badge.fury.io/nu/Caelan.Frameworks.BIZ.svg)](http://badge.fury.io/nu/Caelan.Frameworks.BIZ)
 
 If you need support or you want to contact me I'm [CaelanIt](https://twitter.com/CaelanIt) on Twitter
