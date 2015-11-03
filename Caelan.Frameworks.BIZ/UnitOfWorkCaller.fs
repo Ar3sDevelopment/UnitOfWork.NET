@@ -4,7 +4,7 @@ open System
 open System.Data.Entity
 open Caelan.Frameworks.BIZ.Interfaces
 
-type GenericUnitOfWorkCaller internal (uow : IUnitOfWork) =     
+type GenericUnitOfWorkCaller internal (uow : IUnitOfWork) =
     interface IDisposable with
         member this.Dispose() = this.Dispose()
     

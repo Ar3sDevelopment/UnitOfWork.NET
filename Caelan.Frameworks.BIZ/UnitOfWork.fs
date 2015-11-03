@@ -7,7 +7,7 @@ open Caelan.Frameworks.BIZ.Interfaces
 open Caelan.Frameworks.Common.Helpers
 open Caelan.Frameworks.BIZ.Modules
 
-type UnitOfWork internal (context : DbContext, autoContext)=     
+type UnitOfWork internal (context : DbContext, autoContext) =
     member private __.AutoContext = autoContext
 
     interface IUnitOfWork with
