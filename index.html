@@ -1,38 +1,55 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8">
+    <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Business Framework by Ar3sDevelopment</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
 
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+
+    <title>Business Framework by Ar3sDevelopment</title>
   </head>
+
   <body>
-    <div class="wrapper">
-      <header>
+    <header>
+      <div class="inner">
         <h1>Business Framework</h1>
-        <p>The Caelan.Frameworks.BIZ NuGet Package</p>
+        <h2>The Caelan.Frameworks.BIZ NuGet Package</h2>
+        <a href="https://github.com/Ar3sDevelopment/Caelan.Frameworks.BIZ" class="button"><small>View project on</small> GitHub</a>
+      </div>
+    </header>
 
-        <p class="view"><a href="https://github.com/Ar3sDevelopment/Caelan.Frameworks.BIZ">View the Project on GitHub <small>Ar3sDevelopment/Caelan.Frameworks.BIZ</small></a></p>
-
-
-        <ul>
-          <li><a href="https://github.com/Ar3sDevelopment/Caelan.Frameworks.BIZ/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/Ar3sDevelopment/Caelan.Frameworks.BIZ/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/Ar3sDevelopment/Caelan.Frameworks.BIZ">View On <strong>GitHub</strong></a></li>
-        </ul>
-      </header>
-      <section>
-        <h1>
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h1>
 <a id="business-framework" class="anchor" href="#business-framework" aria-hidden="true"><span class="octicon octicon-link"></span></a>Business Framework</h1>
 
-<p>The Caelan.Frameworks.BIZ NuGet Package
-If you need support or you want to contact me I'm <a href="https://twitter.com/CaelanIt">CaelanIt</a> on Twitter</p>
+<p>The Caelan.Frameworks.BIZ NuGet Package <a href="http://badge.fury.io/nu/Caelan.Frameworks.BIZ"><img src="https://badge.fury.io/nu/Caelan.Frameworks.BIZ.svg" alt="NuGet version"></a></p>
+
+<p>If you need support or you want to contact me I'm <a href="https://twitter.com/CaelanIt">CaelanIt</a> on Twitter</p>
+
+<h2>
+<a id="build" class="anchor" href="#build" aria-hidden="true"><span class="octicon octicon-link"></span></a>Build</h2>
+
+<p>Travis CI (Mono): <a href="https://travis-ci.org/Ar3sDevelopment/Caelan.Frameworks.BIZ"><img src="https://travis-ci.org/Ar3sDevelopment/Caelan.Frameworks.BIZ.svg?branch=master" alt="Build Status"></a></p>
+
+<p>AppVeyor (Windows): <a href="https://ci.appveyor.com/project/matteobruni/caelan-frameworks-biz"><img src="https://ci.appveyor.com/api/projects/status/arm3x6ls8vulmgin?svg=true" alt="Build status"></a></p>
+
+<h2>
+<a id="requests" class="anchor" href="#requests" aria-hidden="true"><span class="octicon octicon-link"></span></a>Requests</h2>
+
+<p>Pull Requests: <a href="http://issuestats.com/github/Ar3sDevelopment/Caelan.Frameworks.BIZ"><img src="http://issuestats.com/github/Ar3sDevelopment/Caelan.Frameworks.BIZ/badge/pr" alt="Issue Stats"></a></p>
+
+<p>Issues: <a href="http://issuestats.com/github/Ar3sDevelopment/Caelan.Frameworks.BIZ"><img src="http://issuestats.com/github/Ar3sDevelopment/Caelan.Frameworks.BIZ/badge/issue" alt="Issue Stats"></a></p>
+
+<p>Waffle.io: <a href="https://waffle.io/Ar3sDevelopment/Caelan.Frameworks.BIZ"><img src="https://badge.waffle.io/Ar3sDevelopment/Caelan.Frameworks.BIZ.png?label=ready&amp;title=Ready" alt="Stories in Ready"></a></p>
 
 <h2>
 <a id="what-is-it" class="anchor" href="#what-is-it" aria-hidden="true"><span class="octicon octicon-link"></span></a>What is it?</h2>
@@ -54,10 +71,16 @@ If you need support or you want to contact me I'm <a href="https://twitter.com/C
 This class is abstract because I thought that is useless for other uses.</p>
 
 <h3>
+<a id="irepositorytentity" class="anchor" href="#irepositorytentity" aria-hidden="true"><span class="octicon octicon-link"></span></a><code>IRepository&lt;TEntity&gt;</code>
+</h3>
+
+<p>The <code>IRepository&lt;TEntity&gt;</code> interface inherits from <code>IRepository</code> and has more methods than its base and they're business related like basic CRUD operations.</p>
+
+<h3>
 <a id="irepositorytentity-tdto" class="anchor" href="#irepositorytentity-tdto" aria-hidden="true"><span class="octicon octicon-link"></span></a><code>IRepository&lt;TEntity, TDTO&gt;</code>
 </h3>
 
-<p>The <code>IRepository&lt;TEntity, TDTO&gt;</code> interface inherits from <code>IRepository</code> and has more methods than its base and they're business related like basic CRUD operations.
+<p>The <code>IRepository&lt;TEntity, TDTO&gt;</code> interface inherits from <code>IRepository&lt;TEntity&gt;</code> and has more methods than its base and they're business related like basic CRUD operations.
 <code>IRepository&lt;TEntity, TDTO&gt;</code> has also a method for return paginated result.</p>
 
 <h4>
@@ -68,8 +91,8 @@ This class is abstract because I thought that is useless for other uses.</p>
 If you need some custom methods you can inherit from <code>Repository&lt;TEntity, TDTO&gt;</code> and use all the business ready methods.
 Supposing you need a method to get if a user is admin:</p>
 
-<div class="highlight highlight-csharp"><pre><span class="pl-c">//Custom `Repository` implemetation class</span>
-<span class="pl-s">public</span> <span class="pl-st">bool</span> IsAdmin(<span class="pl-st">int</span> id)
+<div class="highlight highlight-source-cs"><pre><span class="pl-c">//Custom `Repository` implemetation class</span>
+<span class="pl-k">public</span> <span class="pl-k">bool</span> IsAdmin(<span class="pl-k">int</span> id)
 {
   <span class="pl-k">var</span> user = SingleEntity(id);
   <span class="pl-k">return</span> user != <span class="pl-c1">null</span> ? user.Admin : <span class="pl-c1">false</span>;
@@ -77,19 +100,19 @@ Supposing you need a method to get if a user is admin:</p>
 
 <p>Or if you need a method that return all admin users:</p>
 
-<div class="highlight highlight-csharp"><pre><span class="pl-c">//Custom `Repository` implemetation class</span>
-<span class="pl-s">public</span> IEnumerable&lt;UserDTO&gt; AllAdmins()
+<div class="highlight highlight-source-cs"><pre><span class="pl-c">//Custom `Repository` implemetation class</span>
+<span class="pl-k">public</span> IEnumerable&lt;UserDTO&gt; AllAdmins()
 {
   <span class="pl-k">return</span> List(t =&gt; t.Admin); <span class="pl-c">//DTOs</span>
 }
 
-<span class="pl-s">public</span> IEnumerable&lt;User&gt; AllAdminsEntities()
+<span class="pl-k">public</span> IEnumerable&lt;User&gt; AllAdminsEntities()
 {
   <span class="pl-k">return</span> All(t =&gt; t.Admin);
 }
 
 <span class="pl-c">//using builders from my Common Framework</span>
-<span class="pl-s">public</span> IEnumerable&lt;User&gt; AllAdminsEntities()
+<span class="pl-k">public</span> IEnumerable&lt;User&gt; AllAdminsEntities()
 {
   <span class="pl-k">return</span> DTOBuilder().BuildList(AllAdminsEntities());
 }</pre></div>
@@ -105,14 +128,14 @@ They use <code>Builder</code> class from my Common framework.</p>
 <p>If you need to use another <code>Repository</code> while doing operation in a <code>Repository</code> you can use the <code>UnitOfWork</code> method for going to container and access to other repositories like explained later.
 Here an example:</p>
 
-<div class="highlight highlight-csharp"><pre><span class="pl-s">public</span> <span class="pl-st">bool</span> CheckLogin(<span class="pl-st">string</span> username, <span class="pl-st">string</span> password)
+<div class="highlight highlight-source-cs"><pre><span class="pl-k">public</span> <span class="pl-k">bool</span> CheckLogin(<span class="pl-k">string</span> username, <span class="pl-k">string</span> password)
 {
   <span class="pl-k">var</span> user = Single(t =&gt; t.Username == username &amp;&amp; t.Password == passowrd); <span class="pl-c">//not secure!!</span>
   <span class="pl-k">var</span> res = user != <span class="pl-c1">null</span>;
 
   <span class="pl-k">if</span> (res)
   {
-    <span class="pl-k">var</span> access = <span class="pl-s">new</span> UserAccessDTO { IDUser = user.ID, Date = DateTime.Now };
+    <span class="pl-k">var</span> access = <span class="pl-k">new</span> UserAccessDTO { IDUser = user.ID, Date = DateTime.Now };
     UnitOfWork().Repository&lt;UserAccess, UserAccessDTO&gt;().Insert(access);
   }
 
@@ -143,11 +166,11 @@ I use it when I have to return data using WCF and data must navigate deep inside
 <code>UnitOfWork</code> implements the <code>IDisposable</code> interface so you can use it in the <code>using</code> closure and it disposes the context only if it's instatiated by the <code>UnitOfWork</code> otherwise you will be responsible for it.
 <code>UnitOfWork</code> class, like <code>Builder</code>, uses reflection for getting <code>IRepository</code> objects that are unknown. You can get the repository in two ways:</p>
 
-<div class="highlight highlight-csharp"><pre><span class="pl-k">using</span> (<span class="pl-k">var</span> uow = <span class="pl-s">new</span> UnitOfWork&lt;TestDbContext&gt;()) <span class="pl-c">//the uow object is responsible for disposing the context</span>
+<div class="highlight highlight-source-cs"><pre><span class="pl-k">using</span> (var uow = new UnitOfWork&lt;TestDbContext&gt;()) //the uow object is responsible for disposing the context
 {
-  <span class="pl-s">const</span> <span class="pl-st">int</span> id = <span class="pl-c1">1</span>;
+  <span class="pl-k">const</span> <span class="pl-k">int</span> id = <span class="pl-c1">1</span>;
   <span class="pl-k">var</span> user = uow.Repository&lt;User, UserDTO&gt;().SingleDTO(id);
-  <span class="pl-k">if</span> (user != <span class="pl-c1">null</span> &amp;&amp; uow.Repository&lt;UserRepository&gt;().IsAdmin(user.Id))
+  <span class="pl-k">if</span> (user != <span class="pl-c1">null</span> &amp;&amp; uow.CustomRepository&lt;UserRepository&gt;().IsAdmin(user.Id))
   {
     <span class="pl-c">//user is admin</span>
   }
@@ -179,11 +202,11 @@ I use it when I have to return data using WCF and data must navigate deep inside
 
 <p>Previous <code>UnitOfWork</code> code can be written like:</p>
 
-<div class="highlight highlight-csharp"><pre>UnitOfWorkCaller.Context&lt;TestDbContext&gt;().UnitOfWork(uow =&gt;
+<div class="highlight highlight-source-cs"><pre>UnitOfWorkCaller.Context&lt;TestDbContext&gt;().UnitOfWork(uow =&gt;
 {
-  <span class="pl-s">const</span> <span class="pl-st">int</span> id = <span class="pl-c1">1</span>;
+  <span class="pl-k">const</span> <span class="pl-k">int</span> id = <span class="pl-c1">1</span>;
   <span class="pl-k">var</span> user = uow.Repository&lt;User, UserDTO&gt;().SingleDTO(id);
-  <span class="pl-k">if</span> (user != <span class="pl-c1">null</span> &amp;&amp; uow.Repository&lt;UserRepository&gt;().IsAdmin(user.Id))
+  <span class="pl-k">if</span> (user != <span class="pl-c1">null</span> &amp;&amp; uow.CustomRepository&lt;UserRepository&gt;().IsAdmin(user.Id))
   {
     <span class="pl-c">//user is admin</span>
   }
@@ -198,14 +221,26 @@ I use it when I have to return data using WCF and data must navigate deep inside
 });</pre></div>
 
 <p>If you need a return value from this lamda simply return it, it automatically returns it to the expression value.</p>
-      </section>
-      <footer>
-        <p>This project is maintained by <a href="https://github.com/Ar3sDevelopment">Ar3sDevelopment</a></p>
-        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
-      </footer>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/Ar3sDevelopment/Caelan.Frameworks.BIZ/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/Ar3sDevelopment/Caelan.Frameworks.BIZ/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/Ar3sDevelopment/Caelan.Frameworks.BIZ"></a> is maintained by <a href="https://github.com/Ar3sDevelopment">Ar3sDevelopment</a>.</p>
+
+          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
     </div>
-    <script src="javascripts/scale.fix.js"></script>
-              <script type="text/javascript">
+
+            <script type="text/javascript">
             var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
             document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
           </script>
