@@ -8,7 +8,7 @@ module Mappers =
     type UserMapper() =
         inherit DefaultMapper<UserDTO, User>()
 
-        override __.Map(source, destination) =
+        override __.CustomMap(source, destination) =
             destination.Id <- source.Id
             destination.Login <- source.Login
             destination.Password <- source.Password
@@ -17,9 +17,8 @@ module Mappers =
     type UserDTOMapper() =
         inherit DefaultMapper<User, UserDTO>()
 
-        override __.Map(source, destination) =
+        override __.CustomMap(source, destination) =
             destination.Id <- source.Id
             destination.Login <- source.Login
             destination.Password <- source.Password
             destination
-

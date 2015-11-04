@@ -19,8 +19,8 @@ module internal RepositoryReflection =
         
         let rec compareTypes comparer (type1 : Type) (type2 : Type) = 
             match type1 with
-            | null when type2 <> null -> false
-            | null when type2 = null -> true
+            | null when type2 |> (isNull >> not) -> false
+            | null when type2 |> isNull -> true
             | _ when (type1, type2) ||> comparer -> true
             | _ when (type1, type2) ||> typeSameGeneric -> 
                 let genericType = (type1, type2.GenericTypeArguments) ||> makeGenericSafe
@@ -50,7 +50,7 @@ module internal RepositoryReflection =
             [ Assembly.GetExecutingAssembly()
               Assembly.GetEntryAssembly()
               Assembly.GetCallingAssembly() ]
-            |> List.filter (fun t -> t <> null)
+            |> List.filter (isNull >> not)
             |> getRepository
         
         Activator.CreateInstance<'T>(repoType, args)

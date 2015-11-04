@@ -30,18 +30,19 @@ type Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equali
     member val EntityMapper : IMapper<'TDTO, 'TEntity> option = None with get, set
     
     member this.SingleDTO([<ParamArray>] ids : obj []) = 
-        match this.SingleEntity(ids) with
-        | null -> null
-        | entity -> Builder.Build(entity).To<'TDTO>()
+        match this.SingleEntity(ids) |> Option.ofObj with
+        | None -> null
+        | Some(entity) -> Builder.Build(entity).To<'TDTO>()
     
     member this.SingleDTO(expr : Expression<Func<'TEntity, bool>>) = 
-        match this.SingleEntity(expr) with
-        | null -> null
-        | entity -> Builder.Build(entity).To<'TDTO>()
+        match this.SingleEntity(expr) |> Option.ofObj with
+        | None -> null
+        | Some(entity) -> Builder.Build(entity).To<'TDTO>()
     
     member this.List() = Builder.BuildList(this.All() :> seq<'TEntity>).ToList<'TDTO>()
     member this.List(whereExpr) = Builder.BuildList(this.All(whereExpr) :> seq<'TEntity>).ToList<'TDTO>()
-    member this.All(take, skip, sort, filter, whereFunc) = this.All(take, skip, sort, filter, whereFunc, fun t -> Builder.BuildList(t).ToList<'TDTO>())
+    member this.All(take, skip, sort, filter, whereFunc) = 
+        this.All(take, skip, sort, filter, whereFunc, fun t -> Builder.BuildList(t).ToList<'TDTO>())
     
     member private this.All(take, skip, sort, filter, whereFunc, buildFunc : seq<'TEntity> -> seq<'TDTO>) = 
         let orderBy = 
@@ -52,26 +53,31 @@ type Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equali
             }
         
         let queryResult = 
-            (match orderBy with
-             | null -> this.All(whereFunc)
-             | defaultSort -> this.All(whereFunc).OrderBy(defaultSort)).ToDataSourceResult(take, skip, sort, filter)
+            (match orderBy |> Option.ofObj with
+             | None -> this.All(whereFunc)
+             | Some(defaultSort) -> this.All(whereFunc).OrderBy(defaultSort))
+                .ToDataSourceResult(take, skip, sort, filter)
         
         DataSourceResult<'TDTO>(Data = (buildFunc (queryResult.Data)).ToList(), Total = queryResult.Total)
     
     abstract Insert : dto:'TDTO -> 'TDTO
-    abstract Update : 'TDTO * [<ParamArray>]ids:obj [] -> unit
+    abstract Update : 'TDTO * [<ParamArray>] ids:obj [] -> unit
     override this.Insert(dto : 'TDTO) = Builder.Build(Builder.Build(dto).To<'TEntity>() |> this.Insert).To<'TDTO>()
     
-    override this.Update(dto : 'TDTO, [<ParamArray>] ids:obj[]) = 
+    override this.Update(dto : 'TDTO, [<ParamArray>] ids : obj []) = 
         let entity = this.SingleEntity(ids)
         Builder.Build(dto).To(entity) |> ignore
         this.Update(entity, ids)
-
+    
     member this.InsertAsync(dto : 'TDTO) = async { return this.Insert(dto) } |> Async.StartAsTask
     member this.UpdateAsync(dto : 'TDTO, ids) = async { this.Update(dto, ids) } |> Async.StartAsTask
     member this.DeleteAsync(dto : 'TDTO, [<ParamArray>] ids) = async { this.Delete(dto, ids) } |> Async.StartAsTask
-    member this.ListAsync(whereExpr : Expression<Func<'TEntity, bool>>) = async { return this.List(whereExpr) } |> Async.StartAsTask
+    member this.ListAsync(whereExpr : Expression<Func<'TEntity, bool>>) = 
+        async { return this.List(whereExpr) } |> Async.StartAsTask
     member this.ListAsync() = async { return this.List() } |> Async.StartAsTask
-    member this.AllAsync(take : int, skip : int, sort : ICollection<Sort>, filter : Filter, whereFunc : Expression<Func<'TEntity, bool>>) = async { return this.All(take, skip, sort, filter, whereFunc) } |> Async.StartAsTask
+    member this.AllAsync(take : int, skip : int, sort : ICollection<Sort>, filter : Filter, 
+                         whereFunc : Expression<Func<'TEntity, bool>>) = 
+        async { return this.All(take, skip, sort, filter, whereFunc) } |> Async.StartAsTask
     member this.SingleDTOAsync([<ParamArray>] id : obj []) = async { return this.SingleDTO(id) } |> Async.StartAsTask
-    member this.SingleDTOAsync(expr : Expression<Func<'TEntity, bool>>) = async { return this.SingleDTO(expr) } |> Async.StartAsTask
+    member this.SingleDTOAsync(expr : Expression<Func<'TEntity, bool>>) = 
+        async { return this.SingleDTO(expr) } |> Async.StartAsTask
