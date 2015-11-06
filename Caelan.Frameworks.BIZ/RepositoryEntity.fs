@@ -17,12 +17,14 @@ type Repository<'TEntity when 'TEntity : not struct and 'TEntity : equality and 
         member this.Insert(entity : 'TEntity) = this.Insert entity
         member this.Update(entity : 'TEntity, [<ParamArray>] ids) = this.Update(entity, ids)
         member this.Delete([<ParamArray>] ids : obj []) = this.Delete ids
+        member this.Exists(expr : Expression<Func<'TEntity, bool>>) = this.Exists expr
     
     member __.Set = manager.DbSet<'TEntity>()
     member this.SingleEntity([<ParamArray>] ids) = this.Set.Find ids
     member this.SingleEntity expr = this.Set.FirstOrDefault expr
     member this.All() = this.Set.AsQueryable()
     member this.All(whereExpr : Expression<Func<'TEntity, bool>>) = this.Set.Where(whereExpr).AsQueryable()
+    member this.Exists expr = this.Set.Any(expr)
     
     abstract Insert : entity:'TEntity -> 'TEntity
     abstract Update : 'TEntity * [<ParamArray>]ids:obj [] -> unit

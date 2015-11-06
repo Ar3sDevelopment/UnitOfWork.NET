@@ -39,6 +39,13 @@ and IRepository<'TEntity when 'TEntity : not struct and 'TEntity : equality and 
     /// </summary>
     /// <param name="where"></param>
     abstract All : where:Expression<Func<'TEntity, bool>> -> IQueryable<'TEntity>
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="expr"></param>
+    abstract Exists : expr:Expression<Func<'TEntity, bool>> -> bool
+
     /// <summary>
     /// 
     /// </summary>
