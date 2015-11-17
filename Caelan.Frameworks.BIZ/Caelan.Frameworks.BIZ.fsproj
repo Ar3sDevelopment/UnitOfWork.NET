@@ -91,7 +91,7 @@
       <HintPath>..\packages\Caelan.DynamicLinq.2.0.20.0\lib\net40\Caelan.DynamicLinq.dll</HintPath>
     </Reference>
     <Reference Include="Caelan.Frameworks.Common">
-      <HintPath>..\packages\Caelan.Frameworks.Common.3.1.1.180\lib\net45\Caelan.Frameworks.Common.dll</HintPath>
+      <HintPath>..\packages\Caelan.Frameworks.Common.3.1.1.183\lib\net45\Caelan.Frameworks.Common.dll</HintPath>
     </Reference>
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

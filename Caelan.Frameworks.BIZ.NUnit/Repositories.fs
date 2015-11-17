@@ -11,3 +11,6 @@ module Repositories =
         member this.NewList() =
             "NewList" |> printfn "%s"
             this.List()
+
+    type RoleRepository(manager) =
+        inherit Repository<Role>(manager)

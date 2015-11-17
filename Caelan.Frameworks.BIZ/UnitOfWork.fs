@@ -41,7 +41,7 @@ type UnitOfWork internal (context : DbContext, autoContext) =
                                         | None -> Activator.CreateInstance(tp, this)
                                     repository :?> 'TRepository)
     
-     member private this.GetRepository<'TRepository when 'TRepository :> IRepository>()=
+    member private this.GetRepository<'TRepository when 'TRepository :> IRepository>()=
         typeof<'TRepository> 
         |> MemoizeHelper.Memoize (fun t -> t |> RepositoryReflection.FindRepositoryInAssemblies<'TRepository> [| this |])
     member this.Repository<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>() = 
