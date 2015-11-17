@@ -47,10 +47,16 @@ module internal RepositoryReflection =
                 | None -> tail |> getRepository
         
         let repoType = 
-            [ Assembly.GetExecutingAssembly()
-              Assembly.GetEntryAssembly()
-              Assembly.GetCallingAssembly() ]
-            |> List.filter (isNull >> not)
+            typedefof<'T>.GenericTypeArguments
+            |> Seq.map (fun t -> t.Assembly)
+            |> Seq.append [| typeof<'T>.Assembly 
+                             AssemblyHelper.GetWebEntryAssembly()
+                             Assembly.GetEntryAssembly()
+                             Assembly.GetCallingAssembly()
+                             Assembly.GetExecutingAssembly() |]
+            |> Seq.filter (isNull >> not)
+            |> Seq.distinct
+            |> List.ofSeq
             |> getRepository
         
         Activator.CreateInstance<'T>(repoType, args)
