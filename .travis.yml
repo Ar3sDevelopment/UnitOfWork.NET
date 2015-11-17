@@ -1,5 +1,6 @@
 language: csharp
 solution: Caelan.Frameworks.BIZ.sln
+sudo: false
 install:
   - nuget restore Caelan.Frameworks.BIZ.sln
   - sudo apt-get install nunit-console
