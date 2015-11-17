@@ -2,7 +2,7 @@ language: csharp
 solution: Caelan.Frameworks.BIZ.sln
 install:
   - nuget restore Caelan.Frameworks.BIZ.sln
-  - nuget install NUnit.Runners -Version 2.6.4 -OutputDirectory testrunner
+  - nuget install NUnit.Runners -Version 3.0.0 -OutputDirectory testrunner
 script:
   - xbuild /p:Configuration=Release Caelan.Frameworks.BIZ.sln
-  - mono ./testrunner/NUnit.Runners.2.6.4/tools/nunit-console.exe ./Caelan.Frameworks.BIZ.NUnit/bin/Release/Caelan.Frameworks.BIZ.NUnit.dll
+  - mono ./testrunner/NUnit.Runners.3.0.0/tools/nunit-console.exe ./Caelan.Frameworks.BIZ.NUnit/bin/Release/Caelan.Frameworks.BIZ.NUnit.dll
