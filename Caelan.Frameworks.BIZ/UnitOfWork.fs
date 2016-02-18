@@ -30,7 +30,7 @@ type UnitOfWork internal (context : DbContext, autoContext) =
         member this.Dispose() = this.Dispose()
     
     abstract AfterSaveChanges : unit -> unit
-    override AfterSaveChanges() = ()
+    override __.AfterSaveChanges() = ()
     
     member __.SaveChanges() = context.SaveChanges()
     member __.SaveChangesAsync() = async { return! context.SaveChangesAsync() |> Async.AwaitTask } |> Async.StartAsTask
