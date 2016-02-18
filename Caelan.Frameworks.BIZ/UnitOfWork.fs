@@ -32,7 +32,13 @@ type UnitOfWork internal (context : DbContext, autoContext) =
     abstract AfterSaveChanges : unit -> unit
     override __.AfterSaveChanges() = ()
     
-    member __.SaveChanges() = context.SaveChanges()
+    member uow.SaveChanges() =
+        let res = context.SaveChanges()
+
+        if res > 0 then
+            uow.AfterSaveChanges()
+
+        res
     member __.SaveChangesAsync() = async { return! context.SaveChangesAsync() |> Async.AwaitTask } |> Async.StartAsTask
     
     member this.CustomRepository<'TRepository when 'TRepository :> IRepository>() = 
