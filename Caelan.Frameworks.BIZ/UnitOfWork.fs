@@ -29,7 +29,16 @@ type UnitOfWork internal (context : DbContext, autoContext) =
     interface IDisposable with
         member this.Dispose() = this.Dispose()
     
-    member __.SaveChanges() = context.SaveChanges()
+    abstract AfterSaveChanges : unit -> unit
+    override __.AfterSaveChanges() = ()
+    
+    member uow.SaveChanges() =
+        let res = context.SaveChanges()
+
+        if res > 0 then
+            uow.AfterSaveChanges()
+
+        res
     member __.SaveChangesAsync() = async { return! context.SaveChangesAsync() |> Async.AwaitTask } |> Async.StartAsTask
     
     member this.CustomRepository<'TRepository when 'TRepository :> IRepository>() = 
