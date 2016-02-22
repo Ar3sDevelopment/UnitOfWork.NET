@@ -19,6 +19,7 @@ type UnitOfWork internal (context : DbContext, autoContext) =
             |]
             |> Array.where (fun t -> t <> null)
         let cb = ContainerBuilder()
+        cb.RegisterType<DbContext>().As(context.GetType()) |> ignore
         cb.RegisterType<UnitOfWork>().AsSelf().AsImplementedInterfaces() |> ignore
         cb.RegisterAssemblyTypes(assemblies).Where(fun t -> t.IsAssignableTo<IRepository>()).AsSelf().AsImplementedInterfaces() |> ignore
         cb.Build()
