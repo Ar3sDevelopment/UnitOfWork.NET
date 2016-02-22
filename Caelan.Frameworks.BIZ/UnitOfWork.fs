@@ -11,8 +11,13 @@ open Caelan.Frameworks.BIZ.Modules
 type UnitOfWork internal (context : DbContext, autoContext) = 
     
     member private __.container = 
+        let assemblies = [| AssemblyHelper.GetWebEntryAssembly()
+                            Assembly.GetEntryAssembly()
+                            Assembly.GetCallingAssembly()
+                            Assembly.GetExecutingAssembly() |]
         let cb = ContainerBuilder()
         cb.RegisterType<UnitOfWork>().AsSelf().AsImplementedInterfaces() |> ignore
+        cb.RegisterAssemblyTypes(assemblies).Where(fun t -> t.IsAssignableTo<IRepository>()).AsSelf().AsImplementedInterfaces() |> ignore
         cb.Build()
     
     member private __.autoContext = autoContext
@@ -42,7 +47,7 @@ type UnitOfWork internal (context : DbContext, autoContext) =
     
     member private this.GetRepository<'TRepository when 'TRepository :> IRepository>() = 
         let mutable repository = Unchecked.defaultof<'TRepository>
-        if this.container.TryResolve<'TRepository>(&repository) |> not then 
+        if this.container.TryResolve<'TRepository>(&repository) |> not && typeof<'TRepository>.IsInterface |> not && typeof<'TRepository>.IsAbstract |> not then 
             let cb = ContainerBuilder()
             cb.RegisterType<'TRepository>().AsSelf().AsImplementedInterfaces() |> ignore
             cb.Update(this.container)
