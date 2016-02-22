@@ -10,7 +10,7 @@ open Caelan.Frameworks.BIZ.Modules
 
 type UnitOfWork internal (context : DbContext, autoContext) = 
     
-    member private __.container = 
+    let mutable container =
         let assemblies =
             [| AssemblyHelper.GetWebEntryAssembly()
                Assembly.GetEntryAssembly()
@@ -50,7 +50,7 @@ type UnitOfWork internal (context : DbContext, autoContext) =
     
     member private this.GetRepository<'TRepository when 'TRepository :> IRepository>() = 
         let mutable repository = Unchecked.defaultof<'TRepository>
-        if this.container.TryResolve<'TRepository>(&repository) |> not && typeof<'TRepository>.IsInterface |> not && typeof<'TRepository>.IsAbstract |> not then 
+        if container.TryResolve<'TRepository>(&repository) |> not && typeof<'TRepository>.IsInterface |> not && typeof<'TRepository>.IsAbstract |> not then 
             let cb = ContainerBuilder()
             let assemblies =
                 [| typeof<'TRepository>.Assembly |]
@@ -58,9 +58,9 @@ type UnitOfWork internal (context : DbContext, autoContext) =
                 |> Array.map Assembly.Load) |> Array.where (fun t -> t <> null)
             cb.RegisterAssemblyTypes(assemblies).Where(fun t -> t.IsAssignableTo<IRepository>()).AsSelf().AsImplementedInterfaces() |> ignore
             cb.RegisterType<'TRepository>().AsSelf().AsImplementedInterfaces() |> ignore
-            cb.Update(this.container)
-            use scope = this.container.BeginLifetimeScope()
-            repository <- this.container.Resolve<'TRepository>()
+            cb.Update(container)
+            use scope = container.BeginLifetimeScope()
+            repository <- container.Resolve<'TRepository>()
         repository
     
     member this.Repository<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>() = 
