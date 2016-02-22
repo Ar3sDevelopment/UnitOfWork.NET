@@ -8,7 +8,6 @@ open Caelan.Frameworks.BIZ.Interfaces
 open Caelan.Frameworks.Common.Helpers
 
 type UnitOfWork internal (context : DbContext, autoContext) as uow = 
-    
     let mutable container =
         let assemblies =
             [| AssemblyHelper.GetWebEntryAssembly()
@@ -16,7 +15,7 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
                Assembly.GetCallingAssembly()
                Assembly.GetExecutingAssembly()
             |]
-            |> Array.where (fun t -> t |> Option.ofObj <> None)
+            |> Array.where (isNull >> not)
 
         let cb = ContainerBuilder()
 
@@ -43,23 +42,23 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
     
     member uow.SaveChanges() = context.SaveChanges()
     member __.SaveChangesAsync() = async { return! context.SaveChangesAsync() |> Async.AwaitTask } |> Async.StartAsTask
-    member this.CustomRepository<'TRepository when 'TRepository :> IRepository>() = this.GetRepository<'TRepository>()
     
-    member this.RegisterRepository<'TRepository when 'TRepository :> IRepository>() = 
+    member __.RegisterRepository<'TRepository when 'TRepository :> IRepository>() = 
         if container.IsRegistered(typeof<'TRepository>) |> not then 
             let cb = ContainerBuilder()
             let assemblies =
+                let getRefAssemblies (assembly:Assembly) = assembly.GetReferencedAssemblies() |> Array.map Assembly.Load
                 let arr = 
                     [| typeof<'TRepository>.Assembly
                        AssemblyHelper.GetWebEntryAssembly()
                        Assembly.GetEntryAssembly()
                        Assembly.GetCallingAssembly()
                        Assembly.GetExecutingAssembly() |]
-                    |> Array.where (fun t -> t |> Option.ofObj <> None)
+                    |> Array.where (isNull >> not)
 
                 arr
-                |> Array.append (arr |> Array.collect (fun t -> t.GetReferencedAssemblies() |> Array.map Assembly.Load))
-                |> Array.where (fun t -> t |> Option.ofObj <> None)
+                |> Array.append (arr |> Array.collect getRefAssemblies)
+                |> Array.where (isNull >> not)
 
             cb.RegisterAssemblyTypes(assemblies).Where(fun t -> t.IsAssignableTo<IRepository>()).AsSelf().AsImplementedInterfaces() |> ignore
 
@@ -72,6 +71,7 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
         this.RegisterRepository<'TRepository>()
         container.Resolve<'TRepository>()
     
+    member this.CustomRepository<'TRepository when 'TRepository :> IRepository>() = this.GetRepository<'TRepository>()
     member this.Repository<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>() = this.GetRepository<Repository<'TEntity>>() :> IRepository<'TEntity>
     member this.Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>() = this.GetRepository<Repository<'TEntity, 'TDTO>>() :> IRepository<'TEntity, 'TDTO>
     member this.Repository<'TEntity, 'TDTO, 'TListDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct and 'TListDTO : equality and 'TListDTO : null and 'TListDTO : not struct>() = this.GetRepository<ListRepository<'TEntity, 'TDTO, 'TListDTO>>() :> IListRepository<'TEntity, 'TDTO, 'TListDTO>
