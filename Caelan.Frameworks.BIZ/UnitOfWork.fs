@@ -71,11 +71,11 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
         repository
     
     member this.Repository<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>() = 
-        this.GetRepository<IRepository<'TEntity>>()
+        this.GetRepository<Repository<'TEntity>>() :> IRepository<'TEntity>
     member this.Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>() = 
-        this.GetRepository<IRepository<'TEntity, 'TDTO>>()
+        this.GetRepository<Repository<'TEntity, 'TDTO>>() :> IRepository<'TEntity, 'TDTO>
     member this.Repository<'TEntity, 'TDTO, 'TListDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct and 'TListDTO : equality and 'TListDTO : null and 'TListDTO : not struct>() = 
-        this.GetRepository<IListRepository<'TEntity, 'TDTO, 'TListDTO>>()
+        this.GetRepository<ListRepository<'TEntity, 'TDTO, 'TListDTO>>() :> IListRepository<'TEntity, 'TDTO, 'TListDTO>
     member __.Entry<'TEntity>(entity : 'TEntity) = context.Entry(entity)
     member __.DbSet<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>() = 
         context.Set<'TEntity>()
