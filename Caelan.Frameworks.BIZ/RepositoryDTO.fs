@@ -9,8 +9,8 @@ open System.Reflection
 open System.Collections.Generic
 open Caelan.DynamicLinq.Classes
 open Caelan.DynamicLinq.Extensions
-open Caelan.Frameworks.Common.Interfaces
-open Caelan.Frameworks.Common.Classes
+open Caelan.Frameworks.ClassBuilder.Interfaces
+open Caelan.Frameworks.ClassBuilder.Classes
 open Caelan.Frameworks.BIZ.Interfaces
 open System.Linq.Dynamic
 

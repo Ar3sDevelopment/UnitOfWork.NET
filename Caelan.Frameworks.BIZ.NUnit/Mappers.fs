@@ -1,6 +1,6 @@
 ﻿namespace Caelan.Frameworks.BIZ.NUnit
 
-open Caelan.Frameworks.Common.Classes
+open Caelan.Frameworks.ClassBuilder.Classes
 
 module Mappers =
     open Caelan.Frameworks.BIZ.NUnit.Data.Models
