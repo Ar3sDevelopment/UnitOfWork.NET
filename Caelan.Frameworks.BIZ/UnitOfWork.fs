@@ -8,7 +8,7 @@ open Caelan.Frameworks.BIZ.Interfaces
 open Caelan.Frameworks.Common.Helpers
 open Caelan.Frameworks.BIZ.Modules
 
-type UnitOfWork internal (context : DbContext, autoContext) = 
+type UnitOfWork internal (context : DbContext, autoContext) as uow = 
     
     let mutable container =
         let assemblies =
@@ -19,8 +19,9 @@ type UnitOfWork internal (context : DbContext, autoContext) =
             |]
             |> Array.where (fun t -> t <> null)
         let cb = ContainerBuilder()
-        cb.RegisterType(context.GetType()).As<DbContext>() |> ignore
-        cb.RegisterType<UnitOfWork>().AsSelf().AsImplementedInterfaces() |> ignore
+        cb.Register<UnitOfWork>(fun u -> uow).AsImplementedInterfaces() |> ignore
+//        cb.RegisterType(context.GetType()).AsSelf().As<DbContext>() |> ignore
+//        cb.RegisterType<UnitOfWork>().AsSelf().AsImplementedInterfaces() |> ignore
         cb.RegisterAssemblyTypes(assemblies).Where(fun t -> t.IsAssignableTo<IRepository>()).AsSelf().AsImplementedInterfaces() |> ignore
         cb.Build()
     
