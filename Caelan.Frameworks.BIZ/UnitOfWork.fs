@@ -6,7 +6,6 @@ open System.Data.Entity
 open System.Reflection
 open Caelan.Frameworks.BIZ.Interfaces
 open Caelan.Frameworks.Common.Helpers
-open Caelan.Frameworks.BIZ.Modules
 
 type UnitOfWork internal (context : DbContext, autoContext) as uow = 
     
@@ -20,8 +19,6 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
             |> Array.where (fun t -> t <> null)
         let cb = ContainerBuilder()
         cb.Register<UnitOfWork>(fun u -> uow).AsImplementedInterfaces() |> ignore
-//        cb.RegisterType(context.GetType()).AsSelf().As<DbContext>() |> ignore
-//        cb.RegisterType<UnitOfWork>().AsSelf().AsImplementedInterfaces() |> ignore
         cb.RegisterAssemblyTypes(assemblies).Where(fun t -> t.IsAssignableTo<IRepository>()).AsSelf().AsImplementedInterfaces() |> ignore
         cb.Build()
     

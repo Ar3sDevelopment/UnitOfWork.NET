@@ -57,7 +57,6 @@
     <Compile Include="RepositoryDTO.fs" />
     <Compile Include="RepositoryExtenders.fs" />
     <Compile Include="ListRepository.fs" />
-    <Compile Include="RepositoryReflection.fs" />
     <Compile Include="UnitOfWork.fs" />
     <Compile Include="UnitOfWorkCaller.fs" />
     <None Include="App.config" />
