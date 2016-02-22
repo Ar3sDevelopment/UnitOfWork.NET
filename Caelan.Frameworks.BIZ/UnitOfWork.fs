@@ -49,6 +49,8 @@ type UnitOfWork internal (context : DbContext, autoContext) =
         let mutable repository = Unchecked.defaultof<'TRepository>
         if this.container.TryResolve<'TRepository>(&repository) |> not && typeof<'TRepository>.IsInterface |> not && typeof<'TRepository>.IsAbstract |> not then 
             let cb = ContainerBuilder()
+            let assemblies = [| typeof<'TRepository>.Assembly |] |> Array.append (typeof<'TRepository>.Assembly.GetReferencedAssemblies() |> Array.map Assembly.Load)
+            cb.RegisterAssemblyTypes(assemblies).Where(fun t -> t.IsAssignableTo<IRepository>()).AsSelf().AsImplementedInterfaces() |> ignore
             cb.RegisterType<'TRepository>().AsSelf().AsImplementedInterfaces() |> ignore
             cb.Update(this.container)
             use scope = this.container.BeginLifetimeScope()
