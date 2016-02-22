@@ -43,8 +43,12 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="Caelan.Frameworks.ClassBuilder">
+      <HintPath>..\packages\Caelan.Frameworks.ClassBuilder.3.3.1.219\lib\net45\Caelan.Frameworks.ClassBuilder.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Caelan.Frameworks.Common">
-      <HintPath>..\packages\Caelan.Frameworks.Common.3.2.0.198\lib\net45\Caelan.Frameworks.Common.dll</HintPath>
+      <HintPath>..\packages\Caelan.Frameworks.Common.3.3.1.219\lib\net45\Caelan.Frameworks.Common.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="mscorlib" />

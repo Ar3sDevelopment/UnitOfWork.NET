@@ -9,8 +9,8 @@ open System.Reflection
 open System.Collections.Generic
 open Caelan.DynamicLinq.Classes
 open Caelan.DynamicLinq.Extensions
-open Caelan.Frameworks.Common.Interfaces
-open Caelan.Frameworks.Common.Classes
+open Caelan.Frameworks.ClassBuilder.Interfaces
+open Caelan.Frameworks.ClassBuilder.Classes
 open Caelan.Frameworks.BIZ.Interfaces
 open System.Linq.Dynamic
 
@@ -41,8 +41,7 @@ type Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equali
     
     member this.List() = Builder.BuildList(this.All() :> seq<'TEntity>).ToList<'TDTO>()
     member this.List(whereExpr) = Builder.BuildList(this.All(whereExpr) :> seq<'TEntity>).ToList<'TDTO>()
-    member this.All(take, skip, sort, filter, whereFunc) = 
-        this.All(take, skip, sort, filter, whereFunc, fun t -> Builder.BuildList(t).ToList<'TDTO>())
+    member this.All(take, skip, sort, filter, whereFunc) = this.All(take, skip, sort, filter, whereFunc, fun t -> Builder.BuildList(t).ToList<'TDTO>())
     
     member private this.All(take, skip, sort, filter, whereFunc, buildFunc : seq<'TEntity> -> seq<'TDTO>) = 
         let orderBy = 
@@ -53,10 +52,12 @@ type Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equali
             }
         
         let queryResult = 
-            (match orderBy |> Option.ofObj with
-             | None -> this.All(whereFunc)
-             | Some(defaultSort) -> this.All(whereFunc).OrderBy(defaultSort))
-                .ToDataSourceResult(take, skip, sort, filter)
+             let res =
+                 match orderBy |> Option.ofObj with
+                 | None -> this.All(whereFunc)
+                 | Some(defaultSort) -> this.All(whereFunc).OrderBy(defaultSort)
+
+             res.ToDataSourceResult(take, skip, sort, filter)
         
         DataSourceResult<'TDTO>(Data = (buildFunc (queryResult.Data)).ToList(), Total = queryResult.Total)
     
@@ -72,12 +73,8 @@ type Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equali
     member this.InsertAsync(dto : 'TDTO) = async { return this.Insert(dto) } |> Async.StartAsTask
     member this.UpdateAsync(dto : 'TDTO, ids) = async { this.Update(dto, ids) } |> Async.StartAsTask
     member this.DeleteAsync(dto : 'TDTO, [<ParamArray>] ids) = async { this.Delete(dto, ids) } |> Async.StartAsTask
-    member this.ListAsync(whereExpr : Expression<Func<'TEntity, bool>>) = 
-        async { return this.List(whereExpr) } |> Async.StartAsTask
+    member this.ListAsync(whereExpr : Expression<Func<'TEntity, bool>>) = async { return this.List(whereExpr) } |> Async.StartAsTask
     member this.ListAsync() = async { return this.List() } |> Async.StartAsTask
-    member this.AllAsync(take : int, skip : int, sort : ICollection<Sort>, filter : Filter, 
-                         whereFunc : Expression<Func<'TEntity, bool>>) = 
-        async { return this.All(take, skip, sort, filter, whereFunc) } |> Async.StartAsTask
+    member this.AllAsync(take : int, skip : int, sort : ICollection<Sort>, filter : Filter, whereFunc : Expression<Func<'TEntity, bool>>) = async { return this.All(take, skip, sort, filter, whereFunc) } |> Async.StartAsTask
     member this.SingleDTOAsync([<ParamArray>] id : obj []) = async { return this.SingleDTO(id) } |> Async.StartAsTask
-    member this.SingleDTOAsync(expr : Expression<Func<'TEntity, bool>>) = 
-        async { return this.SingleDTO(expr) } |> Async.StartAsTask
+    member this.SingleDTOAsync(expr : Expression<Func<'TEntity, bool>>) = async { return this.SingleDTO(expr) } |> Async.StartAsTask
