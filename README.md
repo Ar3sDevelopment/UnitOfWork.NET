@@ -61,7 +61,7 @@ public IEnumerable<User> AllAdminsEntities()
 }
 
 //using builders from my Common Framework
-public IEnumerable<User> AllAdminsEntities()
+public IEnumerable<UserDTO> AllAdminsEntitiesDTO()
 {
   return DTOBuilder().BuildList(AllAdminsEntities());
 }
