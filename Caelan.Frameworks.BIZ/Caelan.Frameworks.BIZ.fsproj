@@ -1,5 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -55,10 +54,8 @@
     <Compile Include="Repository.fs" />
     <Compile Include="RepositoryEntity.fs" />
     <Compile Include="RepositoryDTO.fs" />
-    <Compile Include="RepositoryExtenders.fs" />
     <Compile Include="ListRepository.fs" />
     <Compile Include="UnitOfWork.fs" />
-    <Compile Include="UnitOfWorkCaller.fs" />
     <None Include="App.config" />
     <None Include="packages.config" />
     <None Include="Caelan.Frameworks.BIZ.nuspec" />
@@ -66,10 +63,6 @@
   <ItemGroup>
     <Reference Include="Autofac">
       <HintPath>..\packages\Autofac.3.5.2\lib\net40\Autofac.dll</HintPath>
-    </Reference>
-    <Reference Include="Caelan.Frameworks.ClassBuilder">
-      <HintPath>..\packages\Caelan.Frameworks.ClassBuilder.3.3.1.219\lib\net45\Caelan.Frameworks.ClassBuilder.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Caelan.Frameworks.Common">
       <HintPath>..\packages\Caelan.Frameworks.Common.3.3.1.219\lib\net45\Caelan.Frameworks.Common.dll</HintPath>
@@ -97,6 +90,9 @@
     </Reference>
     <Reference Include="Caelan.DynamicLinq">
       <HintPath>..\packages\Caelan.DynamicLinq.2.0.20.0\lib\net40\Caelan.DynamicLinq.dll</HintPath>
+    </Reference>
+    <Reference Include="Caelan.Frameworks.ClassBuilder">
+      <HintPath>..\packages\Caelan.Frameworks.ClassBuilder.3.3.2.6\lib\net45\Caelan.Frameworks.ClassBuilder.dll</HintPath>
     </Reference>
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
