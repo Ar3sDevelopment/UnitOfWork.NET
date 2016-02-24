@@ -91,28 +91,39 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
     
     member this.CustomRepository<'TRepository when 'TRepository :> IRepository>() = 
         let assemblies = 
-            [| Assembly.GetEntryAssembly()
+            [| typeof<'TRepository>.Assembly
+               AssemblyHelper.GetWebEntryAssembly()
+               Assembly.GetEntryAssembly()
                Assembly.GetCallingAssembly()
                Assembly.GetExecutingAssembly() |]
         this.GetRepository<'TRepository>(assemblies)
     
     member this.Repository<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>() = 
         let assemblies = 
-            [| Assembly.GetEntryAssembly()
+            [| typeof<'TEntity>.Assembly
+               AssemblyHelper.GetWebEntryAssembly()
+               Assembly.GetEntryAssembly()
                Assembly.GetCallingAssembly()
                Assembly.GetExecutingAssembly() |]
         this.GetRepository<IRepository<'TEntity>>(assemblies)
     
     member this.Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>() = 
         let assemblies = 
-            [| Assembly.GetEntryAssembly()
+            [| typeof<'TEntity>.Assembly
+               typeof<'TDTO>.Assembly
+               AssemblyHelper.GetWebEntryAssembly()
+               Assembly.GetEntryAssembly()
                Assembly.GetCallingAssembly()
                Assembly.GetExecutingAssembly() |]
         this.GetRepository<IRepository<'TEntity, 'TDTO>>(assemblies)
     
     member this.Repository<'TEntity, 'TDTO, 'TListDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct and 'TListDTO : equality and 'TListDTO : null and 'TListDTO : not struct>() = 
         let assemblies = 
-            [| Assembly.GetEntryAssembly()
+            [| typeof<'TEntity>.Assembly
+               typeof<'TDTO>.Assembly
+               typeof<'TListDTO>.Assembly
+               AssemblyHelper.GetWebEntryAssembly()
+               Assembly.GetEntryAssembly()
                Assembly.GetCallingAssembly()
                Assembly.GetExecutingAssembly() |]
         this.GetRepository<IListRepository<'TEntity, 'TDTO, 'TListDTO>>(assemblies)
