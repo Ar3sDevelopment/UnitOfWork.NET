@@ -29,6 +29,7 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
     
     interface IUnitOfWork with
         member this.SaveChanges() = this.SaveChanges()
+        member this.AfterSaveChanges() = this.AfterSaveChanges()
         member this.DbSet<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>() = 
             this.DbSet<'TEntity>()
         member this.Entry<'TEntity>(entity) = this.Entry<'TEntity>(entity)
@@ -45,8 +46,6 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
     
     interface IDisposable with
         member this.Dispose() = this.Dispose()
-    
-    member __.SaveChangesAsync() = async { return! context.SaveChangesAsync() |> Async.AwaitTask } |> Async.StartAsTask
     
     member __.RegisterRepository<'TRepository when 'TRepository :> IRepository>(assemblies : Assembly []) = 
         if container.IsRegistered(typeof<'TRepository>) |> not then 
@@ -141,8 +140,12 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
             let (entityType, entities) = item
             let mHelper = uow.GetType().GetMethod("CallOnSaveChanges", BindingFlags.NonPublic ||| BindingFlags.Instance)
             mHelper.MakeGenericMethod([| entityType |]).Invoke(uow, [| entities |]) |> ignore
+        uow.AfterSaveChanges()
         res
     
+    member this.SaveChangesAsync() = async { return this.SaveChanges() } |> Async.StartAsTask
+    abstract AfterSaveChanges : unit -> unit
+    override uow.AfterSaveChanges() = ()
     member private uow.CallOnSaveChanges<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>(entities : obj []) = 
         uow.Repository<'TEntity>().OnSaveChanges(entities.Cast<'TEntity>() |> Array.ofSeq)
     member __.Entry<'TEntity>(entity : 'TEntity) = context.Entry(entity)

@@ -149,6 +149,11 @@ and IUnitOfWork =
     /// <summary>
     /// 
     /// </summary>
+    abstract AfterSaveChanges : unit -> unit
+    
+    /// <summary>
+    /// 
+    /// </summary>
     /// <param name="entity"></param>
     abstract Entry<'TEntity> : entity:'TEntity -> DbEntityEntry
     
