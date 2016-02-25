@@ -5,6 +5,8 @@ open System
 open System.Collections
 open System.Linq
 open System.Data.Entity
+open System.Data.Entity.Infrastructure
+open System.Data.Entity.Core.Objects
 open System.Reflection
 open Caelan.Frameworks.BIZ.Interfaces
 open Caelan.Frameworks.Common.Helpers
@@ -133,7 +135,7 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
             context.ChangeTracker.Entries()
             |> Seq.map (fun entry -> entry.Entity)
             |> Array.ofSeq
-            |> Array.groupBy (fun t -> t.GetType())
+            |> Array.groupBy (fun t -> ObjectContext.GetObjectType(t.GetType()))
         
         let res = context.SaveChanges()
         for item in entitiesGroup do
