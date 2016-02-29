@@ -1,4 +1,4 @@
-﻿namespace Caelan.Frameworks.BIZ.Classes
+namespace Caelan.Frameworks.BIZ.Classes
 
 open Autofac
 open Caelan.Frameworks.BIZ.Interfaces
@@ -29,6 +29,7 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
         assemblyArr
         |> Array.collect (fun t -> t.GetReferencedAssemblies())
         |> Array.map Assembly.Load
+        |> Array.filter (assemblies.Contains >> not)
         |> Array.filter (fun t -> t.GetTypes() |> Array.exists isRepository)
         |> Array.iter assemblies.Add
     
