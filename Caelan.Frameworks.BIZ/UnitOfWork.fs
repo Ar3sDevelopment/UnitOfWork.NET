@@ -5,6 +5,7 @@ open Caelan.Frameworks.BIZ.Interfaces
 open Caelan.Frameworks.Common.Helpers
 open System
 open System.Collections
+open System.Collections.ObjectModel
 open System.Data.Entity
 open System.Data.Entity.Core.Objects
 open System.Data.Entity.Infrastructure
@@ -12,19 +13,35 @@ open System.Linq
 open System.Reflection
 
 type UnitOfWork internal (context : DbContext, autoContext) as uow = 
+    let assemblies = ObservableCollection<Assembly>()
     
     let mutable container = 
-        let assemblies = 
-            [| AssemblyHelper.GetWebEntryAssembly()
-               Assembly.GetEntryAssembly()
-               Assembly.GetCallingAssembly()
-               Assembly.GetExecutingAssembly() |]
-            |> Array.where (isNull >> not)
-        
         let cb = ContainerBuilder()
         cb.Register<UnitOfWork>(fun u -> uow).AsSelf().As<UnitOfWork>().AsImplementedInterfaces() |> ignore
-        cb.RegisterAssemblyTypes(assemblies).Where(fun t -> t.IsAssignableTo<IRepository>()).AsSelf().AsImplementedInterfaces() |> ignore
         cb.Build()
+    
+    let isRepository (t : Type) = t.IsAssignableTo<IRepository>() && t.IsInterface |> not && t.IsAbstract |> not && container.IsRegistered(t) |> not
+    
+    let registerAssembly (assemblyArr : Assembly []) = 
+        let cb = ContainerBuilder()
+        cb.RegisterAssemblyTypes(assemblyArr).Where(fun t -> isRepository t).AsSelf().AsImplementedInterfaces() |> ignore
+        cb.Update(container)
+        assemblyArr
+        |> Array.collect (fun t -> t.GetReferencedAssemblies())
+        |> Array.map Assembly.Load
+        |> Array.iter assemblies.Add
+    
+    do 
+        assemblies.CollectionChanged.Add(fun t -> 
+            t.NewItems.Cast<Assembly>()
+            |> Array.ofSeq
+            |> registerAssembly)
+        [| AssemblyHelper.GetWebEntryAssembly()
+           Assembly.GetEntryAssembly()
+           Assembly.GetCallingAssembly()
+           Assembly.GetExecutingAssembly() |]
+        |> Array.where (isNull >> not)
+        |> Array.iter assemblies.Add
     
     member private __.autoContext = autoContext
     
@@ -44,35 +61,29 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
     interface IDisposable with
         member this.Dispose() = this.Dispose()
     
-    member __.RegisterRepository<'TRepository when 'TRepository :> IRepository>(assemblies : Assembly []) = 
+    member __.RegisterRepository<'TRepository when 'TRepository :> IRepository>() = 
         if container.IsRegistered(typeof<'TRepository>) |> not then 
             let cb = ContainerBuilder()
             if container.IsRegistered(typeof<Repository>) |> not then cb.RegisterType<Repository>().AsSelf().As<IRepository>().PreserveExistingDefaults() |> ignore
             if container.IsRegistered(typedefof<Repository<_>>) |> not then cb.RegisterGeneric(typedefof<Repository<_>>).AsSelf().As(typedefof<IRepository<_>>) |> ignore
             if container.IsRegistered(typedefof<Repository<_, _>>) |> not then cb.RegisterGeneric(typedefof<Repository<_, _>>).AsSelf().As(typedefof<IRepository<_, _>>) |> ignore
             if container.IsRegistered(typedefof<ListRepository<_, _, _>>) |> not then cb.RegisterGeneric(typedefof<ListRepository<_, _, _>>).AsSelf().As(typedefof<IListRepository<_, _, _>>) |> ignore
-            let allAssemblies = 
-                let getRefAssemblies (assembly : Assembly) = assembly.GetReferencedAssemblies() |> Array.map Assembly.Load
-                
-                let arr = 
-                    [| typeof<'TRepository>.Assembly
-                       AssemblyHelper.GetWebEntryAssembly()
-                       Assembly.GetEntryAssembly()
-                       Assembly.GetCallingAssembly()
-                       Assembly.GetExecutingAssembly() |]
-                    |> Array.append assemblies
-                    |> Array.where (isNull >> not)
-                arr
-                |> Array.append (arr |> Array.collect getRefAssemblies)
-                |> Array.where (isNull >> not)
-            cb.RegisterAssemblyTypes(allAssemblies).Where(fun t -> t.IsAssignableTo<IRepository>() && t.IsInterface |> not && t.IsAbstract |> not && container.IsRegistered(t) |> not).AsSelf().AsImplementedInterfaces() |> ignore
+            [| typeof<'TRepository>.Assembly
+               AssemblyHelper.GetWebEntryAssembly()
+               Assembly.GetEntryAssembly()
+               Assembly.GetCallingAssembly()
+               Assembly.GetExecutingAssembly() |]
+            |> Array.where (isNull >> not)
+            |> Array.iter assemblies.Add
             if typeof<'TRepository>.IsInterface
                |> not
-               && typeof<'TRepository>.IsAbstract |> not then cb.RegisterType<'TRepository>().AsSelf().AsImplementedInterfaces() |> ignore
-            cb.Update(container)
+               && typeof<'TRepository>.IsAbstract |> not then 
+                cb.RegisterType<'TRepository>().AsSelf().AsImplementedInterfaces() |> ignore
+                cb.Update(container)
     
-    member private this.GetRepository<'TRepository when 'TRepository :> IRepository>(assemblies : Assembly []) = 
-        this.RegisterRepository<'TRepository>(assemblies)
+    member private this.GetRepository<'TRepository when 'TRepository :> IRepository>(repoAssemblies : Assembly []) = 
+        repoAssemblies |> Array.iter assemblies.Add
+        this.RegisterRepository<'TRepository>()
         container.Resolve<'TRepository>()
     
     member this.CustomRepository<'TRepository when 'TRepository :> IRepository>() = 
