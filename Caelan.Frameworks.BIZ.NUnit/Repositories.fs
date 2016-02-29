@@ -14,7 +14,7 @@ module Repositories =
         
         override this.OnSaveChanges users = 
             for user in users do
-                user.Login |> printfn "Edited %s"
+                (user.Id, user.Login) ||> printfn "[%d] %s has changed"
     
     type RoleRepository(manager) = 
         inherit Repository<Role>(manager)
