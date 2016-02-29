@@ -93,3 +93,29 @@ type BusinessTest() =
         uow.CustomRepository<UserRepository>().Delete((!dto).Id) |> ignore
         uow.SaveChanges() |> ignore
         Assert.IsNull(uow.CustomRepository<UserRepository>().SingleDTO((!dto).Id))
+    
+    [<Test>]
+    member __.TestCustomUnitOfWork() = 
+        let stopwatch = Stopwatch()
+        stopwatch.Start()
+        use uow = new TestUnitOfWork()
+        let users = uow.Users.NewList()
+        stopwatch.Stop()
+        stopwatch.ElapsedMilliseconds |> printfn "%dms"
+        for user in users do
+            (user.Id, user.Login) ||> printfn "%d %s"
+        let dto = ref <| UserDTO(Login = "test", Password = "test")
+        dto := uow.Users.Insert(!dto)
+        uow.SaveChanges() |> ignore
+        let login = (!dto).Login
+        dto := uow.Users.SingleDTO(fun d -> d.Login = login)
+        Assert.IsNotNull(!dto)
+        Assert.AreNotEqual(decimal ((!dto).Id), 0m)
+        (!dto).Id |> printfn "%d"
+        (!dto).Password <- "test2"
+        uow.Users.Update(!dto, (!dto).Id) |> ignore
+        uow.SaveChanges() |> ignore
+        Assert.AreEqual((!dto).Password, uow.Users.SingleDTO((!dto).Id).Password)
+        uow.Users.Delete((!dto).Id) |> ignore
+        uow.SaveChanges() |> ignore
+        Assert.IsNull(uow.Users.SingleDTO((!dto).Id))

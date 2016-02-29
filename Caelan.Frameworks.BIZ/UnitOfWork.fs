@@ -41,6 +41,11 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
         |> Array.iter assemblies.Add
     
     do 
+        let cb = ContainerBuilder()
+        let fields = uow.GetType().GetFields().Where(fun t -> t.FieldType |> isRepository) |> Array.ofSeq
+        fields |> Array.iter (fun t -> cb.RegisterType(t.FieldType).AsSelf().AsImplementedInterfaces() |> ignore)
+        cb.Update(container)
+        fields |> Array.iter (fun t -> t.SetValue(uow, container.ResolveOptional(t.FieldType)))
         assemblies.CollectionChanged.Add(fun t -> 
             t.NewItems.Cast<Assembly>()
             |> Array.ofSeq
