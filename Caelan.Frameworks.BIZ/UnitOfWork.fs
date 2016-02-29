@@ -26,8 +26,8 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
     
     let isRepository (t : Type) = 
         t.IsAssignableTo<IRepository>() && t.IsInterface |> not && t.IsAbstract |> not && t <> typeof<Repository> 
-        && ((t.IsGenericType && t.GetType().GetGenericTypeDefinition() <> typedefof<Repository<_>> && t.GetType().GetGenericTypeDefinition() <> typedefof<Repository<_, _>> && t.GetType().GetGenericTypeDefinition() <> typedefof<ListRepository<_, _, _>>) 
-            || t.IsGenericType |> not) && container.IsRegistered(t) |> not
+        && ((t.IsGenericType && t.GetGenericTypeDefinition() <> typedefof<Repository<_>> && t.GetGenericTypeDefinition() <> typedefof<Repository<_, _>> && t.GetGenericTypeDefinition() <> typedefof<ListRepository<_, _, _>>) || t.IsGenericType |> not) 
+        && container.IsRegistered(t) |> not
     
     let registerAssembly (assemblyArr : Assembly []) = 
         let cb = ContainerBuilder()
