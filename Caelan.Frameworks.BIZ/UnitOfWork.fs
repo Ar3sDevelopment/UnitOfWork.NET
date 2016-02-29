@@ -44,8 +44,11 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
         let cb = ContainerBuilder()
         let fields = uow.GetType().GetFields().Where(fun t -> t.FieldType |> isRepository) |> Array.ofSeq
         fields |> Array.iter (fun t -> cb.RegisterType(t.FieldType).AsSelf().AsImplementedInterfaces() |> ignore)
+        let properties = uow.GetType().GetProperties().Where(fun t -> t.PropertyType |> isRepository) |> Array.ofSeq
+        properties |> Array.iter (fun t -> cb.RegisterType(t.PropertyType).AsSelf().AsImplementedInterfaces() |> ignore)
         cb.Update(container)
         fields |> Array.iter (fun t -> t.SetValue(uow, container.ResolveOptional(t.FieldType)))
+        properties |> Array.iter (fun t -> t.SetValue(uow, container.ResolveOptional(t.PropertyType)))
         assemblies.CollectionChanged.Add(fun t -> 
             t.NewItems.Cast<Assembly>()
             |> Array.ofSeq
@@ -152,7 +155,7 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
         context.ChangeTracker.DetectChanges()
         let entitiesGroup = 
             context.ChangeTracker.Entries()
-            |> Seq.filter (fun t -> t.State <> EntityState.Unchanged)
+            |> Seq.filter (fun t -> t.State <> EntityState.Unchanged && t.State <> EntityState.Detached)
             |> Seq.map (fun entry -> entry.Entity)
             |> Array.ofSeq
             |> Array.groupBy (fun t -> ObjectContext.GetObjectType(t.GetType()))
