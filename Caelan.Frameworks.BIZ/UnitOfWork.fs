@@ -147,6 +147,7 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
         context.ChangeTracker.DetectChanges()
         let entitiesGroup = 
             context.ChangeTracker.Entries()
+            |> Seq.filter (fun t -> t.State <> EntityState.Unchanged)
             |> Seq.map (fun entry -> entry.Entity)
             |> Array.ofSeq
             |> Array.groupBy (fun t -> ObjectContext.GetObjectType(t.GetType()))
