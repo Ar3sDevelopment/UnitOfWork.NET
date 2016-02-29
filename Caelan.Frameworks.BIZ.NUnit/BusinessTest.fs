@@ -16,8 +16,6 @@ type BusinessTest() =
         let users = db.Users
         for user in users do
             (user.Id, user.Login) ||> printfn "%d %s"
-        db.Users.RemoveRange(users) |> ignore
-        db.SaveChanges() |> ignore
         stopwatch.Stop()
         stopwatch.ElapsedMilliseconds |> printfn "%dms"
     
