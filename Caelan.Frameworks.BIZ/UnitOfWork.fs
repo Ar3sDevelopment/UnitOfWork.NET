@@ -18,13 +18,20 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
     let mutable container = 
         let cb = ContainerBuilder()
         cb.Register<UnitOfWork>(fun u -> uow).AsSelf().As<UnitOfWork>().AsImplementedInterfaces() |> ignore
+        cb.RegisterType<Repository>().AsSelf().As<IRepository>().PreserveExistingDefaults() |> ignore
+        cb.RegisterGeneric(typedefof<Repository<_>>).AsSelf().As(typedefof<IRepository<_>>) |> ignore
+        cb.RegisterGeneric(typedefof<Repository<_, _>>).AsSelf().As(typedefof<IRepository<_, _>>) |> ignore
+        cb.RegisterGeneric(typedefof<ListRepository<_, _, _>>).AsSelf().As(typedefof<IListRepository<_, _, _>>) |> ignore
         cb.Build()
     
-    let isRepository (t : Type) = t.IsAssignableTo<IRepository>() && t.IsInterface |> not && t.IsAbstract |> not && container.IsRegistered(t) |> not
+    let isRepository (t : Type) = 
+        t.IsAssignableTo<IRepository>() && t.IsInterface |> not && t.IsAbstract |> not && t <> typeof<Repository> 
+        && ((t.IsGenericType && t.GetGenericTypeDefinition() <> typedefof<Repository<_>> && t.GetGenericTypeDefinition() <> typedefof<Repository<_, _>> && t.GetGenericTypeDefinition() <> typedefof<ListRepository<_, _, _>>) || t.IsGenericType |> not) 
+        && container.IsRegistered(t) |> not
     
     let registerAssembly (assemblyArr : Assembly []) = 
         let cb = ContainerBuilder()
-        cb.RegisterAssemblyTypes(assemblyArr |> Array.filter (fun t -> t.GetTypes() |> Array.exists isRepository)).Where(fun t -> isRepository t).AsSelf().AsImplementedInterfaces() |> ignore
+        cb.RegisterAssemblyTypes(assemblyArr |> Array.filter (fun t -> t.GetTypes() |> Array.exists isRepository)).Where(fun t -> t |> isRepository).AsSelf().AsImplementedInterfaces() |> ignore
         cb.Update(container)
         assemblyArr
         |> Array.collect (fun t -> t.GetReferencedAssemblies())
@@ -66,12 +73,10 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
         member this.Dispose() = this.Dispose()
     
     member __.RegisterRepository<'TRepository when 'TRepository :> IRepository>() = 
-        if container.IsRegistered(typeof<'TRepository>) |> not then 
+        if not <| typeof<'TRepository>.IsInterface && not <| typeof<'TRepository>.IsAbstract && not <| container.IsRegistered(typeof<'TRepository>) then 
             let cb = ContainerBuilder()
-            if container.IsRegistered(typeof<Repository>) |> not then cb.RegisterType<Repository>().AsSelf().As<IRepository>().PreserveExistingDefaults() |> ignore
-            if container.IsRegistered(typedefof<Repository<_>>) |> not then cb.RegisterGeneric(typedefof<Repository<_>>).AsSelf().As(typedefof<IRepository<_>>) |> ignore
-            if container.IsRegistered(typedefof<Repository<_, _>>) |> not then cb.RegisterGeneric(typedefof<Repository<_, _>>).AsSelf().As(typedefof<IRepository<_, _>>) |> ignore
-            if container.IsRegistered(typedefof<ListRepository<_, _, _>>) |> not then cb.RegisterGeneric(typedefof<ListRepository<_, _, _>>).AsSelf().As(typedefof<IListRepository<_, _, _>>) |> ignore
+            cb.RegisterType<'TRepository>().AsSelf().AsImplementedInterfaces() |> ignore
+            cb.Update(container)
             [| typeof<'TRepository>.Assembly
                AssemblyHelper.GetWebEntryAssembly()
                Assembly.GetEntryAssembly()
@@ -81,11 +86,6 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
             |> Array.filter (assemblies.Contains >> not)
             |> Array.filter (fun t -> t.GetTypes() |> Array.exists isRepository)
             |> Array.iter assemblies.Add
-            if typeof<'TRepository>.IsInterface
-               |> not
-               && typeof<'TRepository>.IsAbstract |> not then 
-                cb.RegisterType<'TRepository>().AsSelf().AsImplementedInterfaces() |> ignore
-                cb.Update(container)
     
     member private this.GetRepository<'TRepository when 'TRepository :> IRepository>(repoAssemblies : Assembly []) = 
         repoAssemblies |> Array.iter assemblies.Add
