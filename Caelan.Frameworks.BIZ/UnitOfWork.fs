@@ -107,6 +107,7 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
                Assembly.GetEntryAssembly()
                Assembly.GetCallingAssembly()
                Assembly.GetExecutingAssembly() |]
+            |> Array.filter (isNull >> not)
             |> Array.filter (fun t -> t.GetTypes() |> Array.exists isRepository)
         this.GetRepository<IRepository<'TEntity>>(assemblies)
     
@@ -118,6 +119,7 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
                Assembly.GetEntryAssembly()
                Assembly.GetCallingAssembly()
                Assembly.GetExecutingAssembly() |]
+            |> Array.filter (isNull >> not)
             |> Array.filter (fun t -> t.GetTypes() |> Array.exists isRepository)
         this.GetRepository<IRepository<'TEntity, 'TDTO>>(assemblies)
     
@@ -130,6 +132,7 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
                Assembly.GetEntryAssembly()
                Assembly.GetCallingAssembly()
                Assembly.GetExecutingAssembly() |]
+            |> Array.filter (isNull >> not)
             |> Array.filter (fun t -> t.GetTypes() |> Array.exists isRepository)
         this.GetRepository<IListRepository<'TEntity, 'TDTO, 'TListDTO>>(assemblies)
     
