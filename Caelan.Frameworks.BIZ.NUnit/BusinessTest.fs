@@ -1,9 +1,9 @@
 ﻿namespace Caelan.Frameworks.BIZ.NUnit
 
-open System.Diagnostics
-open NUnit.Framework
 open Caelan.Frameworks.BIZ.Classes
 open Caelan.Frameworks.BIZ.NUnit.Data.Models
+open NUnit.Framework
+open System.Diagnostics
 
 [<TestFixture>]
 type BusinessTest() = 
