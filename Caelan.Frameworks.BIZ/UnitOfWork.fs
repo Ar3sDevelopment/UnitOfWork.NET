@@ -42,6 +42,7 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
            Assembly.GetCallingAssembly()
            Assembly.GetExecutingAssembly() |]
         |> Array.filter (isNull >> not)
+        |> Array.filter (assemblies.Contains >> not)
         |> Array.filter (fun t -> t.GetTypes() |> Array.exists isRepository)
         |> Array.iter assemblies.Add
     
@@ -76,6 +77,7 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
                Assembly.GetCallingAssembly()
                Assembly.GetExecutingAssembly() |]
             |> Array.filter (isNull >> not)
+            |> Array.filter (assemblies.Contains >> not)
             |> Array.filter (fun t -> t.GetTypes() |> Array.exists isRepository)
             |> Array.iter assemblies.Add
             if typeof<'TRepository>.IsInterface
@@ -97,6 +99,7 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
                Assembly.GetCallingAssembly()
                Assembly.GetExecutingAssembly() |]
             |> Array.filter (isNull >> not)
+            |> Array.filter (assemblies.Contains >> not)
             |> Array.filter (fun t -> t.GetTypes() |> Array.exists isRepository)
         this.GetRepository<'TRepository>(assemblies)
     
@@ -108,6 +111,7 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
                Assembly.GetCallingAssembly()
                Assembly.GetExecutingAssembly() |]
             |> Array.filter (isNull >> not)
+            |> Array.filter (assemblies.Contains >> not)
             |> Array.filter (fun t -> t.GetTypes() |> Array.exists isRepository)
         this.GetRepository<IRepository<'TEntity>>(assemblies)
     
@@ -120,6 +124,7 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
                Assembly.GetCallingAssembly()
                Assembly.GetExecutingAssembly() |]
             |> Array.filter (isNull >> not)
+            |> Array.filter (assemblies.Contains >> not)
             |> Array.filter (fun t -> t.GetTypes() |> Array.exists isRepository)
         this.GetRepository<IRepository<'TEntity, 'TDTO>>(assemblies)
     
@@ -133,6 +138,7 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
                Assembly.GetCallingAssembly()
                Assembly.GetExecutingAssembly() |]
             |> Array.filter (isNull >> not)
+            |> Array.filter (assemblies.Contains >> not)
             |> Array.filter (fun t -> t.GetTypes() |> Array.exists isRepository)
         this.GetRepository<IListRepository<'TEntity, 'TDTO, 'TListDTO>>(assemblies)
     
