@@ -24,11 +24,12 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
     
     let registerAssembly (assemblyArr : Assembly []) = 
         let cb = ContainerBuilder()
-        cb.RegisterAssemblyTypes(assemblyArr).Where(fun t -> isRepository t).AsSelf().AsImplementedInterfaces() |> ignore
+        cb.RegisterAssemblyTypes(assemblyArr |> Array.filter (fun t -> t.GetTypes() |> Array.exists isRepository)).Where(fun t -> isRepository t).AsSelf().AsImplementedInterfaces() |> ignore
         cb.Update(container)
         assemblyArr
         |> Array.collect (fun t -> t.GetReferencedAssemblies())
         |> Array.map Assembly.Load
+        |> Array.filter (fun t -> t.GetTypes() |> Array.exists isRepository)
         |> Array.iter assemblies.Add
     
     do 
@@ -41,6 +42,7 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
            Assembly.GetCallingAssembly()
            Assembly.GetExecutingAssembly() |]
         |> Array.where (isNull >> not)
+        |> Array.filter (fun t -> t.GetTypes() |> Array.exists isRepository)
         |> Array.iter assemblies.Add
     
     member private __.autoContext = autoContext
@@ -74,6 +76,7 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
                Assembly.GetCallingAssembly()
                Assembly.GetExecutingAssembly() |]
             |> Array.where (isNull >> not)
+            |> Array.filter (fun t -> t.GetTypes() |> Array.exists isRepository)
             |> Array.iter assemblies.Add
             if typeof<'TRepository>.IsInterface
                |> not
@@ -93,6 +96,7 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
                Assembly.GetEntryAssembly()
                Assembly.GetCallingAssembly()
                Assembly.GetExecutingAssembly() |]
+            |> Array.filter (fun t -> t.GetTypes() |> Array.exists isRepository)
         this.GetRepository<'TRepository>(assemblies)
     
     member this.Repository<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>() = 
@@ -102,6 +106,7 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
                Assembly.GetEntryAssembly()
                Assembly.GetCallingAssembly()
                Assembly.GetExecutingAssembly() |]
+            |> Array.filter (fun t -> t.GetTypes() |> Array.exists isRepository)
         this.GetRepository<IRepository<'TEntity>>(assemblies)
     
     member this.Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>() = 
@@ -112,6 +117,7 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
                Assembly.GetEntryAssembly()
                Assembly.GetCallingAssembly()
                Assembly.GetExecutingAssembly() |]
+            |> Array.filter (fun t -> t.GetTypes() |> Array.exists isRepository)
         this.GetRepository<IRepository<'TEntity, 'TDTO>>(assemblies)
     
     member this.Repository<'TEntity, 'TDTO, 'TListDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct and 'TListDTO : equality and 'TListDTO : null and 'TListDTO : not struct>() = 
@@ -123,6 +129,7 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
                Assembly.GetEntryAssembly()
                Assembly.GetCallingAssembly()
                Assembly.GetExecutingAssembly() |]
+            |> Array.filter (fun t -> t.GetTypes() |> Array.exists isRepository)
         this.GetRepository<IListRepository<'TEntity, 'TDTO, 'TListDTO>>(assemblies)
     
     member uow.SaveChanges() = 
