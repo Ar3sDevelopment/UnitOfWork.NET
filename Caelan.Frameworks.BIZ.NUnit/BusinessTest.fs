@@ -1,9 +1,9 @@
 ﻿namespace Caelan.Frameworks.BIZ.NUnit
 
-open System.Diagnostics
-open NUnit.Framework
 open Caelan.Frameworks.BIZ.Classes
 open Caelan.Frameworks.BIZ.NUnit.Data.Models
+open NUnit.Framework
+open System.Diagnostics
 
 [<TestFixture>]
 type BusinessTest() = 
@@ -16,6 +16,8 @@ type BusinessTest() =
         let users = db.Users
         for user in users do
             (user.Id, user.Login) ||> printfn "%d %s"
+        db.Users.RemoveRange(users) |> ignore
+        db.SaveChanges() |> ignore
         stopwatch.Stop()
         stopwatch.ElapsedMilliseconds |> printfn "%dms"
     
