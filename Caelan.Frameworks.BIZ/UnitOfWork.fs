@@ -165,7 +165,7 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
         for item in entitiesGroup do
             let (entityType, entitiesByState) = item
             let mHelper = uow.GetType().GetMethod("CallOnSaveChanges", BindingFlags.NonPublic ||| BindingFlags.Instance)
-            mHelper.MakeGenericMethod([| entityType |]).Invoke(uow, [| entitiesByState.ToDictionary((fun t -> t.Key), (fun (t : IGrouping<EntityState, obj>) -> t.ToList())) |]) |> ignore
+            mHelper.MakeGenericMethod([| entityType |]).Invoke(uow, [| entitiesByState.ToDictionary((fun t -> t.Key), (fun (t : IGrouping<EntityState, obj>) -> t.AsEnumerable())) |]) |> ignore
         uow.AfterSaveChanges()
         res
     
