@@ -160,7 +160,7 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
             |> Array.ofSeq
             |> Array.groupBy (fun t -> ObjectContext.GetObjectType(t.Entity.GetType()))
         
-        let entitiesGroup = entriesGroup |> Array.map (fun (t, e) -> (t, e.GroupBy((fun i -> i.State), (fun (i : DbEntityEntry) -> i.Entity))))
+        let entitiesGroup = entriesGroup |> Array.map (fun (t, e) -> (t, e.ToList().GroupBy((fun i -> i.State), (fun (i : DbEntityEntry) -> i.Entity))))
         let res = context.SaveChanges()
         for item in entitiesGroup do
             let (entityType, entitiesByState) = item
