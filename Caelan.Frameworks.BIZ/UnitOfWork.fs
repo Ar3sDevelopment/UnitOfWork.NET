@@ -5,6 +5,7 @@ open Caelan.Frameworks.BIZ.Interfaces
 open Caelan.Frameworks.Common.Helpers
 open System
 open System.Collections
+open System.Collections.Generic
 open System.Collections.ObjectModel
 open System.Data.Entity
 open System.Data.Entity.Core.Objects
@@ -153,25 +154,29 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
     
     member uow.SaveChanges() = 
         context.ChangeTracker.DetectChanges()
-        let entitiesGroup = 
+        let entriesGroup = 
             context.ChangeTracker.Entries()
             |> Seq.filter (fun t -> t.State <> EntityState.Unchanged && t.State <> EntityState.Detached)
-            |> Seq.map (fun entry -> entry.Entity)
             |> Array.ofSeq
-            |> Array.groupBy (fun t -> ObjectContext.GetObjectType(t.GetType()))
+            |> Array.groupBy (fun t -> ObjectContext.GetObjectType(t.Entity.GetType()))
         
+        let entitiesGroup = entriesGroup |> Array.map (fun (t, e) -> (t, e.GroupBy((fun i -> i.State), (fun (i : DbEntityEntry) -> i.Entity))))
         let res = context.SaveChanges()
         for item in entitiesGroup do
-            let (entityType, entities) = item
+            let (entityType, entitiesByState) = item
             let mHelper = uow.GetType().GetMethod("CallOnSaveChanges", BindingFlags.NonPublic ||| BindingFlags.Instance)
-            mHelper.MakeGenericMethod([| entityType |]).Invoke(uow, [| entities |]) |> ignore
+            mHelper.MakeGenericMethod([| entityType |]).Invoke(uow, [| entitiesByState.ToDictionary((fun t -> t.Key), (fun (t : IGrouping<EntityState, obj>) -> t.ToList())) |]) |> ignore
         uow.AfterSaveChanges()
         res
     
     member this.SaveChangesAsync() = async { return this.SaveChanges() } |> Async.StartAsTask
     abstract AfterSaveChanges : unit -> unit
     override uow.AfterSaveChanges() = ()
-    member private uow.CallOnSaveChanges<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>(entities : obj []) = uow.Repository<'TEntity>().OnSaveChanges(entities.Cast<'TEntity>() |> Array.ofSeq)
+    
+    member private uow.CallOnSaveChanges<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>(entitiesObj : Dictionary<EntityState, IEnumerable<obj>>) = 
+        let entities = entitiesObj.ToDictionary((fun t -> t.Key), (fun (t : KeyValuePair<EntityState, IEnumerable<obj>>) -> t.Value.Cast<'TEntity>()))
+        uow.Repository<'TEntity>().OnSaveChanges(entities)
+    
     member __.Entry<'TEntity>(entity : 'TEntity) = context.Entry(entity)
     member __.DbSet<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>() = context.Set<'TEntity>()
     

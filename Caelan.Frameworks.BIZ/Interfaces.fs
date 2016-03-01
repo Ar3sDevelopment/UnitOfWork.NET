@@ -1,12 +1,12 @@
 ﻿namespace Caelan.Frameworks.BIZ.Interfaces
 
+open Caelan.DynamicLinq.Classes
 open System
+open System.Collections.Generic
 open System.Data.Entity
 open System.Data.Entity.Infrastructure
 open System.Linq
 open System.Linq.Expressions
-open System.Collections.Generic
-open Caelan.DynamicLinq.Classes
 
 type IRepository = 
     /// <summary>
@@ -80,7 +80,7 @@ and IRepository<'TEntity when 'TEntity : not struct and 'TEntity : equality and 
     ///
     ///</summary>
     /// <param name="entities"></param>
-    abstract OnSaveChanges : [<ParamArray>] entities:'TEntity [] -> unit
+    abstract OnSaveChanges : [<ParamArray>] entities:IDictionary<EntityState, IEnumerable<'TEntity>> -> unit
 
 and IRepository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct> = 
     inherit IRepository<'TEntity>
@@ -115,8 +115,7 @@ and IRepository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equali
     /// <param name="sort"></param>
     /// <param name="filter"></param>
     /// <param name="where"></param>
-    abstract All : take:int * skip:int * sort:ICollection<Sort> * filter:Filter * where:Expression<Func<'TEntity, bool>>
-     -> DataSourceResult<'TDTO>
+    abstract All : take:int * skip:int * sort:ICollection<Sort> * filter:Filter * where:Expression<Func<'TEntity, bool>> -> DataSourceResult<'TDTO>
     
     /// <summary>
     /// 
@@ -160,8 +159,7 @@ and IUnitOfWork =
     /// <summary>
     /// 
     /// </summary>
-    abstract DbSet<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null> : unit
-     -> DbSet<'TEntity>
+    abstract DbSet<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null> : unit -> DbSet<'TEntity>
     
     /// <summary>
     /// 
@@ -183,14 +181,12 @@ and IUnitOfWork =
     /// <summary>
     /// 
     /// </summary>
-    abstract Repository<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null> : unit
-     -> IRepository<'TEntity>
+    abstract Repository<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null> : unit -> IRepository<'TEntity>
     
     /// <summary>
     /// 
     /// </summary>
-    abstract Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct> : unit
-     -> IRepository<'TEntity, 'TDTO>
+    abstract Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct> : unit -> IRepository<'TEntity, 'TDTO>
     
     /// <summary>
     /// 
@@ -222,21 +218,18 @@ type IUnitOfWorkCaller =
     /// 
     /// </summary>
     /// <param name="call"></param>
-    abstract Repository<'T, 'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null> : call:Func<IRepository<'TEntity>, 'T>
-     -> 'T
+    abstract Repository<'T, 'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null> : call:Func<IRepository<'TEntity>, 'T> -> 'T
     
     /// <summary>
     /// 
     /// </summary>
     /// <param name="call"></param>
-    abstract Repository<'T, 'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : not struct and 'TDTO : equality and 'TDTO : null> : call:Func<IRepository<'TEntity, 'TDTO>, 'T>
-     -> 'T
+    abstract Repository<'T, 'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : not struct and 'TDTO : equality and 'TDTO : null> : call:Func<IRepository<'TEntity, 'TDTO>, 'T> -> 'T
     
     /// <summary>
     /// 
     /// </summary>
-    abstract RepositoryList<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : not struct and 'TDTO : equality and 'TDTO : null> : unit
-     -> seq<'TDTO>
+    abstract RepositoryList<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : not struct and 'TDTO : equality and 'TDTO : null> : unit -> seq<'TDTO>
     
     /// <summary>
     /// 
