@@ -80,7 +80,7 @@ and IRepository<'TEntity when 'TEntity : not struct and 'TEntity : equality and 
     ///
     ///</summary>
     /// <param name="entities"></param>
-    abstract OnSaveChanges : [<ParamArray>] entities:IDictionary<EntityState, IEnumerable<'TEntity>> -> unit
+    abstract OnSaveChanges : entities:IDictionary<EntityState, IEnumerable<'TEntity>> -> unit
 
 and IRepository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct> = 
     inherit IRepository<'TEntity>
