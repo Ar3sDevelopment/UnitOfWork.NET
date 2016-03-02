@@ -66,8 +66,9 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
     member private __.autoContext = autoContext
     
     interface IUnitOfWork with
+        member this.BeforeSaveChanges context = this.BeforeSaveChanges context
         member this.SaveChanges() = this.SaveChanges()
-        member this.AfterSaveChanges() = this.AfterSaveChanges()
+        member this.AfterSaveChanges context = this.AfterSaveChanges context
         member this.DbSet<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>() = this.DbSet<'TEntity>()
         member this.Entry<'TEntity>(entity) = this.Entry<'TEntity>(entity)
         member this.CustomRepository<'TRepository when 'TRepository :> IRepository>() = this.CustomRepository<'TRepository>()
@@ -161,17 +162,20 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
             |> Array.groupBy (fun t -> ObjectContext.GetObjectType(t.Entity.GetType()))
         
         let entitiesGroup = (entriesGroup |> Array.map (fun (t, e) -> (t, e.ToList().GroupBy((fun i -> i.State), (fun (i : DbEntityEntry) -> i.Entity)).ToList()))).ToList()
+        context |> uow.BeforeSaveChanges
         let res = context.SaveChanges()
         for item in entitiesGroup do
             let (entityType, entitiesByState) = item
             let mHelper = uow.GetType().GetMethod("CallOnSaveChanges", BindingFlags.NonPublic ||| BindingFlags.Instance)
             mHelper.MakeGenericMethod([| entityType |]).Invoke(uow, [| entitiesByState.ToDictionary((fun t -> t.Key), (fun (t : IGrouping<EntityState, obj>) -> t.AsEnumerable())) |]) |> ignore
-        uow.AfterSaveChanges()
+        context |> uow.AfterSaveChanges
         res
     
     member this.SaveChangesAsync() = async { return this.SaveChanges() } |> Async.StartAsTask
-    abstract AfterSaveChanges : unit -> unit
-    override uow.AfterSaveChanges() = ()
+    abstract BeforeSaveChanges : context:DbContext -> unit
+    override uow.BeforeSaveChanges context = ()
+    abstract AfterSaveChanges : context:DbContext -> unit
+    override uow.AfterSaveChanges context = ()
     
     member private uow.CallOnSaveChanges<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>(entitiesObj : Dictionary<EntityState, IEnumerable<obj>>) = 
         let entities = entitiesObj.ToDictionary((fun t -> t.Key), (fun (t : KeyValuePair<EntityState, IEnumerable<obj>>) -> t.Value.Cast<'TEntity>()))
