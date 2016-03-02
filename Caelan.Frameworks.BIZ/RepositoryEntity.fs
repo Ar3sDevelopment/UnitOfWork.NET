@@ -21,7 +21,7 @@ type Repository<'TEntity when 'TEntity : not struct and 'TEntity : equality and 
         member this.Delete([<ParamArray>] ids : obj []) = this.Delete ids
         member this.Exists expr = expr |> this.Exists
         member this.Count expr = expr |> this.Count
-        member this.OnSaveChanges([<ParamArray>] entities : IDictionary<EntityState, IEnumerable<'TEntity>>) = this.OnSaveChanges entities
+        member this.OnSaveChanges(entities : IDictionary<EntityState, IEnumerable<'TEntity>>) = this.OnSaveChanges entities
     
     member __.Set = manager.DbSet<'TEntity>()
     member this.SingleEntity([<ParamArray>] ids) = this.Set.Find ids
@@ -30,8 +30,8 @@ type Repository<'TEntity when 'TEntity : not struct and 'TEntity : equality and 
     member this.All(whereExpr : Expression<Func<'TEntity, bool>>) = this.Set.Where(whereExpr).AsQueryable()
     member this.Exists expr = this.Set.Any(expr)
     member this.Count expr = this.Set.Count(expr)
-    abstract OnSaveChanges : [<ParamArray>] entities:IDictionary<EntityState, IEnumerable<'TEntity>> -> unit
-    override this.OnSaveChanges([<ParamArray>] entities : IDictionary<EntityState, IEnumerable<'TEntity>>) = ()
+    abstract OnSaveChanges : entities:IDictionary<EntityState, IEnumerable<'TEntity>> -> unit
+    override this.OnSaveChanges(entities : IDictionary<EntityState, IEnumerable<'TEntity>>) = ()
     abstract Insert : entity:'TEntity -> 'TEntity
     abstract Update : 'TEntity * [<ParamArray>] ids:obj [] -> unit
     abstract Delete : [<ParamArray>] ids:obj [] -> unit
