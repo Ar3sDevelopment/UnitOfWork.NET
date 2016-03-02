@@ -143,12 +143,17 @@ and IUnitOfWork =
     /// <summary>
     /// 
     /// </summary>
+    abstract BeforeSaveChanges : context:DbContext -> unit
+    
+    /// <summary>
+    /// 
+    /// </summary>
     abstract SaveChanges : unit -> int
     
     /// <summary>
     /// 
     /// </summary>
-    abstract AfterSaveChanges : unit -> unit
+    abstract AfterSaveChanges : context:DbContext -> unit
     
     /// <summary>
     /// 
@@ -193,58 +198,3 @@ and IUnitOfWork =
     /// </summary>
     abstract Repository<'TEntity, 'TDTO, 'TListDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct and 'TListDTO : equality and 'TListDTO : null and 'TListDTO : not struct> : unit
      -> IListRepository<'TEntity, 'TDTO, 'TListDTO>
-
-type IUnitOfWorkCaller = 
-    
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="call"></param>
-    abstract UnitOfWork<'T> : call:Func<IUnitOfWork, 'T> -> 'T
-    
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="call"></param>
-    abstract UnitOfWork : call:Action<IUnitOfWork> -> unit
-    
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="call"></param>
-    abstract CustomRepository<'T, 'TRepository when 'TRepository :> IRepository> : call:Func<'TRepository, 'T> -> 'T
-    
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="call"></param>
-    abstract Repository<'T, 'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null> : call:Func<IRepository<'TEntity>, 'T> -> 'T
-    
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="call"></param>
-    abstract Repository<'T, 'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : not struct and 'TDTO : equality and 'TDTO : null> : call:Func<IRepository<'TEntity, 'TDTO>, 'T> -> 'T
-    
-    /// <summary>
-    /// 
-    /// </summary>
-    abstract RepositoryList<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : not struct and 'TDTO : equality and 'TDTO : null> : unit -> seq<'TDTO>
-    
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="call"></param>
-    abstract UnitOfWorkSaveChanges : call:Action<IUnitOfWork> -> bool
-    
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="body"></param>
-    abstract Transaction : body:Action<IUnitOfWork> -> unit
-    
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="body"></param>
-    abstract TransactionSaveChanges : body:Action<IUnitOfWork> -> bool
