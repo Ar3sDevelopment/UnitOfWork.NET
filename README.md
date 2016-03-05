@@ -123,33 +123,3 @@ using (var uow = new UnitOfWork<TestDbContext>()) //the uow object is responsibl
 }
 ```
 The `user` object is retrieved by `IRepository<TEntity, TDTO>` exposed methods because the repository type is not known at compile time. We can check the admin status by retrieving the repository by type so we know it at compile time and we can use its business related methods like `IsAdmin`.
-
-###`IUnitOfWorkCaller<TUnitOfWork>`
-The `IUnitOfWorkCaller<TUnitOfWork>` interface contains methods for a class that performs lambda expressions on a `UnitOfWork`
-
-####`UnitOfWorkCaller`
-`UnitOfWorkCaller` is a static class for fluently accessing to a `IUnitOfWork`: one by `DbContext` and you get a simple `IUnitOfWork` or one by `IUnitOfWork` and you get all custom methods you have customized.
-
-This class helps writing code because you have not to worry about creating and disposing `UnitOfWork` or `DbContext` objects.
-
-Previous `UnitOfWork` code can be written like:
-```csharp
-UnitOfWorkCaller.Context<TestDbContext>().UnitOfWork(uow =>
-{
-  const int id = 1;
-  var user = uow.Repository<User, UserDTO>().SingleDTO(id);
-  if (user != null && uow.CustomRepository<UserRepository>().IsAdmin(user.Id))
-  {
-    //user is admin
-  }
-  else if (user != null)
-  {
-    //user exists but is not admin
-  }
-  else
-  {
-    //user not found
-  }
-});
-```
-If you need a return value from this lamda simply return it, it automatically returns it to the expression value.
