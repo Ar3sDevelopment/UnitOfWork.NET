@@ -28,8 +28,8 @@ type Repository<'TEntity when 'TEntity : not struct and 'TEntity : equality and 
     member this.SingleEntity expr = expr |> this.Set.FirstOrDefault
     member this.All() = this.Set.AsQueryable()
     member this.All(whereExpr : Expression<Func<'TEntity, bool>>) = this.Set.Where(whereExpr).AsQueryable()
-    member this.Exists expr = this.Set.Any(expr)
-    member this.Count expr = this.Set.Count(expr)
+    member this.Exists expr = this.Set.Any expr
+    member this.Count expr = this.Set.Count expr
     abstract OnSaveChanges : entities:IDictionary<EntityState, IEnumerable<'TEntity>> -> unit
     override this.OnSaveChanges(entities : IDictionary<EntityState, IEnumerable<'TEntity>>) = ()
     abstract Insert : entity:'TEntity -> 'TEntity
