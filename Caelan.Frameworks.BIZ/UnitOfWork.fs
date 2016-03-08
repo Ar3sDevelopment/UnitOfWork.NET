@@ -212,3 +212,9 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
 type UnitOfWork<'TContext when 'TContext :> DbContext> private (context : DbContext) = 
     inherit UnitOfWork(context, true)
     new() = new UnitOfWork<'TContext>(Activator.CreateInstance<'TContext>())
+    member uow.BeforeSaveChanges(context : DbContext) = base.BeforeSaveChanges context
+    member uow.AfterSaveChanges(context : DbContext) = base.AfterSaveChanges context
+    abstract BeforeSaveChanges : context:'TContext -> unit
+    override uow.BeforeSaveChanges(context : 'TContext) = uow.BeforeSaveChanges(context :> DbContext)
+    abstract AfterSaveChanges : context:'TContext -> unit
+    override uow.AfterSaveChanges(context : 'TContext) = uow.AfterSaveChanges(context :> DbContext)
