@@ -5,4 +5,4 @@ install:
   - sudo apt-get install nunit-console
 script:
   - xbuild /p:Configuration=Release UnitOfWork.NET.sln
-  - nunit-console ./Caelan.Frameworks.BIZ.NUnit/bin/Release/UnitOfWork.NET.NUnit.dll
+  - nunit-console ./UnitOfWork.NET.NUnit/bin/Release/UnitOfWork.NET.NUnit.dll
