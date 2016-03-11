@@ -3,14 +3,14 @@
   <metadata>
     <id>$id$</id>
     <version>$version$</version>
-    <title>Caelan.Frameworks.BIZ</title>
+    <title>UnitOfWork.NET</title>
     <authors>$author$</authors>
     <owners>Matteo Bruni</owners>
     <description>$description$</description>
     <releaseNotes></releaseNotes>
     <summary>$description$</summary>
     <language>en-US</language>
-    <projectUrl>http://ar3sdevelopment.github.io/Caelan.Frameworks.BIZ</projectUrl>
+    <projectUrl>http://ar3sdevelopment.github.io/UnitOfWork.NET</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <dependencies>
       <group targetFramework=".NETFramework4.5">
