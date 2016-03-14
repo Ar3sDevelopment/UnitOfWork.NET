@@ -1,9 +1,9 @@
 ﻿namespace UnitOfWork.NET.NUnit
 
-open UnitOfWork.NET.Classes
-open UnitOfWork.NET.NUnit.Data.Models
 open NUnit.Framework
 open System.Diagnostics
+open UnitOfWork.NET.Classes
+open UnitOfWork.NET.NUnit.Data.Models
 
 [<TestFixture>]
 type BusinessTest() = 
@@ -37,10 +37,10 @@ type BusinessTest() =
         (!entity).Password <- "test2"
         uow.Repository<User>().Update(!entity, (!entity).Id) |> ignore
         uow.SaveChanges() |> ignore
-        Assert.AreEqual((!entity).Password, uow.Repository<User>().SingleEntity((!entity).Id).Password)
+        Assert.AreEqual((!entity).Password, uow.Repository<User>().Entity((!entity).Id).Password)
         uow.Repository<User>().Delete((!entity).Id) |> ignore
         uow.SaveChanges() |> ignore
-        Assert.IsNull(uow.Repository<User>().SingleEntity((!entity).Id))
+        Assert.IsNull(uow.Repository<User>().Entity((!entity).Id))
     
     [<Test>]
     member __.TestDTORepository() = 
@@ -56,17 +56,17 @@ type BusinessTest() =
         dto := uow.Repository<User, UserDTO>().Insert(!dto)
         uow.SaveChanges() |> ignore
         let login = (!dto).Login
-        dto := uow.Repository<User, UserDTO>().SingleDTO(fun d -> d.Login = login)
+        dto := uow.Repository<User, UserDTO>().DTO(fun d -> d.Login = login)
         Assert.IsNotNull(!dto)
         Assert.AreNotEqual(decimal ((!dto).Id), 0m)
         (!dto).Id |> printfn "%d"
         (!dto).Password <- "test2"
         uow.Repository<User, UserDTO>().Update(!dto, (!dto).Id) |> ignore
         uow.SaveChanges() |> ignore
-        Assert.AreEqual((!dto).Password, uow.Repository<User, UserDTO>().SingleDTO((!dto).Id).Password)
+        Assert.AreEqual((!dto).Password, uow.Repository<User, UserDTO>().DTO((!dto).Id).Password)
         uow.Repository<User, UserDTO>().Delete((!dto).Id) |> ignore
         uow.SaveChanges() |> ignore
-        Assert.IsNull(uow.Repository<User, UserDTO>().SingleDTO((!dto).Id))
+        Assert.IsNull(uow.Repository<User, UserDTO>().DTO((!dto).Id))
     
     [<Test>]
     member __.TestCustomRepository() = 
@@ -82,17 +82,17 @@ type BusinessTest() =
         dto := uow.CustomRepository<UserRepository>().Insert(!dto)
         uow.SaveChanges() |> ignore
         let login = (!dto).Login
-        dto := uow.CustomRepository<UserRepository>().SingleDTO(fun d -> d.Login = login)
+        dto := uow.CustomRepository<UserRepository>().DTO(fun d -> d.Login = login)
         Assert.IsNotNull(!dto)
         Assert.AreNotEqual(decimal ((!dto).Id), 0m)
         (!dto).Id |> printfn "%d"
         (!dto).Password <- "test2"
         uow.CustomRepository<UserRepository>().Update(!dto, (!dto).Id) |> ignore
         uow.SaveChanges() |> ignore
-        Assert.AreEqual((!dto).Password, uow.CustomRepository<UserRepository>().SingleDTO((!dto).Id).Password)
+        Assert.AreEqual((!dto).Password, uow.CustomRepository<UserRepository>().DTO((!dto).Id).Password)
         uow.CustomRepository<UserRepository>().Delete((!dto).Id) |> ignore
         uow.SaveChanges() |> ignore
-        Assert.IsNull(uow.CustomRepository<UserRepository>().SingleDTO((!dto).Id))
+        Assert.IsNull(uow.CustomRepository<UserRepository>().DTO((!dto).Id))
     
     [<Test>]
     member __.TestCustomUnitOfWork() = 
@@ -108,14 +108,14 @@ type BusinessTest() =
         dto := uow.Users.Insert(!dto)
         uow.SaveChanges() |> ignore
         let login = (!dto).Login
-        dto := uow.Users.SingleDTO(fun d -> d.Login = login)
+        dto := uow.Users.DTO(fun d -> d.Login = login)
         Assert.IsNotNull(!dto)
         Assert.AreNotEqual(decimal ((!dto).Id), 0m)
         (!dto).Id |> printfn "%d"
         (!dto).Password <- "test2"
         uow.Users.Update(!dto, (!dto).Id) |> ignore
         uow.SaveChanges() |> ignore
-        Assert.AreEqual((!dto).Password, uow.Users.SingleDTO((!dto).Id).Password)
+        Assert.AreEqual((!dto).Password, uow.Users.DTO((!dto).Id).Password)
         uow.Users.Delete((!dto).Id) |> ignore
         uow.SaveChanges() |> ignore
-        Assert.IsNull(uow.Users.SingleDTO((!dto).Id))
+        Assert.IsNull(uow.Users.DTO((!dto).Id))

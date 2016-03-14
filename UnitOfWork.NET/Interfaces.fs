@@ -26,13 +26,27 @@ and IRepository<'TEntity when 'TEntity : not struct and 'TEntity : equality and 
     /// Recovers the entity by primary keys.
     /// </summary>
     /// <param name="ids">The primary keys values</param>
+    [<Obsolete("Use Entity instead")>]
     abstract SingleEntity : [<ParamArray>] ids:obj [] -> 'TEntity
+    
+    /// <summary>
+    /// Recovers the entity by primary keys.
+    /// </summary>
+    /// <param name="ids">The primary keys values</param>
+    abstract Entity : [<ParamArray>] ids:obj [] -> 'TEntity
     
     /// <summary>
     /// Recovers an entity using a where, if multiple returned it returns the first.
     /// </summary>
     /// <param name="where">The condition for retrieving the entity</param>
+    [<Obsolete("Use Entity instead")>]
     abstract SingleEntity : where:Expression<Func<'TEntity, bool>> -> 'TEntity
+    
+    /// <summary>
+    /// Recovers an entity using a where, if multiple returned it returns the first.
+    /// </summary>
+    /// <param name="where">The condition for retrieving the entity</param>
+    abstract Entity : where:Expression<Func<'TEntity, bool>> -> 'TEntity
     
     /// <summary>
     /// All entities of the DbSet
@@ -89,13 +103,27 @@ and IRepository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equali
     /// 
     /// </summary>
     /// <param name="ids"></param>
+    [<Obsolete("Use DTO instead")>]
     abstract SingleDTO : [<ParamArray>] ids:obj [] -> 'TDTO
     
     /// <summary>
     /// 
     /// </summary>
+    /// <param name="ids"></param>
+    abstract DTO : [<ParamArray>] ids:obj [] -> 'TDTO
+    
+    /// <summary>
+    /// 
+    /// </summary>
     /// <param name="where"></param>
+    [<Obsolete("Use DTO instead")>]
     abstract SingleDTO : where:Expression<Func<'TEntity, bool>> -> 'TDTO
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="where"></param>
+    abstract DTO : where:Expression<Func<'TEntity, bool>> -> 'TDTO
     
     /// <summary>
     ///
@@ -115,7 +143,18 @@ and IRepository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equali
     /// <param name="sort"></param>
     /// <param name="filter"></param>
     /// <param name="where"></param>
+    [<Obsolete("Use DataSource instead")>]
     abstract All : take:int * skip:int * sort:ICollection<Sort> * filter:Filter * where:Expression<Func<'TEntity, bool>> -> DataSourceResult<'TDTO>
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="take"></param>
+    /// <param name="skip"></param>
+    /// <param name="sort"></param>
+    /// <param name="filter"></param>
+    /// <param name="where"></param>
+    abstract DataSource : take:int * skip:int * sort:ICollection<Sort> * filter:Filter * where:Expression<Func<'TEntity, bool>> -> DataSourceResult<'TDTO>
     
     /// <summary>
     /// 
