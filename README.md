@@ -38,7 +38,7 @@ Supposing you need a method to get if a user is admin:
 //Custom `Repository` implemetation class
 public bool IsAdmin(int id)
 {
-  var user = SingleEntity(id);
+  var user = Entity(id);
   return user != null ? user.Admin : false;
 }
 ```
@@ -72,7 +72,7 @@ Here an example:
 ```csharp
 public bool CheckLogin(string username, string password)
 {
-  var user = Single(t => t.Username == username && t.Password == passowrd); //not secure!!
+  var user = Entity(t => t.Username == username && t.Password == passowrd); //not secure!! try using Caelan.Frameworks.PasswordHashing nuget package for hashing passwords!!
   var res = user != null;
 
   if (res)
@@ -102,7 +102,7 @@ There are two `UnitOfWork` classes, one wants `DbContext` in constructor, the ot
 using (var uow = new UnitOfWork<TestDbContext>()) //the uow object is responsible for disposing the context
 {
   const int id = 1;
-  var user = uow.Repository<User, UserDTO>().SingleDTO(id);
+  var user = uow.Repository<User, UserDTO>().DTO(id);
   if (user != null && uow.CustomRepository<UserRepository>().IsAdmin(user.Id))
   {
     //user is admin
