@@ -1,7 +1,6 @@
 namespace UnitOfWork.NET.Classes
 
 open Autofac
-open UnitOfWork.NET.Interfaces
 open Caelan.Frameworks.Common.Helpers
 open System
 open System.Collections
@@ -12,6 +11,7 @@ open System.Data.Entity.Core.Objects
 open System.Data.Entity.Infrastructure
 open System.Linq
 open System.Reflection
+open UnitOfWork.NET.Interfaces
 
 type UnitOfWork internal (context : DbContext, autoContext) as uow = 
     let assemblies = ObservableCollection<Assembly>()
@@ -54,10 +54,7 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
             t.NewItems.Cast<Assembly>()
             |> Array.ofSeq
             |> registerAssembly)
-        [| AssemblyHelper.GetWebEntryAssembly()
-           Assembly.GetEntryAssembly()
-           Assembly.GetCallingAssembly()
-           Assembly.GetExecutingAssembly() |]
+        AppDomain.CurrentDomain.GetAssemblies()
         |> Array.filter (isNull >> not)
         |> Array.filter (assemblies.Contains >> not)
         |> Array.filter (fun t -> t.GetTypes() |> Array.exists isRepository)
@@ -87,11 +84,7 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
             let cb = ContainerBuilder()
             cb.RegisterType<'TRepository>().AsSelf().AsImplementedInterfaces() |> ignore
             cb.Update(container)
-            [| typeof<'TRepository>.Assembly
-               AssemblyHelper.GetWebEntryAssembly()
-               Assembly.GetEntryAssembly()
-               Assembly.GetCallingAssembly()
-               Assembly.GetExecutingAssembly() |]
+            AppDomain.CurrentDomain.GetAssemblies()
             |> Array.filter (isNull >> not)
             |> Array.filter (assemblies.Contains >> not)
             |> Array.filter (fun t -> t.GetTypes() |> Array.exists isRepository)
@@ -104,11 +97,7 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
     
     member this.CustomRepository<'TRepository when 'TRepository :> IRepository>() = 
         let assemblies = 
-            [| typeof<'TRepository>.Assembly
-               AssemblyHelper.GetWebEntryAssembly()
-               Assembly.GetEntryAssembly()
-               Assembly.GetCallingAssembly()
-               Assembly.GetExecutingAssembly() |]
+            AppDomain.CurrentDomain.GetAssemblies()
             |> Array.filter (isNull >> not)
             |> Array.filter (assemblies.Contains >> not)
             |> Array.filter (fun t -> t.GetTypes() |> Array.exists isRepository)
@@ -116,11 +105,7 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
     
     member this.Repository<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>() = 
         let assemblies = 
-            [| typeof<'TEntity>.Assembly
-               AssemblyHelper.GetWebEntryAssembly()
-               Assembly.GetEntryAssembly()
-               Assembly.GetCallingAssembly()
-               Assembly.GetExecutingAssembly() |]
+            AppDomain.CurrentDomain.GetAssemblies()
             |> Array.filter (isNull >> not)
             |> Array.filter (assemblies.Contains >> not)
             |> Array.filter (fun t -> t.GetTypes() |> Array.exists isRepository)
@@ -128,12 +113,7 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
     
     member this.Repository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>() = 
         let assemblies = 
-            [| typeof<'TEntity>.Assembly
-               typeof<'TDTO>.Assembly
-               AssemblyHelper.GetWebEntryAssembly()
-               Assembly.GetEntryAssembly()
-               Assembly.GetCallingAssembly()
-               Assembly.GetExecutingAssembly() |]
+            AppDomain.CurrentDomain.GetAssemblies()
             |> Array.filter (isNull >> not)
             |> Array.filter (assemblies.Contains >> not)
             |> Array.filter (fun t -> t.GetTypes() |> Array.exists isRepository)
@@ -141,13 +121,7 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
     
     member this.Repository<'TEntity, 'TDTO, 'TListDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct and 'TListDTO : equality and 'TListDTO : null and 'TListDTO : not struct>() = 
         let assemblies = 
-            [| typeof<'TEntity>.Assembly
-               typeof<'TDTO>.Assembly
-               typeof<'TListDTO>.Assembly
-               AssemblyHelper.GetWebEntryAssembly()
-               Assembly.GetEntryAssembly()
-               Assembly.GetCallingAssembly()
-               Assembly.GetExecutingAssembly() |]
+            AppDomain.CurrentDomain.GetAssemblies()
             |> Array.filter (isNull >> not)
             |> Array.filter (assemblies.Contains >> not)
             |> Array.filter (fun t -> t.GetTypes() |> Array.exists isRepository)
