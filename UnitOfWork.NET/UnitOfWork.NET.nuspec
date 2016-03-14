@@ -10,6 +10,7 @@
     <releaseNotes></releaseNotes>
     <summary>$description$</summary>
     <language>en-US</language>
+    <tags>EntityFramework UnitOfWork unit of work Repository Business Pattern Repositories Database DbContext Context DbSet Framework Autofac Container IoC BIZ Entity Entities Connection</tags>
     <projectUrl>http://ar3sdevelopment.github.io/UnitOfWork.NET</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <dependencies>
