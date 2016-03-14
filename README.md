@@ -21,12 +21,7 @@ Waffle.io: [![Stories in Ready](https://badge.waffle.io/Ar3sDevelopment/UnitOfWo
 This package provides some utilities for the business layer like repositories and units of work.
 
 ##`IRepository`
-The `IRepository` interface is the base interface of Repositories used in this framework. It has two methods for getting the linked `IUnitOfWork` instance.
-`IRepository` has two methods because you can get a generic `IUnitOfWork` or a custom `UnitOfWork` type.
-
-###`Repository`
-The `Repository` class implements `IRepository` interface and has a static method for fluent notation for getting a `Repository<TEntity, TDTO>` specifying only `TEntity` and `TDTO`
-This class is abstract because I thought that is useless for other uses.
+The `IRepository` interface is the base interface of Repositories used in this framework. It has a method for getting the linked `IUnitOfWork` instance.
 
 ###`IRepository<TEntity>`
 The `IRepository<TEntity>` interface inherits from `IRepository` and has more methods than its base and they're business related like basic CRUD operations.
