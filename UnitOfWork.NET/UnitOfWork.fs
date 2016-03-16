@@ -44,7 +44,10 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
                with _ -> null)
         |> Array.filter (isNull >> not)
         |> Array.filter (assemblies.Contains >> not)
-        |> Array.filter (fun t -> t.GetTypes() |> Array.exists isRepository)
+        |> Array.filter (fun t -> 
+               try
+                   t.GetTypes() |> Array.exists isRepository
+               with _ -> false)
         |> Array.iter assemblies.Add
     
     do 
