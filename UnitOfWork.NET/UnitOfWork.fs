@@ -26,9 +26,11 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
         cb.Build()
     
     let isRepository (t : Type) = 
-        t.IsAssignableTo<IRepository>() && t.IsInterface |> not && t.IsAbstract |> not && t <> typeof<Repository> 
-        && ((t.IsGenericType && t.GetGenericTypeDefinition() <> typedefof<Repository<_>> && t.GetGenericTypeDefinition() <> typedefof<Repository<_, _>> && t.GetGenericTypeDefinition() <> typedefof<ListRepository<_, _, _>>) || t.IsGenericType |> not) 
-        && container.IsRegistered(t) |> not
+        try 
+            t.IsAssignableTo<IRepository>() && t.IsInterface |> not && t.IsAbstract |> not && t <> typeof<Repository> 
+            && ((t.IsGenericType && t.GetGenericTypeDefinition() <> typedefof<Repository<_>> && t.GetGenericTypeDefinition() <> typedefof<Repository<_, _>> && t.GetGenericTypeDefinition() <> typedefof<ListRepository<_, _, _>>) || t.IsGenericType |> not) 
+            && container.IsRegistered(t) |> not
+        with _ -> false
     
     let registerAssembly (assemblyArr : Assembly []) = 
         let cb = ContainerBuilder()
@@ -36,7 +38,11 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
         cb.Update(container)
         assemblyArr
         |> Array.collect (fun t -> t.GetReferencedAssemblies())
-        |> Array.map Assembly.Load
+        |> Array.map (fun t -> 
+               try 
+                   t |> Assembly.Load
+               with _ -> null)
+        |> Array.filter (isNull >> not)
         |> Array.filter (assemblies.Contains >> not)
         |> Array.filter (fun t -> t.GetTypes() |> Array.exists isRepository)
         |> Array.iter assemblies.Add
@@ -54,7 +60,7 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
             t.NewItems.Cast<Assembly>()
             |> Array.ofSeq
             |> registerAssembly)
-        AppDomain.CurrentDomain.GetAssemblies() |> registerAssembly
+        AppDomain.CurrentDomain.GetAssemblies() |> Array.iter assemblies.Add
     
     member private __.autoContext = autoContext
     
