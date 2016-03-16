@@ -54,7 +54,7 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
             t.NewItems.Cast<Assembly>()
             |> Array.ofSeq
             |> registerAssembly)
-        AppDomain.CurrentDomain.GetAssemblies() |> registerAssembly
+        AppDomain.CurrentDomain.GetAssemblies() |> Array.iter assemblies.Add
     
     member private __.autoContext = autoContext
     
