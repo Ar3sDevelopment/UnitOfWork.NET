@@ -34,7 +34,11 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
     
     let registerAssembly (assemblyArr : Assembly []) = 
         let cb = ContainerBuilder()
-        cb.RegisterAssemblyTypes(assemblyArr |> Array.filter (fun t -> t.GetTypes() |> Array.exists isRepository)).Where(fun t -> t |> isRepository).AsSelf().AsImplementedInterfaces() |> ignore
+        cb.RegisterAssemblyTypes(assemblyArr |> Array.filter (fun t -> 
+                                                    try 
+                                                        t.GetTypes() |> Array.exists isRepository
+                                                    with _ -> false)).Where(fun t -> t |> isRepository).AsSelf().AsImplementedInterfaces()
+        |> ignore
         cb.Update(container)
         assemblyArr
         |> Array.collect (fun t -> t.GetReferencedAssemblies())
@@ -45,7 +49,7 @@ type UnitOfWork internal (context : DbContext, autoContext) as uow =
         |> Array.filter (isNull >> not)
         |> Array.filter (assemblies.Contains >> not)
         |> Array.filter (fun t -> 
-               try
+               try 
                    t.GetTypes() |> Array.exists isRepository
                with _ -> false)
         |> Array.iter assemblies.Add
