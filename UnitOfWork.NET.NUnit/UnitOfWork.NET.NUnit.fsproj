@@ -78,11 +78,11 @@
     <Reference Include="Caelan.Frameworks.Common">
       <HintPath>..\packages\Caelan.Frameworks.Common.3.3.1.240\lib\net45\Caelan.Frameworks.Common.dll</HintPath>
     </Reference>
-    <Reference Include="Caelan.Frameworks.ClassBuilder">
-      <HintPath>..\packages\Caelan.Frameworks.ClassBuilder.3.3.2.36\lib\net45\Caelan.Frameworks.ClassBuilder.dll</HintPath>
-    </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit.3.2.0\lib\net45\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="ClassBuilder">
+      <HintPath>..\packages\ClassBuilder.4.0.0.39\lib\net45\ClassBuilder.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>

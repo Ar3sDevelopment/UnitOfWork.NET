@@ -2,8 +2,8 @@
 
 open Caelan.DynamicLinq.Classes
 open Caelan.DynamicLinq.Extensions
-open Caelan.Frameworks.ClassBuilder.Classes
-open Caelan.Frameworks.ClassBuilder.Interfaces
+open ClassBuilder.Classes
+open ClassBuilder.Interfaces
 open System
 open System.Collections.Generic
 open System.Data.Entity
