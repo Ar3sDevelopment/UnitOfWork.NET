@@ -92,7 +92,7 @@
       <HintPath>..\packages\Caelan.Frameworks.Common.3.3.1.240\lib\net45\Caelan.Frameworks.Common.dll</HintPath>
     </Reference>
     <Reference Include="ClassBuilder">
-      <HintPath>..\packages\ClassBuilder.4.0.0.39\lib\net45\ClassBuilder.dll</HintPath>
+      <HintPath>..\packages\ClassBuilder.4.0.0.51\lib\net45\ClassBuilder.dll</HintPath>
     </Reference>
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

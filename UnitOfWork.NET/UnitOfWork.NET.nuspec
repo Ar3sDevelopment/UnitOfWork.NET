@@ -17,7 +17,7 @@
       <group targetFramework=".NETFramework4.5">
         <dependency id="EntityFramework" version="6.1.3" />
         <dependency id="Caelan.DynamicLinq" version="2.0.20" />
-        <dependency id="ClassBuilder" version="4.0.0.39" />
+        <dependency id="ClassBuilder" version="4.0.0.51" />
       </group>
     </dependencies>
   </metadata>
