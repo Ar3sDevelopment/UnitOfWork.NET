@@ -35,7 +35,6 @@
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.1\Framework\v4.0\Microsoft.FSharp.Targets" />
   <ItemGroup>
-    <None Include="App.config" />
     <None Include="packages.config" />
     <Compile Include="DTO.fs" />
     <Compile Include="Mappers.fs" />
