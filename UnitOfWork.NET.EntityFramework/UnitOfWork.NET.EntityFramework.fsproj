@@ -57,7 +57,7 @@
     <Compile Include="Interfaces.fs" />
     <Compile Include="RepositoryEntity.fs" />
     <Compile Include="RepositoryDTO.fs" />
-    <Compile Include="UnitOfWork.fs" />
+    <Compile Include="EntityUnitOfWork.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Autofac">

@@ -7,7 +7,7 @@ open UnitOfWork.NET.EntityFramework.Classes
 open UnitOfWork.NET.EntityFramework.NUnit.Data.Models
 
 [<TestFixture>]
-type BusinessTest() = 
+type EntityFrameworkTest() = 
     
     [<Test>]
     member __.TestContext() = 

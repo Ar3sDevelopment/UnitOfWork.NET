@@ -35,13 +35,13 @@
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.1\Framework\v4.0\Microsoft.FSharp.Targets" />
   <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
     <Compile Include="DTO.fs" />
     <Compile Include="Mappers.fs" />
     <Compile Include="Repositories.fs" />
     <Compile Include="UnitOfWork.fs" />
-    <Compile Include="BusinessTest.fs" />
-    <None Include="App.config" />
-    <None Include="packages.config" />
+    <Compile Include="EntityFrameworkTest.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="ClassBuilder">

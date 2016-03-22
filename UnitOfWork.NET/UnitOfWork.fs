@@ -15,7 +15,7 @@ type UnitOfWork() as uow =
     
     let mutable container = 
         let cb = ContainerBuilder()
-        cb.Register<UnitOfWork>(fun u -> uow).AsSelf().As<UnitOfWork>().AsImplementedInterfaces() |> ignore
+        cb.Register(fun u -> uow).AsImplementedInterfaces().AsSelf().As<UnitOfWork>() |> ignore
         cb.RegisterType<Repository>().AsSelf().As<IRepository>().PreserveExistingDefaults() |> ignore
         cb.RegisterGeneric(typedefof<Repository<_>>).AsSelf().As(typedefof<IRepository<_>>) |> ignore
         cb.RegisterGeneric(typedefof<Repository<_, _>>).AsSelf().As(typedefof<IRepository<_, _>>) |> ignore
