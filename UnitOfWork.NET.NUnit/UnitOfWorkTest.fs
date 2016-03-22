@@ -10,7 +10,7 @@ type UnitOfWorkTest() =
     member __.TestSingleRepository() = 
         let stopwatch = Stopwatch()
         stopwatch.Start()
-        use uow = new UnitOfWork()
+        use uow = new TestUnitOfWork()
         let numbers = uow.Repository<int>().All()
         stopwatch.Stop()
         stopwatch.ElapsedMilliseconds |> printfn "%dms"
@@ -21,7 +21,7 @@ type UnitOfWorkTest() =
     member __.TestDoubleRepository() = 
         let stopwatch = Stopwatch()
         stopwatch.Start()
-        use uow = new UnitOfWork()
+        use uow = new TestUnitOfWork()
         let numbers = uow.Repository<double, float>().AllBuilt()
         stopwatch.Stop()
         stopwatch.ElapsedMilliseconds |> printfn "%dms"
@@ -32,7 +32,7 @@ type UnitOfWorkTest() =
     member __.TestCustomRepository() = 
         let stopwatch = Stopwatch()
         stopwatch.Start()
-        use uow = new UnitOfWork()
+        use uow = new TestUnitOfWork()
         let numbers = uow.CustomRepository<DoubleRepository>().NewList()
         stopwatch.Stop()
         stopwatch.ElapsedMilliseconds |> printfn "%dms"
