@@ -52,7 +52,7 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <None Include="Script.fsx" />
-    <None Include="UnitOfWork.NET.nuspec" />
+    <None Include="UnitOfWork.NET.EntityFramework.nuspec" />
     <Content Include="packages.config" />
     <Compile Include="Interfaces.fs" />
     <Compile Include="RepositoryEntity.fs" />
