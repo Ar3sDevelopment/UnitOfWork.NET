@@ -15,6 +15,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "UnitOfWork.NET.EntityFramework", "UnitOfWork.NET.EntityFramework\UnitOfWork.NET.EntityFramework.fsproj", "{B5404C21-4CAC-40A4-A893-3A76B8EFB811}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Generic", "Generic", "{53728AEF-7694-4DEA-A7FA-D695E1C3FEBE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EntityFramework", "EntityFramework", "{68AA64AC-ACA5-4B9D-A30A-F41CC08CD3E5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,6 +40,11 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{884E5E82-289E-4EBE-A0AF-9735AE4BDA45} = {53728AEF-7694-4DEA-A7FA-D695E1C3FEBE}
+		{50F2BD84-6BDE-4BAA-AFBB-60FE09132600} = {53728AEF-7694-4DEA-A7FA-D695E1C3FEBE}
+		{B5404C21-4CAC-40A4-A893-3A76B8EFB811} = {68AA64AC-ACA5-4B9D-A30A-F41CC08CD3E5}
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		Policies = $0
