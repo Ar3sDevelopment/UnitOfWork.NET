@@ -2,21 +2,15 @@
 
 open ClassBuilder.Classes
 
-module Mappers = 
-    open UnitOfWork.NET.NUnit.Data.Models
-    
-    type UserMapper() = 
-        inherit DefaultMapper<UserDTO, User>()
+module Mappers =     
+    type FloatMapper() = 
+        inherit DefaultMapper<DoubleValue, FloatValue>()
         override __.CustomMap(source, destination) = 
-            destination.Id <- source.Id
-            destination.Login <- source.Login
-            destination.Password <- source.Password
+            destination.Value <- float(source.Value)
             destination
     
-    type UserDTOMapper() = 
-        inherit DefaultMapper<User, UserDTO>()
+    type DoubleMapper() = 
+        inherit DefaultMapper<FloatValue, DoubleValue>()
         override __.CustomMap(source, destination) = 
-            destination.Id <- source.Id
-            destination.Login <- source.Login
-            destination.Password <- source.Password
+            destination.Value <- double(source.Value)
             destination

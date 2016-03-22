@@ -1,4 +1,4 @@
-﻿namespace UnitOfWork.NET.NUnit
+﻿namespace UnitOfWork.NET.EntityFramework.NUnit
 
 [<AutoOpen>]
 module DTO =

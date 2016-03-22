@@ -2,11 +2,11 @@
 
 open UnitOfWork.NET.Interfaces
 
-type ListRepository<'TEntity, 'TDTO, 'TListDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct and 'TListDTO : equality and 'TListDTO : null and 'TListDTO : not struct>(manager) = 
-    inherit Repository<'TEntity, 'TDTO>(manager : IUnitOfWork)
-    let mutable listRepository = manager.Repository<'TEntity, 'TListDTO>()
+type ListRepository<'TSource, 'TDestination, 'TListDestination when 'TSource : not struct and 'TDestination : not struct and 'TListDestination : not struct>(manager) = 
+    inherit Repository<'TSource, 'TDestination>(manager : IUnitOfWork)
+    let mutable listRepository = manager.Repository<'TSource, 'TListDestination>()
     
-    interface IListRepository<'TEntity, 'TDTO, 'TListDTO> with
+    interface IListRepository<'TSource, 'TDestination, 'TListDestination> with
         member this.ListRepository 
             with get () = this.ListRepository
             and set (value) = this.ListRepository <- value

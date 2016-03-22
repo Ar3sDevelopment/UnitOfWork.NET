@@ -1,12 +1,14 @@
-﻿namespace UnitOfWork.NET.NUnit
+﻿namespace UnitOfWork.NET.EntityFramework.NUnit
 
+open System
 open NUnit.Framework
 open System.Diagnostics
 open UnitOfWork.NET.Classes
-open UnitOfWork.NET.NUnit.Data.Models
+open UnitOfWork.NET.EntityFramework.Classes
+open UnitOfWork.NET.EntityFramework.NUnit.Data.Models
 
 [<TestFixture>]
-type BusinessTest() = 
+type EntityFrameworkTest() = 
     
     [<Test>]
     member __.TestContext() = 
@@ -23,56 +25,56 @@ type BusinessTest() =
     member __.TestEntityRepository() = 
         let stopwatch = Stopwatch()
         stopwatch.Start()
-        use uow = new UnitOfWork<TestDbContext>()
+        use uow = new EntityUnitOfWork<TestDbContext>()
         let users = uow.Repository<User>().All()
         stopwatch.Stop()
         stopwatch.ElapsedMilliseconds |> printfn "%dms"
         for user in users do
             (user.Id, user.Login) ||> printfn "%d %s"
         let entity = ref <| User(Login = "test", Password = "test")
-        entity := uow.Repository<User>().Insert <| !entity
+        entity := uow.EntityRepository<User>().Insert <| !entity
         uow.SaveChanges() |> ignore
         ((!entity).Id |> decimal, 0m) |> Assert.AreNotEqual
         (!entity).Id |> printfn "%d"
         (!entity).Password <- "test2"
-        uow.Repository<User>().Update(!entity, (!entity).Id) |> ignore
+        uow.EntityRepository<User>().Update(!entity, (!entity).Id) |> ignore
         uow.SaveChanges() |> ignore
-        Assert.AreEqual((!entity).Password, uow.Repository<User>().Entity((!entity).Id).Password)
-        uow.Repository<User>().Delete((!entity).Id) |> ignore
+        Assert.AreEqual((!entity).Password, uow.EntityRepository<User>().Entity((!entity).Id).Password)
+        uow.EntityRepository<User>().Delete((!entity).Id) |> ignore
         uow.SaveChanges() |> ignore
-        Assert.IsNull(uow.Repository<User>().Entity((!entity).Id))
+        Assert.IsNull(uow.EntityRepository<User>().Entity((!entity).Id))
     
     [<Test>]
     member __.TestDTORepository() = 
         let stopwatch = Stopwatch()
         stopwatch.Start()
-        use uow = new UnitOfWork<TestDbContext>()
-        let users = uow.Repository<User, UserDTO>().List()
+        use uow = new EntityUnitOfWork<TestDbContext>()
+        let users = uow.EntityRepository<User, UserDTO>().List()
         stopwatch.Stop()
         stopwatch.ElapsedMilliseconds |> printfn "%dms"
         for user in users do
             (user.Id, user.Login) ||> printfn "%d %s"
         let dto = ref <| UserDTO(Login = "test", Password = "test")
-        dto := uow.Repository<User, UserDTO>().Insert(!dto)
+        dto := uow.EntityRepository<User, UserDTO>().Insert(!dto)
         uow.SaveChanges() |> ignore
         let login = (!dto).Login
-        dto := uow.Repository<User, UserDTO>().DTO(fun d -> d.Login = login)
+        dto := uow.EntityRepository<User, UserDTO>().DTO(fun d -> d.Login = login)
         Assert.IsNotNull(!dto)
         Assert.AreNotEqual(decimal ((!dto).Id), 0m)
         (!dto).Id |> printfn "%d"
         (!dto).Password <- "test2"
-        uow.Repository<User, UserDTO>().Update(!dto, (!dto).Id) |> ignore
+        uow.EntityRepository<User, UserDTO>().Update(!dto, (!dto).Id) |> ignore
         uow.SaveChanges() |> ignore
-        Assert.AreEqual((!dto).Password, uow.Repository<User, UserDTO>().DTO((!dto).Id).Password)
-        uow.Repository<User, UserDTO>().Delete((!dto).Id) |> ignore
+        Assert.AreEqual((!dto).Password, uow.EntityRepository<User, UserDTO>().DTO((!dto).Id).Password)
+        uow.EntityRepository<User, UserDTO>().Delete((!dto).Id) |> ignore
         uow.SaveChanges() |> ignore
-        Assert.IsNull(uow.Repository<User, UserDTO>().DTO((!dto).Id))
+        Assert.IsNull(uow.EntityRepository<User, UserDTO>().DTO((!dto).Id))
     
     [<Test>]
     member __.TestCustomRepository() = 
         let stopwatch = Stopwatch()
         stopwatch.Start()
-        use uow = new UnitOfWork<TestDbContext>()
+        use uow = new EntityUnitOfWork<TestDbContext>()
         let users = uow.CustomRepository<UserRepository>().NewList()
         stopwatch.Stop()
         stopwatch.ElapsedMilliseconds |> printfn "%dms"
