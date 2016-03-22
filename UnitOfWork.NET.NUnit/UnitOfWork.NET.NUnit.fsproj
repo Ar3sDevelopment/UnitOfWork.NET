@@ -52,10 +52,6 @@
     <Reference Include="Autofac">
       <HintPath>..\packages\Autofac.3.5.2\lib\net40\Autofac.dll</HintPath>
     </Reference>
-    <ProjectReference Include="..\UnitOfWork.NET.NUnit.Data\UnitOfWork.NET.NUnit.Data.csproj">
-      <Name>UnitOfWork.NET.NUnit.Data</Name>
-      <Project>{2100B07C-FA1D-4A34-8698-8DA3AC661898}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\UnitOfWork.NET\UnitOfWork.NET.fsproj">
       <Project>{884E5E82-289E-4EBE-A0AF-9735AE4BDA45}</Project>
       <Name>UnitOfWork.NET</Name>

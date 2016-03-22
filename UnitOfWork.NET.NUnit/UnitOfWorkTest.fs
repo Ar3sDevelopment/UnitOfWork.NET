@@ -3,7 +3,6 @@
 open NUnit.Framework
 open System.Diagnostics
 open UnitOfWork.NET.Classes
-open UnitOfWork.NET.NUnit.Data.Models
 
 [<TestFixture>]
 type UnitOfWorkTest() = 
@@ -12,41 +11,41 @@ type UnitOfWorkTest() =
         let stopwatch = Stopwatch()
         stopwatch.Start()
         use uow = new UnitOfWork()
-        let users = uow.Repository<User>().All()
+        let numbers = uow.Repository<int>().All()
         stopwatch.Stop()
         stopwatch.ElapsedMilliseconds |> printfn "%dms"
-        for user in users do
-            (user.Id, user.Login) ||> printfn "%d %s"
+        for number in numbers do
+            number |> printfn "%d"
     
     [<Test>]
     member __.TestDoubleRepository() = 
         let stopwatch = Stopwatch()
         stopwatch.Start()
         use uow = new UnitOfWork()
-        let users = uow.Repository<User, UserDTO>().AllBuilt()
+        let numbers = uow.Repository<double, float>().AllBuilt()
         stopwatch.Stop()
         stopwatch.ElapsedMilliseconds |> printfn "%dms"
-        for user in users do
-            (user.Id, user.Login) ||> printfn "%d %s"
+        for number in numbers do
+            number |> printfn "%g"
     
     [<Test>]
     member __.TestCustomRepository() = 
         let stopwatch = Stopwatch()
         stopwatch.Start()
         use uow = new UnitOfWork()
-        let users = uow.CustomRepository<UserRepository>().NewList()
+        let numbers = uow.CustomRepository<DoubleRepository>().NewList()
         stopwatch.Stop()
         stopwatch.ElapsedMilliseconds |> printfn "%dms"
-        for user in users do
-            (user.Id, user.Login) ||> printfn "%d %s"
+        for number in numbers do
+            number |> printfn "%g"
     
     [<Test>]
     member __.TestCustomUnitOfWork() = 
         let stopwatch = Stopwatch()
         stopwatch.Start()
         use uow = new TestUnitOfWork()
-        let users = uow.Users.NewList()
+        let numbers = uow.Doubles.NewList()
         stopwatch.Stop()
         stopwatch.ElapsedMilliseconds |> printfn "%dms"
-        for user in users do
-            (user.Id, user.Login) ||> printfn "%d %s"
+        for number in numbers do
+            number |> printfn "%g"
