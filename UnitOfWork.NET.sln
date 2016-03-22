@@ -19,6 +19,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Generic", "Generic", "{5372
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EntityFramework", "EntityFramework", "{68AA64AC-ACA5-4B9D-A30A-F41CC08CD3E5}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "UnitOfWork.NET.EntityFramework.NUnit", "UnitOfWork.NET.EntityFramework.NUnit\UnitOfWork.NET.EntityFramework.NUnit.fsproj", "{B4BC9105-3593-4A37-903E-F713B2977002}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitOfWork.NET.EntityFramework.NUnit.Data", "UnitOfWork.NET.EntityFramework.NUnit.Data\UnitOfWork.NET.EntityFramework.NUnit.Data.csproj", "{2100B07C-FA1D-4A34-8698-8DA3AC661898}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +41,14 @@ Global
 		{B5404C21-4CAC-40A4-A893-3A76B8EFB811}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B5404C21-4CAC-40A4-A893-3A76B8EFB811}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B5404C21-4CAC-40A4-A893-3A76B8EFB811}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4BC9105-3593-4A37-903E-F713B2977002}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4BC9105-3593-4A37-903E-F713B2977002}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4BC9105-3593-4A37-903E-F713B2977002}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4BC9105-3593-4A37-903E-F713B2977002}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2100B07C-FA1D-4A34-8698-8DA3AC661898}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2100B07C-FA1D-4A34-8698-8DA3AC661898}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2100B07C-FA1D-4A34-8698-8DA3AC661898}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2100B07C-FA1D-4A34-8698-8DA3AC661898}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -45,6 +57,8 @@ Global
 		{884E5E82-289E-4EBE-A0AF-9735AE4BDA45} = {53728AEF-7694-4DEA-A7FA-D695E1C3FEBE}
 		{50F2BD84-6BDE-4BAA-AFBB-60FE09132600} = {53728AEF-7694-4DEA-A7FA-D695E1C3FEBE}
 		{B5404C21-4CAC-40A4-A893-3A76B8EFB811} = {68AA64AC-ACA5-4B9D-A30A-F41CC08CD3E5}
+		{B4BC9105-3593-4A37-903E-F713B2977002} = {68AA64AC-ACA5-4B9D-A30A-F41CC08CD3E5}
+		{2100B07C-FA1D-4A34-8698-8DA3AC661898} = {68AA64AC-ACA5-4B9D-A30A-F41CC08CD3E5}
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		Policies = $0
