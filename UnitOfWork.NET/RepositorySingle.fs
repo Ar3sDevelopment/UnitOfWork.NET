@@ -7,7 +7,7 @@ open System.Linq.Expressions
 open UnitOfWork.NET.Interfaces
 
 [<AbstractClass>]
-type Repository<'T>(manager) = 
+type Repository<'T when 'T : not struct>(manager) = 
     inherit Repository(manager)
     
     interface IRepository<'T> with
@@ -18,7 +18,7 @@ type Repository<'T>(manager) =
         member this.Exists expr = expr |> this.Exists
         member this.Count expr = expr |> this.Count
     
-    member __.Data = manager.Data<'T>()
+    member this.Data = manager.Data<'T>()
     member this.Element expr = expr |> this.Data.FirstOrDefault
     member this.All() = this.Data
     member this.All(whereExpr : Func<'T, bool>) = this.Data.Where(whereExpr)

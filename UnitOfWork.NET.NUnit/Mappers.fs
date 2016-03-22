@@ -4,11 +4,13 @@ open ClassBuilder.Classes
 
 module Mappers =     
     type FloatMapper() = 
-        inherit DefaultMapper<double, float>()
+        inherit DefaultMapper<DoubleValue, FloatValue>()
         override __.CustomMap(source, destination) = 
-            double(source)
+            destination.Value <- float(source.Value)
+            destination
     
     type DoubleMapper() = 
-        inherit DefaultMapper<float, double>()
+        inherit DefaultMapper<FloatValue, DoubleValue>()
         override __.CustomMap(source, destination) = 
-            double(source)
+            destination.Value <- double(source.Value)
+            destination

@@ -13,7 +13,7 @@ open System.Linq.Expressions
 open System.Reflection
 open UnitOfWork.NET.Interfaces
 
-type Repository<'TSource, 'TDestination>(manager) = 
+type Repository<'TSource, 'TDestination when 'TSource : not struct and 'TDestination : not struct>(manager) = 
     inherit Repository<'TSource>(manager : IUnitOfWork)
     
     interface IRepository<'TSource, 'TDestination> with

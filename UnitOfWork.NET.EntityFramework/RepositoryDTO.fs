@@ -15,7 +15,7 @@ open UnitOfWork.NET.Classes
 open UnitOfWork.NET.Interfaces
 open UnitOfWork.NET.EntityFramework.Interfaces
 
-type EntityRepository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>(manager : IEntityUnitOfWork) = 
+type EntityRepository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>(manager : IUnitOfWork) = 
     inherit EntityRepository<'TEntity>(manager)
 
     interface IEntityRepository<'TEntity, 'TDTO> with

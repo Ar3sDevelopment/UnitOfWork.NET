@@ -6,9 +6,10 @@ open System.Data.Entity
 open System.Linq
 open System.Linq.Expressions
 open UnitOfWork.NET.Classes
+open UnitOfWork.NET.Interfaces
 open UnitOfWork.NET.EntityFramework.Interfaces
 
-type EntityRepository<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>(manager : IEntityUnitOfWork) = 
+type EntityRepository<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>(manager : IUnitOfWork) = 
     inherit Repository<'TEntity>(manager)
     
     interface IEntityRepository<'TEntity> with
@@ -35,7 +36,7 @@ type EntityRepository<'TEntity when 'TEntity : not struct and 'TEntity : equalit
     abstract Update : 'TEntity * [<ParamArray>] ids:obj [] -> unit
     abstract Delete : [<ParamArray>] ids:obj [] -> unit
     override this.Insert entity = entity |> this.Set.Add
-    override this.Update(entity, [<ParamArray>] ids) = manager.Entry(ids |> this.Entity).CurrentValues.SetValues(entity)
+    override this.Update(entity, [<ParamArray>] ids) = (manager :?> IEntityUnitOfWork).Entry(ids |> this.Entity).CurrentValues.SetValues(entity)
     
     override this.Delete([<ParamArray>] ids) = 
         ids

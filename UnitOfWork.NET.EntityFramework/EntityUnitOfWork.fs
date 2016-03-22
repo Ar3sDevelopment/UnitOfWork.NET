@@ -17,7 +17,7 @@ open UnitOfWork.NET.EntityFramework.Interfaces
 
 type EntityUnitOfWork internal (context : DbContext, autoContext) = 
     inherit UnitOfWork()
-    
+
     member private __.autoContext = autoContext
     
     interface IEntityUnitOfWork with
@@ -34,17 +34,18 @@ type EntityUnitOfWork internal (context : DbContext, autoContext) =
     interface IDisposable with
         member this.Dispose() = this.Dispose()
     
-    override this.Data<'T>() = (context.Set(typeof<'T>) :> IEnumerable).Cast<'T>()
+    override this.Data<'T when 'T : not struct>() = context.Set<'T>().AsEnumerable()
 
     member this.EntityRepository<'TEntity when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null>() = 
-        this.Repository<IEntityRepository<'TEntity>>() :?> IEntityRepository<'TEntity>
+        this.Repository<'TEntity>() :?> IEntityRepository<'TEntity>
     member this.EntityRepository<'TEntity, 'TDTO when 'TEntity : not struct and 'TEntity : equality and 'TEntity : null and 'TDTO : equality and 'TDTO : null and 'TDTO : not struct>() = 
-        this.Repository<IEntityRepository<'TEntity, 'TDTO>>() :?> IEntityRepository<'TEntity, 'TDTO>
+        this.Repository<'TEntity, 'TDTO>() :?> IEntityRepository<'TEntity, 'TDTO>
     
     member uow.SaveChanges() = 
         context.ChangeTracker.DetectChanges()
+        let entries = context.ChangeTracker.Entries()
         let entriesGroup = 
-            context.ChangeTracker.Entries()
+            entries
             |> Seq.filter (fun t -> t.State <> EntityState.Unchanged && t.State <> EntityState.Detached)
             |> Array.ofSeq
             |> Array.groupBy (fun t -> ObjectContext.GetObjectType(t.Entity.GetType()))

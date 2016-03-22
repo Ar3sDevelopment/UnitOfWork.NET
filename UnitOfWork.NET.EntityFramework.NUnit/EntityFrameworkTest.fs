@@ -1,5 +1,6 @@
 ﻿namespace UnitOfWork.NET.EntityFramework.NUnit
 
+open System
 open NUnit.Framework
 open System.Diagnostics
 open UnitOfWork.NET.Classes

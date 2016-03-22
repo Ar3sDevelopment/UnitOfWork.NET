@@ -15,7 +15,7 @@ type UnitOfWork() as uow =
     
     let mutable container = 
         let cb = ContainerBuilder()
-        cb.Register(fun u -> uow).AsImplementedInterfaces().AsSelf().As<UnitOfWork>() |> ignore
+        cb.Register(fun t -> uow).AsImplementedInterfaces().AsSelf().As<UnitOfWork>() |> ignore
         cb.RegisterType<Repository>().AsSelf().As<IRepository>().PreserveExistingDefaults() |> ignore
         cb.RegisterGeneric(typedefof<Repository<_>>).AsSelf().As(typedefof<IRepository<_>>) |> ignore
         cb.RegisterGeneric(typedefof<Repository<_, _>>).AsSelf().As(typedefof<IRepository<_, _>>) |> ignore
@@ -51,7 +51,7 @@ type UnitOfWork() as uow =
                with _ -> false)
         |> Array.iter assemblies.Add
     
-    do 
+    do
         let cb = ContainerBuilder()
         let fields = uow.GetType().GetFields().Where(fun t -> t.FieldType |> isRepository) |> Array.ofSeq
         fields |> Array.iter (fun t -> cb.RegisterType(t.FieldType).AsSelf().AsImplementedInterfaces() |> ignore)
@@ -67,22 +67,25 @@ type UnitOfWork() as uow =
         AppDomain.CurrentDomain.GetAssemblies() |> Array.iter assemblies.Add
     
     interface IUnitOfWork with
-        member this.SaveChanges() = this.SaveChanges()
-        member this.Data<'T>() = this.Data<'T>()
+        member this.Data<'T when 'T : not struct>() = this.Data<'T>()
         member this.CustomRepository<'TRepository when 'TRepository :> IRepository>() = this.CustomRepository<'TRepository>()
-        member this.Repository<'T>() = this.Repository<'T>()
-        member this.Repository<'TSource, 'TDestination>() = this.Repository<'TSource, 'TDestination>()
-        member this.Repository<'TSource, 'TDestination, 'TListDestination>() = this.Repository<'TSource, 'TDestination, 'TListDestination>()
-        member this.Transaction(body : Action<IUnitOfWork>) = this.Transaction(body)
-        member this.TransactionSaveChanges(body : Action<IUnitOfWork>) = this.TransactionSaveChanges(body)
+        member this.Repository<'T when 'T : not struct>() = this.Repository<'T>()
+        member this.Repository<'TSource, 'TDestination when 'TSource : not struct and 'TDestination : not struct>() = this.Repository<'TSource, 'TDestination>()
+        member this.Repository<'TSource, 'TDestination, 'TListDestination when 'TSource : not struct and 'TDestination : not struct and 'TListDestination : not struct>() = this.Repository<'TSource, 'TDestination, 'TListDestination>()
     
     interface IDisposable with
         member this.Dispose() = this.Dispose()
     
-    member __.RegisterRepository<'TRepository when 'TRepository :> IRepository>() = 
-        if not <| typeof<'TRepository>.IsInterface && not <| typeof<'TRepository>.IsAbstract && not <| container.IsRegistered(typeof<'TRepository>) then 
+    member this.RegisterRepository<'TRepository when 'TRepository :> IRepository>() = 
+        this.RegisterRepository(typeof<'TRepository>)
+
+    member __.RegisterRepository repositoryType =
+        if not <| repositoryType.IsInterface && not <| repositoryType.IsAbstract && not <| container.IsRegistered(repositoryType) then 
             let cb = ContainerBuilder()
-            cb.RegisterType<'TRepository>().AsSelf().AsImplementedInterfaces() |> ignore
+            if repositoryType.IsGenericTypeDefinition then
+                cb.RegisterGeneric(repositoryType).AsSelf().AsImplementedInterfaces() |> ignore
+            else    
+                cb.RegisterType(repositoryType).AsSelf().AsImplementedInterfaces() |> ignore
             cb.Update(container)
     
     member private this.GetRepository<'TRepository when 'TRepository :> IRepository>() = 
@@ -90,18 +93,11 @@ type UnitOfWork() as uow =
         container.Resolve<'TRepository>()
     
     member this.CustomRepository<'TRepository when 'TRepository :> IRepository>() = this.GetRepository<'TRepository>()
-    member this.Repository<'T>() = this.GetRepository<IRepository<'T>>()
-    member this.Repository<'TSource, 'TDestination>() = this.GetRepository<IRepository<'TSource, 'TDestination>>()
-    member this.Repository<'TSource, 'TDestination, 'TListDestination>() = this.GetRepository<IListRepository<'TSource, 'TDestination, 'TListDestination>>()
-    member uow.SaveChanges() = ()
-    member this.SaveChangesAsync() = async { return this.SaveChanges() } |> Async.StartAsTask
-    abstract Data<'T> : unit -> seq<'T>
-    override __.Data<'T>() = Seq.empty<'T>
-    member this.Transaction(body : Action<IUnitOfWork>) = this |> body.Invoke
-    
-    member this.TransactionSaveChanges(body : Action<IUnitOfWork>) = 
-        this |> body.Invoke
-        this.SaveChanges()
+    member this.Repository<'T when 'T : not struct>() = this.GetRepository<IRepository<'T>>()
+    member this.Repository<'TSource, 'TDestination when 'TSource : not struct and 'TDestination : not struct>() = this.GetRepository<IRepository<'TSource, 'TDestination>>()
+    member this.Repository<'TSource, 'TDestination, 'TListDestination when 'TSource : not struct and 'TDestination : not struct and 'TListDestination : not struct>() = this.GetRepository<IListRepository<'TSource, 'TDestination, 'TListDestination>>()
+    abstract Data<'T when 'T : not struct> : unit -> seq<'T>
+    override __.Data<'T when 'T : not struct>() = Seq.empty<'T>
     
     abstract Dispose : unit -> unit
     override this.Dispose() = ()

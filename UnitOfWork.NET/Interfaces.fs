@@ -12,7 +12,7 @@ type IRepository =
     /// </summary>
     abstract UnitOfWork : IUnitOfWork
 
-and IRepository<'T> = 
+and IRepository<'T when 'T : not struct> = 
     inherit IRepository
     
     /// <summary>
@@ -49,7 +49,7 @@ and IRepository<'T> =
     /// <param name="expr">The condition for counting all entities that verify it</param>
     abstract Count : expr:Func<'T, bool> -> int
 
-and IRepository<'TSource, 'TDestination> = 
+and IRepository<'TSource, 'TDestination when 'TSource : not struct and 'TDestination : not struct> = 
     inherit IRepository<'TSource>
     
     /// <summary>
@@ -78,7 +78,7 @@ and IRepository<'TSource, 'TDestination> =
     /// <param name="where"></param>
     abstract DataSource : take:int * skip:int * sort:ICollection<Sort> * filter:Filter * where:Func<'TSource, bool> -> DataSourceResult<'TDestination>
 
-and IListRepository<'TSource, 'TDestination, 'TListDestination> = 
+and IListRepository<'TSource, 'TDestination, 'TListDestination when 'TSource : not struct and 'TDestination : not struct and 'TListDestination : not struct> = 
     inherit IRepository<'TSource, 'TDestination>
     /// <summary>
     /// 
@@ -91,24 +91,7 @@ and IUnitOfWork =
     /// <summary>
     /// 
     /// </summary>
-    abstract SaveChanges : unit -> unit
-    
-    /// <summary>
-    /// 
-    /// </summary>
-    abstract Data<'T> : unit -> IEnumerable<'T>
-    
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="body"></param>
-    abstract Transaction : body:Action<IUnitOfWork> -> unit
-    
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="body"></param>
-    abstract TransactionSaveChanges : body:Action<IUnitOfWork> -> unit
+    abstract Data<'T when 'T : not struct> : unit -> IEnumerable<'T>
     
     /// <summary>
     /// 
@@ -118,14 +101,14 @@ and IUnitOfWork =
     /// <summary>
     /// 
     /// </summary>
-    abstract Repository<'T> : unit -> IRepository<'T>
+    abstract Repository<'T when 'T : not struct> : unit -> IRepository<'T>
     
     /// <summary>
     /// 
     /// </summary>
-    abstract Repository<'TSource, 'TDestination> : unit -> IRepository<'TSource, 'TDestination>
+    abstract Repository<'TSource, 'TDestination when 'TSource : not struct and 'TDestination : not struct> : unit -> IRepository<'TSource, 'TDestination>
     
     /// <summary>
     /// 
     /// </summary>
-    abstract Repository<'TSource, 'TDestination, 'TListDestination> : unit -> IListRepository<'TSource, 'TDestination, 'TListDestination>
+    abstract Repository<'TSource, 'TDestination, 'TListDestination when 'TSource : not struct and 'TDestination : not struct and 'TListDestination : not struct> : unit -> IListRepository<'TSource, 'TDestination, 'TListDestination>

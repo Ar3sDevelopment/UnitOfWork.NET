@@ -11,22 +11,22 @@ type UnitOfWorkTest() =
         let stopwatch = Stopwatch()
         stopwatch.Start()
         use uow = new TestUnitOfWork()
-        let numbers = uow.Repository<int>().All()
+        let numbers = uow.Repository<IntValue>().All()
         stopwatch.Stop()
         stopwatch.ElapsedMilliseconds |> printfn "%dms"
         for number in numbers do
-            number |> printfn "%d"
+            number.Value |> printfn "%d"
     
     [<Test>]
     member __.TestDoubleRepository() = 
         let stopwatch = Stopwatch()
         stopwatch.Start()
         use uow = new TestUnitOfWork()
-        let numbers = uow.Repository<double, float>().AllBuilt()
+        let numbers = uow.Repository<DoubleValue, FloatValue>().AllBuilt()
         stopwatch.Stop()
         stopwatch.ElapsedMilliseconds |> printfn "%dms"
         for number in numbers do
-            number |> printfn "%g"
+            number.Value |> printfn "%g"
     
     [<Test>]
     member __.TestCustomRepository() = 
@@ -37,7 +37,7 @@ type UnitOfWorkTest() =
         stopwatch.Stop()
         stopwatch.ElapsedMilliseconds |> printfn "%dms"
         for number in numbers do
-            number |> printfn "%g"
+            number.Value |> printfn "%g"
     
     [<Test>]
     member __.TestCustomUnitOfWork() = 
@@ -48,4 +48,4 @@ type UnitOfWorkTest() =
         stopwatch.Stop()
         stopwatch.ElapsedMilliseconds |> printfn "%dms"
         for number in numbers do
-            number |> printfn "%g"
+            number.Value |> printfn "%g"
