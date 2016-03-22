@@ -6,9 +6,6 @@ open System
 open System.Collections
 open System.Collections.Generic
 open System.Collections.ObjectModel
-open System.Data.Entity
-open System.Data.Entity.Core.Objects
-open System.Data.Entity.Infrastructure
 open System.Linq
 open System.Reflection
 open UnitOfWork.NET.Interfaces
