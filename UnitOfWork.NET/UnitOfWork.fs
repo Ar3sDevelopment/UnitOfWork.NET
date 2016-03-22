@@ -13,7 +13,6 @@ open System.Linq
 open System.Reflection
 open UnitOfWork.NET.Interfaces
 
-[<AbstractClass>]
 type UnitOfWork() as uow = 
     let assemblies = ObservableCollection<Assembly>()
     
@@ -94,12 +93,13 @@ type UnitOfWork() as uow =
         container.Resolve<'TRepository>()
     
     member this.CustomRepository<'TRepository when 'TRepository :> IRepository>() = this.GetRepository<'TRepository>()
-    member this.Repository<'T>() = this.GetRepository < IRepository<'T>()
+    member this.Repository<'T>() = this.GetRepository<IRepository<'T>>()
     member this.Repository<'TSource, 'TDestination>() = this.GetRepository<IRepository<'TSource, 'TDestination>>()
     member this.Repository<'TSource, 'TDestination, 'TListDestination>() = this.GetRepository<IListRepository<'TSource, 'TDestination, 'TListDestination>>()
     member uow.SaveChanges() = ()
     member this.SaveChangesAsync() = async { return this.SaveChanges() } |> Async.StartAsTask
     abstract Data<'T> : unit -> seq<'T>
+    override __.Data<'T>() = Seq.empty<'T>
     member this.Transaction(body : Action<IUnitOfWork>) = this |> body.Invoke
     
     member this.TransactionSaveChanges(body : Action<IUnitOfWork>) = 

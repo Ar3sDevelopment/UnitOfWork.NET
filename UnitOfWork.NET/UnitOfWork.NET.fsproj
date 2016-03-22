@@ -1,4 +1,5 @@
-﻿<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -53,8 +54,8 @@
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Interfaces.fs" />
     <Compile Include="Repository.fs" />
-    <Compile Include="RepositoryEntity.fs" />
-    <Compile Include="RepositoryDTO.fs" />
+    <Compile Include="RepositorySingle.fs" />
+    <Compile Include="RepositoryDouble.fs" />
     <Compile Include="ListRepository.fs" />
     <Compile Include="UnitOfWork.fs" />
     <None Include="App.config" />
