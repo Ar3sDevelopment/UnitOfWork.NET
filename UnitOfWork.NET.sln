@@ -13,6 +13,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		appveyor.yml = appveyor.yml
 	EndProjectSection
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "UnitOfWork.NET.EntityFramework", "UnitOfWork.NET.EntityFramework\UnitOfWork.NET.EntityFramework.fsproj", "{B5404C21-4CAC-40A4-A893-3A76B8EFB811}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{50F2BD84-6BDE-4BAA-AFBB-60FE09132600}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{50F2BD84-6BDE-4BAA-AFBB-60FE09132600}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{50F2BD84-6BDE-4BAA-AFBB-60FE09132600}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5404C21-4CAC-40A4-A893-3A76B8EFB811}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5404C21-4CAC-40A4-A893-3A76B8EFB811}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5404C21-4CAC-40A4-A893-3A76B8EFB811}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5404C21-4CAC-40A4-A893-3A76B8EFB811}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
