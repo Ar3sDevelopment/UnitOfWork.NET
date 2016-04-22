@@ -6,4 +6,3 @@ install:
 script:
   - xbuild /p:Configuration=Release UnitOfWork.NET.sln
   - nunit-console ./UnitOfWork.NET.NUnit/bin/Release/UnitOfWork.NET.NUnit.dll
-  - nunit-console ./UnitOfWork.NET.EntityFramework.NUnit/bin/Release/UnitOfWork.NET.EntityFramework.NUnit.dll
