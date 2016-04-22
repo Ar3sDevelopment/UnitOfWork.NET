@@ -29,3 +29,9 @@ deploy:
     secure: QUNpmgp2dvA0M/Veuo7NJkjNXBJOxFsDAartHAjZfKhaLzFKdITHHhmST6ZUTdxu
   on:
     branch: master
+- provider: NuGet
+  server: https://ci.appveyor.com/nuget/ar3s-5qsnmq3rugtj
+  api_key:
+    secure: +/QyWZCuCVmCZe0cfwopCqiSgRO+FZme0+Z+T69BmoU=
+  on:
+    branch: dev
