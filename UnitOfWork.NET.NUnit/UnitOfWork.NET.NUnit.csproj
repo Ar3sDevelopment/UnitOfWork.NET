@@ -1,69 +1,38 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{50F2BD84-6BDE-4BAA-AFBB-60FE09132600}</ProjectGuid>
+    <ProjectGuid>{BE810765-29C1-487F-869B-1C8416D6A697}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>UnitOfWork.NET.NUnit</RootNamespace>
-    <AssemblyName>UnitOfWork.NET.FS.NUnit</AssemblyName>
+    <AssemblyName>UnitOfWork.NET.NUnit</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <Name>UnitOfWork.NET.FS.NUnit</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug</OutputPath>
-    <DefineConstants>DEBUG</DefineConstants>
+    <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
-    <Tailcalls>false</Tailcalls>
-    <PlatformTarget>
-    </PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
-    <PlatformTarget>
-    </PlatformTarget>
+    <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
-    <Tailcalls>true</Tailcalls>
-    <DebugSymbols>true</DebugSymbols>
-    <DefineConstants>
-    </DefineConstants>
   </PropertyGroup>
-  <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.1\Framework\v4.0\Microsoft.FSharp.Targets" />
   <ItemGroup>
-    <None Include="packages.config" />
-    <Compile Include="Classes.fs" />
-    <Compile Include="Mappers.fs" />
-    <Compile Include="Repositories.fs" />
-    <Compile Include="UnitOfWork.fs" />
-    <Compile Include="UnitOfWorkTest.fs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="mscorlib" />
     <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Data" />
     <Reference Include="Autofac">
       <HintPath>..\packages\Autofac.3.5.2\lib\net40\Autofac.dll</HintPath>
     </Reference>
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Linq.Dynamic">
-      <HintPath>..\packages\System.Linq.Dynamic.1.0.6\lib\net40\System.Linq.Dynamic.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.Linq" />
     <Reference Include="FSharp.Core">
       <HintPath>..\packages\FSharp.Core.4.0.0.1\lib\net40\FSharp.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="Caelan.DynamicLinq">
-      <HintPath>..\packages\Caelan.DynamicLinq.2.0.20.0\lib\net40\Caelan.DynamicLinq.dll</HintPath>
     </Reference>
     <Reference Include="Caelan.Frameworks.Common">
       <HintPath>..\packages\Caelan.Frameworks.Common.3.3.1.240\lib\net45\Caelan.Frameworks.Common.dll</HintPath>
@@ -76,10 +45,28 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\UnitOfWork.NET.FS\UnitOfWork.NET.FS.fsproj">
-      <Name>UnitOfWork.NET.FS</Name>
-      <Project>{884e5e82-289e-4ebe-a0af-9735ae4bda45}</Project>
-      <Private>True</Private>
+    <Compile Include="Test.cs" />
+    <Compile Include="Classes\IntValue.cs" />
+    <Compile Include="Classes\DoubleValue.cs" />
+    <Compile Include="Classes\FloatValue.cs" />
+    <Compile Include="Mappers\FloatMapper.cs" />
+    <Compile Include="Mappers\DoubleMapper.cs" />
+    <Compile Include="Classes\TestUnitOfWork.cs" />
+    <Compile Include="Repositories\IntRepository.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Classes\" />
+    <Folder Include="Mappers\" />
+    <Folder Include="Repositories\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\UnitOfWork.NET\UnitOfWork.NET.csproj">
+      <Project>{0C954627-333D-4B69-837A-A5627D76150A}</Project>
+      <Name>UnitOfWork.NET</Name>
     </ProjectReference>
   </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
