@@ -1,4 +1,4 @@
-﻿namespace UnitOfWork.NET.NUnit
+﻿namespace UnitOfWork.NET.FS.NUnit
 
 open ClassBuilder.Classes
 

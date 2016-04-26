@@ -1,14 +1,14 @@
-﻿namespace UnitOfWork.NET.AssemblyInfo
+﻿namespace UnitOfWork.NET.FS.AssemblyInfo
 
 open System.Reflection
 open System.Runtime.CompilerServices
 open System.Runtime.InteropServices
 
-[<AssemblyTitle("UnitOfWork.NET")>]
+[<AssemblyTitle("UnitOfWork.NET.FS")>]
 [<AssemblyDescription("UnitOfWork Framework")>]
 [<AssemblyConfiguration("")>]
 [<AssemblyCompany("Caelan")>]
-[<AssemblyProduct("UnitOfWork.NET")>]
+[<AssemblyProduct("UnitOfWork.NET.FS")>]
 [<AssemblyCopyright("Caelan © 2016")>]
 [<AssemblyTrademark("")>]
 [<ComVisible(false)>]

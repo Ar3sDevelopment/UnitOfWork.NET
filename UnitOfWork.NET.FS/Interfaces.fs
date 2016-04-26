@@ -1,4 +1,4 @@
-﻿namespace UnitOfWork.NET.Interfaces
+﻿namespace UnitOfWork.NET.FS.Interfaces
 
 open Caelan.DynamicLinq.Classes
 open System

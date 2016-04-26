@@ -1,4 +1,4 @@
-﻿namespace UnitOfWork.NET.Classes
+﻿namespace UnitOfWork.NET.FS.Classes
 
 open Caelan.DynamicLinq.Classes
 open Caelan.DynamicLinq.Extensions
@@ -11,7 +11,7 @@ open System.Linq
 open System.Linq.Dynamic
 open System.Linq.Expressions
 open System.Reflection
-open UnitOfWork.NET.Interfaces
+open UnitOfWork.NET.FS.Interfaces
 
 type Repository<'TSource, 'TDestination when 'TSource : not struct and 'TDestination : not struct>(manager) = 
     inherit Repository<'TSource>(manager : IUnitOfWork)

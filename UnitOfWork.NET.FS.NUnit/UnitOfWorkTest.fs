@@ -1,8 +1,8 @@
-﻿namespace UnitOfWork.NET.NUnit
+﻿namespace UnitOfWork.NET.FS.NUnit
 
 open NUnit.Framework
 open System.Diagnostics
-open UnitOfWork.NET.Classes
+open UnitOfWork.NET.FS.Classes
 
 [<TestFixture>]
 type UnitOfWorkTest() = 

@@ -1,4 +1,4 @@
-namespace UnitOfWork.NET.Classes
+namespace UnitOfWork.NET.FS.Classes
 
 open Autofac
 open Caelan.Frameworks.Common.Helpers
@@ -8,7 +8,7 @@ open System.Collections.Generic
 open System.Collections.ObjectModel
 open System.Linq
 open System.Reflection
-open UnitOfWork.NET.Interfaces
+open UnitOfWork.NET.FS.Interfaces
 
 type UnitOfWork() as uow = 
     let assemblies = ObservableCollection<Assembly>()

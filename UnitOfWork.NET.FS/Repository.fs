@@ -1,6 +1,6 @@
-﻿namespace UnitOfWork.NET.Classes
+﻿namespace UnitOfWork.NET.FS.Classes
 
-open UnitOfWork.NET.Interfaces
+open UnitOfWork.NET.FS.Interfaces
 
 [<AbstractClass>]
 type Repository(manager) = 

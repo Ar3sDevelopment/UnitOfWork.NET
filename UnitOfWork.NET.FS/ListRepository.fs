@@ -1,6 +1,6 @@
-﻿namespace UnitOfWork.NET.Classes
+﻿namespace UnitOfWork.NET.FS.Classes
 
-open UnitOfWork.NET.Interfaces
+open UnitOfWork.NET.FS.Interfaces
 
 type ListRepository<'TSource, 'TDestination, 'TListDestination when 'TSource : not struct and 'TDestination : not struct and 'TListDestination : not struct>(manager) = 
     inherit Repository<'TSource, 'TDestination>(manager : IUnitOfWork)

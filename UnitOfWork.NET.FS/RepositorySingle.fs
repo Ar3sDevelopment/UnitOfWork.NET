@@ -1,10 +1,10 @@
-﻿namespace UnitOfWork.NET.Classes
+﻿namespace UnitOfWork.NET.FS.Classes
 
 open System
 open System.Collections.Generic
 open System.Linq
 open System.Linq.Expressions
-open UnitOfWork.NET.Interfaces
+open UnitOfWork.NET.FS.Interfaces
 
 [<AbstractClass>]
 type Repository<'T when 'T : not struct>(manager) = 

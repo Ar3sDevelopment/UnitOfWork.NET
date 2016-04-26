@@ -1,7 +1,7 @@
-﻿namespace UnitOfWork.NET.NUnit
+﻿namespace UnitOfWork.NET.FS.NUnit
 
 open System
-open UnitOfWork.NET.Classes
+open UnitOfWork.NET.FS.Classes
 
 type TestUnitOfWork() = 
     inherit UnitOfWork()

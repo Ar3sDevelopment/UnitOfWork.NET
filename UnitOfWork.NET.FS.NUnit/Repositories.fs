@@ -1,6 +1,6 @@
-﻿namespace UnitOfWork.NET.NUnit
+﻿namespace UnitOfWork.NET.FS.NUnit
 
-open UnitOfWork.NET.Classes
+open UnitOfWork.NET.FS.Classes
 
 [<AutoOpen>]
 module Repositories = 

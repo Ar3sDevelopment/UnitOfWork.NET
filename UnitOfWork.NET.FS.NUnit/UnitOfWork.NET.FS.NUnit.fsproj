@@ -6,8 +6,9 @@
     <ProjectGuid>{50F2BD84-6BDE-4BAA-AFBB-60FE09132600}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>UnitOfWork.NET.NUnit</RootNamespace>
-    <AssemblyName>UnitOfWork.NET.NUnit</AssemblyName>
+    <AssemblyName>UnitOfWork.NET.FS.NUnit</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <Name>UnitOfWork.NET.FS.NUnit</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -51,10 +52,6 @@
     <Reference Include="Autofac">
       <HintPath>..\packages\Autofac.3.5.2\lib\net40\Autofac.dll</HintPath>
     </Reference>
-    <ProjectReference Include="..\UnitOfWork.NET\UnitOfWork.NET.fsproj">
-      <Project>{884E5E82-289E-4EBE-A0AF-9735AE4BDA45}</Project>
-      <Name>UnitOfWork.NET</Name>
-    </ProjectReference>
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Linq.Dynamic">
       <HintPath>..\packages\System.Linq.Dynamic.1.0.6\lib\net40\System.Linq.Dynamic.dll</HintPath>
@@ -77,5 +74,12 @@
     <Reference Include="ClassBuilder">
       <HintPath>..\packages\ClassBuilder.4.0.0.51\lib\net45\ClassBuilder.dll</HintPath>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\UnitOfWork.NET.FS\UnitOfWork.NET.FS.fsproj">
+      <Name>UnitOfWork.NET.FS</Name>
+      <Project>{884e5e82-289e-4ebe-a0af-9735ae4bda45}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
 </Project>
