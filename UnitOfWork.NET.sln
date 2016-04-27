@@ -3,10 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "UnitOfWork.NET.FS", "UnitOfWork.NET.FS\UnitOfWork.NET.FS.fsproj", "{884E5E82-289E-4EBE-A0AF-9735AE4BDA45}"
-EndProject
-Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "UnitOfWork.NET.FS.NUnit", "UnitOfWork.NET.FS.NUnit\UnitOfWork.NET.FS.NUnit.fsproj", "{50F2BD84-6BDE-4BAA-AFBB-60FE09132600}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0CB37AF8-94C3-4E5D-A0DD-440DCE584EED}"
 	ProjectSection(SolutionItems) = preProject
 		.travis.yml = .travis.yml
@@ -25,14 +21,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{884E5E82-289E-4EBE-A0AF-9735AE4BDA45}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{884E5E82-289E-4EBE-A0AF-9735AE4BDA45}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{884E5E82-289E-4EBE-A0AF-9735AE4BDA45}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{884E5E82-289E-4EBE-A0AF-9735AE4BDA45}.Release|Any CPU.Build.0 = Release|Any CPU
-		{50F2BD84-6BDE-4BAA-AFBB-60FE09132600}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{50F2BD84-6BDE-4BAA-AFBB-60FE09132600}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{50F2BD84-6BDE-4BAA-AFBB-60FE09132600}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{50F2BD84-6BDE-4BAA-AFBB-60FE09132600}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0C954627-333D-4B69-837A-A5627D76150A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0C954627-333D-4B69-837A-A5627D76150A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0C954627-333D-4B69-837A-A5627D76150A}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -46,8 +34,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{884E5E82-289E-4EBE-A0AF-9735AE4BDA45} = {53728AEF-7694-4DEA-A7FA-D695E1C3FEBE}
-		{50F2BD84-6BDE-4BAA-AFBB-60FE09132600} = {53728AEF-7694-4DEA-A7FA-D695E1C3FEBE}
 		{0C954627-333D-4B69-837A-A5627D76150A} = {53728AEF-7694-4DEA-A7FA-D695E1C3FEBE}
 		{BE810765-29C1-487F-869B-1C8416D6A697} = {53728AEF-7694-4DEA-A7FA-D695E1C3FEBE}
 	EndGlobalSection
