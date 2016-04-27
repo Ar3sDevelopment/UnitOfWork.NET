@@ -30,17 +30,13 @@ namespace UnitOfWork.NET.Classes
             cb = new ContainerBuilder();
 
             var fields = GetType().GetFields().Where(t => IsRepository(t.FieldType)).ToArray();
-
-            foreach (var field in fields) cb.RegisterType(field.FieldType).AsSelf().AsImplementedInterfaces();
-
             var properties = GetType().GetProperties().Where(t => IsRepository(t.PropertyType)).ToArray();
 
-            foreach (var property in properties) cb.RegisterType(property.PropertyType).AsSelf().AsImplementedInterfaces();
+            foreach (var type in fields.Select(t => t.FieldType).Union(properties.Select(t => t.PropertyType))) cb.RegisterType(type).AsSelf().AsImplementedInterfaces();
 
             cb.Update(_container);
 
             foreach (var field in fields) field.SetValue(this, _container.ResolveOptional(field.FieldType));
-
             foreach (var property in properties) property.SetValue(this, _container.ResolveOptional(property.PropertyType));
 
             _assemblies.CollectionChanged += (sender, args) => RegisterAssembly(args.NewItems.Cast<Assembly>().ToArray());
@@ -73,17 +69,33 @@ namespace UnitOfWork.NET.Classes
 
         public void RegisterRepository<TRepository>() where TRepository : IRepository => RegisterRepository(typeof(TRepository));
 
+        public void RegisterRepositories(Type[] repositoryTypes)
+        {
+            var cb = new ContainerBuilder();
+
+            foreach (var repositoryType in repositoryTypes)
+                RegisterRepository(repositoryType, cb);
+
+            cb.Update(_container);
+        }
+
         public void RegisterRepository(Type repositoryType)
         {
-            if (repositoryType.IsInterface || repositoryType.IsAbstract || _container.IsRegistered(repositoryType)) return;
             var cb = new ContainerBuilder();
+
+            RegisterRepository(repositoryType, cb);
+
+            cb.Update(_container);
+        }
+
+        private void RegisterRepository(Type repositoryType, ContainerBuilder cb)
+        {
+            if (repositoryType.IsInterface || repositoryType.IsAbstract || _container.IsRegistered(repositoryType)) return;
 
             if (repositoryType.IsGenericTypeDefinition)
                 cb.RegisterGeneric(repositoryType).AsSelf().AsImplementedInterfaces();
             else
                 cb.RegisterType(repositoryType).AsSelf().AsImplementedInterfaces();
-
-            cb.Update(_container);
         }
 
         private TRepository GetRepository<TRepository>() where TRepository : IRepository
