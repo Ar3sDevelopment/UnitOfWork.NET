@@ -16,12 +16,15 @@ namespace UnitOfWork.NET.Classes
         public UnitOfWork()
         {
             _assemblies = new ObservableCollection<Assembly>();
+
             var cb = new ContainerBuilder();
+
             cb.Register(t => this).AsImplementedInterfaces().AsSelf().As<UnitOfWork>();
             cb.RegisterType<Repository>().AsSelf().As<IRepository>().PreserveExistingDefaults();
             cb.RegisterGeneric(typeof(Repository<>)).AsSelf().As(typeof(IRepository<>));
             cb.RegisterGeneric(typeof(Repository<,>)).AsSelf().As(typeof(IRepository<,>));
             cb.RegisterGeneric(typeof(Repository<,,>)).AsSelf().As(typeof(IListRepository<,,>));
+
             _container = cb.Build();
 
             cb = new ContainerBuilder();
@@ -68,10 +71,7 @@ namespace UnitOfWork.NET.Classes
                 _assemblies.Add(assembly);
         }
 
-        public void RegisterRepository<TRepository>() where TRepository : IRepository
-        {
-            RegisterRepository(typeof(TRepository));
-        }
+        public void RegisterRepository<TRepository>() where TRepository : IRepository => RegisterRepository(typeof(TRepository));
 
         public void RegisterRepository(Type repositoryType)
         {
@@ -89,33 +89,19 @@ namespace UnitOfWork.NET.Classes
         private TRepository GetRepository<TRepository>() where TRepository : IRepository
         {
             RegisterRepository<TRepository>();
+
             return _container.Resolve<TRepository>();
         }
 
-        public TRepository CustomRepository<TRepository>() where TRepository : IRepository
-        {
-            return GetRepository<TRepository>();
-        }
+        public TRepository CustomRepository<TRepository>() where TRepository : IRepository => GetRepository<TRepository>();
 
-        public IRepository<T> Repository<T>() where T : class
-        {
-            return GetRepository<IRepository<T>>();
-        }
+        public IRepository<T> Repository<T>() where T : class => GetRepository<IRepository<T>>();
 
-        public IRepository<TSource, TDestination> Repository<TSource, TDestination>() where TSource : class where TDestination : class
-        {
-            return GetRepository<IRepository<TSource, TDestination>>();
-        }
+        public IRepository<TSource, TDestination> Repository<TSource, TDestination>() where TSource : class where TDestination : class => GetRepository<IRepository<TSource, TDestination>>();
 
-        public IListRepository<TSource, TDestination, TListDestination> Repository<TSource, TDestination, TListDestination>() where TSource : class where TDestination : class where TListDestination : class
-        {
-            return GetRepository<IListRepository<TSource, TDestination, TListDestination>>();
-        }
+        public IListRepository<TSource, TDestination, TListDestination> Repository<TSource, TDestination, TListDestination>() where TSource : class where TDestination : class where TListDestination : class => GetRepository<IListRepository<TSource, TDestination, TListDestination>>();
 
-        public virtual IEnumerable<T> Data<T>() where T : class
-        {
-            return Enumerable.Empty<T>();
-        }
+        public virtual IEnumerable<T> Data<T>() where T : class => Enumerable.Empty<T>();
 
         public virtual void Dispose()
         {
