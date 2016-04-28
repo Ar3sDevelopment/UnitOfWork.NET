@@ -73,12 +73,22 @@ namespace UnitOfWork.NET.Classes
             }).ToArray()).Where(IsRepository).AsSelf().AsImplementedInterfaces();
             cb.Update(_container);
 
-            foreach (var assembly in assemblyArr.SelectMany(t => t.GetReferencedAssemblies()).Select(Assembly.Load).Where(
+            foreach (var assembly in assemblyArr.SelectMany(t => t.GetReferencedAssemblies()).Select(t =>
+            {
+                try
+                {
+                    return Assembly.Load(t);
+                }
+                catch
+                {
+                    return null;
+                }
+            }).Where(
                 t =>
                 {
                     try
                     {
-                        return !_assemblies.Contains(t) && t.GetTypes().Any(IsRepository);
+                        return t != null && !_assemblies.Contains(t) && t.GetTypes().Any(IsRepository);
                     }
                     catch
                     {
