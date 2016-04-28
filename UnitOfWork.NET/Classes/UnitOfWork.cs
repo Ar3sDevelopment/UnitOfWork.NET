@@ -60,10 +60,31 @@ namespace UnitOfWork.NET.Classes
         {
             var cb = new ContainerBuilder();
 
-            cb.RegisterAssemblyTypes(assemblyArr.Where(t => t.GetTypes().Any(IsRepository)).ToArray()).Where(IsRepository).AsSelf().AsImplementedInterfaces();
+            cb.RegisterAssemblyTypes(assemblyArr.Where(t =>
+            {
+                try
+                {
+                    return t.GetTypes().Any(IsRepository);
+                }
+                catch
+                {
+                    return false;
+                }
+            }).ToArray()).Where(IsRepository).AsSelf().AsImplementedInterfaces();
             cb.Update(_container);
 
-            foreach (var assembly in assemblyArr.SelectMany(t => t.GetReferencedAssemblies()).Select(Assembly.Load).Where(t => !_assemblies.Contains(t) && t.GetTypes().Any(IsRepository)))
+            foreach (var assembly in assemblyArr.SelectMany(t => t.GetReferencedAssemblies()).Select(Assembly.Load).Where(
+                t =>
+                {
+                    try
+                    {
+                        return !_assemblies.Contains(t) && t.GetTypes().Any(IsRepository);
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+                }))
                 _assemblies.Add(assembly);
         }
 
