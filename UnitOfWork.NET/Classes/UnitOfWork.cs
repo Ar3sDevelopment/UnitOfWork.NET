@@ -37,10 +37,13 @@ namespace UnitOfWork.NET.Classes
 
             cb.Update(_container);
 
-            foreach (var field in fields.Where(t => t.FieldType.IsAssignableTo<IRepository>())) field.SetValue(this, _container.ResolveOptional(field.FieldType));
-            foreach (var property in properties.Where(t => t.PropertyType.IsAssignableTo<IRepository>())) property.SetValue(this, _container.ResolveOptional(property.PropertyType));
+            _assemblies.CollectionChanged += (sender, args) =>
+            {
+                RegisterAssembly(args.NewItems.Cast<Assembly>().ToArray());
 
-            _assemblies.CollectionChanged += (sender, args) => RegisterAssembly(args.NewItems.Cast<Assembly>().ToArray());
+                foreach (var field in fields.Where(t => t.FieldType.IsAssignableTo<IRepository>())) field.SetValue(this, _container.ResolveOptional(field.FieldType));
+                foreach (var property in properties.Where(t => t.PropertyType.IsAssignableTo<IRepository>())) property.SetValue(this, _container.ResolveOptional(property.PropertyType));
+            };
 
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies()) _assemblies.Add(assembly);
         }
