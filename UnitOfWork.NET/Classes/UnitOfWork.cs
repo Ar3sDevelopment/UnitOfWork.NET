@@ -106,7 +106,7 @@ namespace UnitOfWork.NET.Classes
 
             foreach (var repositoryType in repositoryTypes)
             {
-                if (repositoryType.IsInterface || repositoryType.IsAbstract || _container.IsRegistered(repositoryType)) continue;
+                if (repositoryType.IsInterface || repositoryType.IsAbstract || IsRepositoryRegistered(repositoryType)) continue;
 
                 if (repositoryType.IsGenericTypeDefinition)
                     cb.RegisterGeneric(repositoryType).AsSelf().AsImplementedInterfaces();
@@ -114,7 +114,7 @@ namespace UnitOfWork.NET.Classes
                     cb.RegisterType(repositoryType).AsSelf().AsImplementedInterfaces();
             }
 
-            cb.Update(_container);
+            UpdateContainer(cb);
         }
 
         public void RegisterRepository(Type repositoryType)
@@ -128,6 +128,12 @@ namespace UnitOfWork.NET.Classes
 
             return _container.Resolve<TRepository>();
         }
+
+        protected void UpdateContainer(ContainerBuilder cb) => cb.Update(_container);
+
+        protected bool IsRepositoryRegistered<TRepository>() where TRepository : IRepository => IsRepositoryRegistered(typeof(TRepository));
+
+        protected bool IsRepositoryRegistered(Type repositoryType) => _container.IsRegistered(repositoryType);
 
         public TRepository CustomRepository<TRepository>() where TRepository : IRepository => GetRepository<TRepository>();
 
