@@ -41,8 +41,8 @@ namespace UnitOfWork.NET.Classes
             {
                 RegisterAssembly(args.NewItems.Cast<Assembly>().ToArray());
 
-                foreach (var field in fields.Where(t => t.FieldType.IsAssignableTo<IRepository>() && t.GetValue(this) != null)) field.SetValue(this, _container.ResolveOptional(field.FieldType));
-                foreach (var property in properties.Where(t => t.PropertyType.IsAssignableTo<IRepository>() && t.GetValue(this) != null)) property.SetValue(this, _container.ResolveOptional(property.PropertyType));
+                foreach (var field in fields.Where(t => t.FieldType.IsAssignableTo<IRepository>())) field.SetValue(this, _container.ResolveOptional(field.FieldType));
+                foreach (var property in properties.Where(t => t.PropertyType.IsAssignableTo<IRepository>())) property.SetValue(this, _container.ResolveOptional(property.PropertyType));
             };
 
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies()) _assemblies.Add(assembly);
