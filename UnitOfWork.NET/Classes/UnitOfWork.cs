@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using Autofac;
 using UnitOfWork.NET.Interfaces;
 using System.Linq;
+using UnitOfWork.NET.Extenders;
 
 namespace UnitOfWork.NET.Classes
 {
@@ -106,15 +107,19 @@ namespace UnitOfWork.NET.Classes
 
             foreach (var repositoryType in repositoryTypes)
             {
-                if (repositoryType.IsInterface || repositoryType.IsAbstract || IsRepositoryRegistered(repositoryType)) continue;
-
-                if (repositoryType.IsGenericTypeDefinition)
-                    cb.RegisterGeneric(repositoryType).AsSelf().AsImplementedInterfaces();
-                else
-                    cb.RegisterType(repositoryType).AsSelf().AsImplementedInterfaces();
+                if (repositoryType.IsInterface || repositoryType.IsAbstract || IsRepositoryRegistered(repositoryType)) return;
+                RegisterRepository(cb, repositoryType);
             }
 
             UpdateContainer(cb);
+        }
+
+        protected virtual void RegisterRepository(ContainerBuilder cb, Type repositoryType)
+        {
+            if (repositoryType.IsGenericTypeDefinition)
+                cb.RegisterGeneric(repositoryType).AsSelf().AsRepository().AsImplementedInterfaces();
+            else
+                cb.RegisterType(repositoryType).AsSelf().AsRepository().AsImplementedInterfaces();
         }
 
         public void RegisterRepository(Type repositoryType)
