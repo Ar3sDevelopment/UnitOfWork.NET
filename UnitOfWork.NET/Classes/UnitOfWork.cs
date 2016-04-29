@@ -41,11 +41,19 @@ namespace UnitOfWork.NET.Classes
             {
                 RegisterAssembly(args.NewItems.Cast<Assembly>().ToArray());
 
-                foreach (var field in fields.Where(t => t.FieldType.IsAssignableTo<IRepository>())) field.SetValue(this, _container.ResolveOptional(field.FieldType));
-                foreach (var property in properties.Where(t => t.PropertyType.IsAssignableTo<IRepository>())) property.SetValue(this, _container.ResolveOptional(property.PropertyType));
+                UpdateProperties();
             };
 
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies()) _assemblies.Add(assembly);
+        }
+
+        protected void UpdateProperties()
+        {
+            var fields = GetType().GetFields().ToArray();
+            var properties = GetType().GetProperties().ToArray();
+
+            foreach (var field in fields.Where(t => t.FieldType.IsAssignableTo<IRepository>())) field.SetValue(this, _container.ResolveOptional(field.FieldType));
+            foreach (var property in properties.Where(t => t.PropertyType.IsAssignableTo<IRepository>())) property.SetValue(this, _container.ResolveOptional(property.PropertyType));
         }
 
         private bool IsRepository(Type t)
