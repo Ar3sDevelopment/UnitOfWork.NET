@@ -27,18 +27,16 @@
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ClassBuilder, Version=4.0.0.71, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ClassBuilder.4.0.0.71\lib\net45\ClassBuilder.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="Autofac">
       <HintPath>..\packages\Autofac.3.5.2\lib\net40\Autofac.dll</HintPath>
     </Reference>
     <Reference Include="FSharp.Core">
       <HintPath>..\packages\FSharp.Core.4.0.0.1\lib\net40\FSharp.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="Caelan.Frameworks.Common">
-      <HintPath>..\packages\Caelan.Frameworks.Common.3.3.1.240\lib\net45\Caelan.Frameworks.Common.dll</HintPath>
-    </Reference>
-    <Reference Include="ClassBuilder">
-      <HintPath>..\packages\ClassBuilder.4.0.0.51\lib\net45\ClassBuilder.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit.3.2.1\lib\net45\nunit.framework.dll</HintPath>
