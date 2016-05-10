@@ -38,12 +38,8 @@
       <HintPath>..\packages\Caelan.DynamicLinq.2.0.20.0\lib\net40\Caelan.DynamicLinq.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Caelan.Frameworks.Common, Version=3.3.1.240, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Caelan.Frameworks.Common.3.3.1.240\lib\net45\Caelan.Frameworks.Common.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="ClassBuilder, Version=4.0.0.51, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\ClassBuilder.4.0.0.51\lib\net45\ClassBuilder.dll</HintPath>
+    <Reference Include="ClassBuilder, Version=4.0.0.71, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ClassBuilder.4.0.0.71\lib\net45\ClassBuilder.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="FSharp.Core, Version=4.4.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
