@@ -20,7 +20,7 @@ namespace UnitOfWork.NET.Classes
         }
     }
 
-    public class Repository<T> : Repository, IRepository<T> where T : class
+    public class Repository<T> : Repository, IRepository<T> where T : class, new()
     {
         public Repository(IUnitOfWork manager) : base(manager)
         {
@@ -35,7 +35,7 @@ namespace UnitOfWork.NET.Classes
         public async Task<T> ElementAsync(Func<T, bool> expr) => await new TaskFactory().StartNew(() => Element(expr));
     }
 
-    public class Repository<TSource, TDestination> : Repository<TSource>, IRepository<TSource, TDestination> where TSource : class where TDestination : class
+    public class Repository<TSource, TDestination> : Repository<TSource>, IRepository<TSource, TDestination> where TSource : class, new() where TDestination : class, new()
     {
         public IMapper<TSource, TDestination> DestinationMapper { get; set; }
         public IMapper<TDestination, TSource> SourceMapper { get; set; }
@@ -81,7 +81,7 @@ namespace UnitOfWork.NET.Classes
         public async Task<DataSourceResult<TDestination>> DataSourceAsync(int take, int skip, ICollection<Sort> sort, Filter filter, Func<TSource, bool> expr) => await new TaskFactory().StartNew(() => DataSource(take, skip, sort, filter, expr));
     }
 
-    public class Repository<TSource, TDestination, TListDestination> : Repository<TSource, TDestination>, IListRepository<TSource, TDestination, TListDestination> where TSource : class where TDestination : class where TListDestination : class
+    public class Repository<TSource, TDestination, TListDestination> : Repository<TSource, TDestination>, IListRepository<TSource, TDestination, TListDestination> where TSource : class, new() where TDestination : class, new() where TListDestination : class, new()
     {
         public Repository(IUnitOfWork manager) : base(manager)
         {
