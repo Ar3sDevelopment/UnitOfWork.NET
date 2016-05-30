@@ -153,13 +153,13 @@ namespace UnitOfWork.NET.Classes
 
         public TRepository CustomRepository<TRepository>() where TRepository : IRepository => GetRepository<TRepository>();
 
-        public IRepository<T> Repository<T>() where T : class => GetRepository<IRepository<T>>();
+        public IRepository<T> Repository<T>() where T : class, new() => GetRepository<IRepository<T>>();
 
-        public IRepository<TSource, TDestination> Repository<TSource, TDestination>() where TSource : class where TDestination : class => GetRepository<IRepository<TSource, TDestination>>();
+        public IRepository<TSource, TDestination> Repository<TSource, TDestination>() where TSource : class, new() where TDestination : class, new() => GetRepository<IRepository<TSource, TDestination>>();
 
-        public IListRepository<TSource, TDestination, TListDestination> Repository<TSource, TDestination, TListDestination>() where TSource : class where TDestination : class where TListDestination : class => GetRepository<IListRepository<TSource, TDestination, TListDestination>>();
+        public IListRepository<TSource, TDestination, TListDestination> Repository<TSource, TDestination, TListDestination>() where TSource : class, new() where TDestination : class, new() where TListDestination : class, new() => GetRepository<IListRepository<TSource, TDestination, TListDestination>>();
 
-        public virtual IEnumerable<T> Data<T>() where T : class => Enumerable.Empty<T>();
+        public virtual IEnumerable<T> Data<T>() where T : class, new() => Enumerable.Empty<T>();
 
         public virtual void Dispose()
         {

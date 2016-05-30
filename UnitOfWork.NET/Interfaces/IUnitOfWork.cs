@@ -14,7 +14,7 @@ namespace UnitOfWork.NET.Interfaces
         /// <summary>
         /// 
         /// </summary>
-        IEnumerable<T> Data<T>() where T : class;
+        IEnumerable<T> Data<T>() where T : class, new();
 
         /// <summary>
         /// 
@@ -24,16 +24,16 @@ namespace UnitOfWork.NET.Interfaces
         /// <summary>
         /// 
         /// </summary>
-        IRepository<T> Repository<T>() where T : class;
+        IRepository<T> Repository<T>() where T : class, new();
 
         /// <summary>
         /// 
         /// </summary>
-        IRepository<TSource, TDestination> Repository<TSource, TDestination>() where TSource : class where TDestination : class;
+        IRepository<TSource, TDestination> Repository<TSource, TDestination>() where TSource : class, new() where TDestination : class, new();
 
         /// <summary>
         /// 
         /// </summary>
-        IListRepository<TSource, TDestination, TListDestination> Repository<TSource, TDestination, TListDestination>() where TSource : class where TDestination : class where TListDestination : class;
+        IListRepository<TSource, TDestination, TListDestination> Repository<TSource, TDestination, TListDestination>() where TSource : class, new() where TDestination : class, new() where TListDestination : class, new();
     }
 }
