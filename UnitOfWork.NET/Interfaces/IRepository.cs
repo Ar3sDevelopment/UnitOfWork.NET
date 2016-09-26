@@ -27,7 +27,7 @@ namespace UnitOfWork.NET.Interfaces
         /// Recovers an element using a where, if multiple returned it returns the first.
         /// </summary>
         /// <param name="expr">The condition for retrieving the element</param>
-        T Element(Func<T, bool> expr);
+        T Element(Expression<Func<T, bool>> expr);
 
         /// <summary>
         /// All entities of the DbSet
@@ -38,19 +38,19 @@ namespace UnitOfWork.NET.Interfaces
         /// All entities of the DbSet filtered by the where.
         /// </summary>
         /// <param name="expr">The condition for filtering all entities</param>
-        IQueryable<T> All(Func<T, bool> expr);
+        IQueryable<T> All(Expression<Func<T, bool>> expr);
 
         /// <summary>
         /// Check if exists any element satisfying the given condition.
         /// </summary>
         /// <param name="expr">The condition to check if any element verifies it</param>
-        bool Exists(Func<T, bool> expr);
+        bool Exists(Expression<Func<T, bool>> expr);
 
         /// <summary>
         /// Counts all entities satisfying the given condition.
         /// </summary>
         /// <param name="expr">The condition for counting all entities that verify it</param>
-        int Count(Func<T, bool> expr);
+        int Count(Expression<Func<T, bool>> expr);
     }
 
     public interface IRepository<out TSource, TDestination> : IRepository<TSource> where TSource : class, new() where TDestination : class, new()
@@ -60,7 +60,7 @@ namespace UnitOfWork.NET.Interfaces
         /// 
         /// </summary>
         /// <param name="expr"></param>
-        TDestination ElementBuilt(Func<TSource, bool> expr);
+        TDestination ElementBuilt(Expression<Func<TSource, bool>> expr);
 
         /// <summary>
         ///
@@ -70,7 +70,7 @@ namespace UnitOfWork.NET.Interfaces
         /// <summary>
         /// 
         /// </summary>
-        IEnumerable<TDestination> AllBuilt(Func<TSource, bool> expr);
+        IEnumerable<TDestination> AllBuilt(Expression<Func<TSource, bool>> expr);
 
         /// <summary>
         /// 
@@ -80,7 +80,7 @@ namespace UnitOfWork.NET.Interfaces
         /// <param name="sort"></param>
         /// <param name="filter"></param>
         /// <param name="expr"></param>
-        DataSourceResult<TDestination> DataSource(int take, int skip, ICollection<Sort> sort, Filter filter, Func<TSource, bool> expr);
+        DataSourceResult<TDestination> DataSource(int take, int skip, ICollection<Sort> sort, Filter filter, Expression<Func<TSource, bool>> expr);
     }
 
     /// <summary>
