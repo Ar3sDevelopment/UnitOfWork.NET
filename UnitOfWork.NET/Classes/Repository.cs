@@ -28,7 +28,7 @@ namespace UnitOfWork.NET.Classes
         }
 
         public IQueryable<T> Data => UnitOfWork.Data<T>();
-        public T Element(Func<T, bool> expr) => Data.FirstOrDefault(expr);
+        public T Element(Expression<Func<T, bool>> expr) => Data.FirstOrDefault(expr);
         public IQueryable<T> All() => Data;
         public IQueryable<T> All(Expression<Func<T, bool>> expr) => Data.Where(expr);
         public bool Exists(Expression<Func<T, bool>> expr) => Data.Any(expr);
