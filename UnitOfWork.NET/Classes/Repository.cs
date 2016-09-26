@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Linq.Dynamic;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -29,10 +30,10 @@ namespace UnitOfWork.NET.Classes
         public IQueryable<T> Data => UnitOfWork.Data<T>();
         public T Element(Func<T, bool> expr) => Data.FirstOrDefault(expr);
         public IQueryable<T> All() => Data;
-        public IQueryable<T> All(Func<T, bool> expr) => Data.Where(expr);
-        public bool Exists(Func<T, bool> expr) => Data.Any(expr);
-        public int Count(Func<T, bool> expr) => Data.Count(expr);
-        public async Task<T> ElementAsync(Func<T, bool> expr) => await new TaskFactory().StartNew(() => Element(expr));
+        public IQueryable<T> All(Expression<Func<T, bool>> expr) => Data.Where(expr);
+        public bool Exists(Expression<Func<T, bool>> expr) => Data.Any(expr);
+        public int Count(Expression<Func<T, bool>> expr) => Data.Count(expr);
+        public async Task<T> ElementAsync(Expression<Func<T, bool>> expr) => await new TaskFactory().StartNew(() => Element(expr));
     }
 
     public class Repository<TSource, TDestination> : Repository<TSource>, IRepository<TSource, TDestination> where TSource : class, new() where TDestination : class, new()
@@ -46,13 +47,13 @@ namespace UnitOfWork.NET.Classes
 
         public IEnumerable<TDestination> AllBuilt() => Builder.BuildList(All()).ToList<TDestination>();
 
-        public IEnumerable<TDestination> AllBuilt(Func<TSource, bool> expr) => Builder.BuildList(All(expr)).ToList<TDestination>();
+        public IEnumerable<TDestination> AllBuilt(Expression<Func<TSource, bool>> expr) => Builder.BuildList(All(expr)).ToList<TDestination>();
 
-        public TDestination ElementBuilt(Func<TSource, bool> expr) => Builder.Build(Element(expr)).To<TDestination>();
+        public TDestination ElementBuilt(Expression<Func<TSource, bool>> expr) => Builder.Build(Element(expr)).To<TDestination>();
 
-        public DataSourceResult<TDestination> DataSource(int take, int skip, ICollection<Sort> sort, Filter filter, Func<TSource, bool> expr) => DataSource(take, skip, sort, filter, expr, t => Builder.BuildList(t).ToList<TDestination>());
+        public DataSourceResult<TDestination> DataSource(int take, int skip, ICollection<Sort> sort, Filter filter, Expression<Func<TSource, bool>> expr) => DataSource(take, skip, sort, filter, expr, t => Builder.BuildList(t).ToList<TDestination>());
 
-        private DataSourceResult<TDestination> DataSource(int take, int skip, ICollection<Sort> sort, Filter filter, Func<TSource, bool> expr, Func<IEnumerable<TSource>, IEnumerable<TDestination>> buildFunc)
+        private DataSourceResult<TDestination> DataSource(int take, int skip, ICollection<Sort> sort, Filter filter, Expression<Func<TSource, bool>> expr, Func<IEnumerable<TSource>, IEnumerable<TDestination>> buildFunc)
         {
             var orderBy = typeof(TSource).GetProperties(BindingFlags.Instance | BindingFlags.Public).Select(t => t.Name).FirstOrDefault();
 
@@ -74,11 +75,11 @@ namespace UnitOfWork.NET.Classes
 
         public async Task<IEnumerable<TDestination>> AllBuiltAsync() => await new TaskFactory().StartNew(AllBuilt);
 
-        public async Task<IEnumerable<TDestination>> AllBuiltAsync(Func<TSource, bool> expr) => await new TaskFactory().StartNew(() => AllBuilt(expr));
+        public async Task<IEnumerable<TDestination>> AllBuiltAsync(Expression<Func<TSource, bool>> expr) => await new TaskFactory().StartNew(() => AllBuilt(expr));
 
-        public async Task<TDestination> ElementBuiltAsync(Func<TSource, bool> expr) => await new TaskFactory().StartNew(() => ElementBuilt(expr));
+        public async Task<TDestination> ElementBuiltAsync(Expression<Func<TSource, bool>> expr) => await new TaskFactory().StartNew(() => ElementBuilt(expr));
 
-        public async Task<DataSourceResult<TDestination>> DataSourceAsync(int take, int skip, ICollection<Sort> sort, Filter filter, Func<TSource, bool> expr) => await new TaskFactory().StartNew(() => DataSource(take, skip, sort, filter, expr));
+        public async Task<DataSourceResult<TDestination>> DataSourceAsync(int take, int skip, ICollection<Sort> sort, Filter filter, Expression<Func<TSource, bool>> expr) => await new TaskFactory().StartNew(() => DataSource(take, skip, sort, filter, expr));
     }
 
     public class Repository<TSource, TDestination, TListDestination> : Repository<TSource, TDestination>, IListRepository<TSource, TDestination, TListDestination> where TSource : class, new() where TDestination : class, new() where TListDestination : class, new()
