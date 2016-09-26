@@ -159,7 +159,7 @@ namespace UnitOfWork.NET.Classes
 
         public IListRepository<TSource, TDestination, TListDestination> Repository<TSource, TDestination, TListDestination>() where TSource : class, new() where TDestination : class, new() where TListDestination : class, new() => GetRepository<IListRepository<TSource, TDestination, TListDestination>>();
 
-        public virtual IEnumerable<T> Data<T>() where T : class, new() => Enumerable.Empty<T>();
+        public virtual IQueryable<T> Data<T>() where T : class, new() => Enumerable.Empty<T>().AsQueryable();
 
         public virtual void Dispose()
         {

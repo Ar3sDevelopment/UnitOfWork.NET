@@ -21,7 +21,7 @@ namespace UnitOfWork.NET.Interfaces
     /// </summary>
     public interface IRepository<out T> : IRepository where T : class, new()
     {
-        IEnumerable<T> Data { get; }
+        IQueryable<T> Data { get; }
 
         /// <summary>
         /// Recovers an element using a where, if multiple returned it returns the first.
@@ -32,13 +32,13 @@ namespace UnitOfWork.NET.Interfaces
         /// <summary>
         /// All entities of the DbSet
         /// </summary>
-        IEnumerable<T> All();
+        IQueryable<T> All();
 
         /// <summary>
         /// All entities of the DbSet filtered by the where.
         /// </summary>
         /// <param name="expr">The condition for filtering all entities</param>
-        IEnumerable<T> All(Func<T, bool> expr);
+        IQueryable<T> All(Func<T, bool> expr);
 
         /// <summary>
         /// Check if exists any element satisfying the given condition.

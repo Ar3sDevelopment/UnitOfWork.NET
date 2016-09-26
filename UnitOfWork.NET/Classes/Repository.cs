@@ -26,10 +26,10 @@ namespace UnitOfWork.NET.Classes
         {
         }
 
-        public IEnumerable<T> Data => UnitOfWork.Data<T>();
+        public IQueryable<T> Data => UnitOfWork.Data<T>();
         public T Element(Func<T, bool> expr) => Data.FirstOrDefault(expr);
-        public IEnumerable<T> All() => Data;
-        public IEnumerable<T> All(Func<T, bool> expr) => Data.Where(expr);
+        public IQueryable<T> All() => Data;
+        public IQueryable<T> All(Func<T, bool> expr) => Data.Where(expr);
         public bool Exists(Func<T, bool> expr) => Data.Any(expr);
         public int Count(Func<T, bool> expr) => Data.Count(expr);
         public async Task<T> ElementAsync(Func<T, bool> expr) => await new TaskFactory().StartNew(() => Element(expr));
