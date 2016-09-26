@@ -19,7 +19,7 @@ namespace UnitOfWork.NET.Interfaces
     /// <summary>
     /// The DbSet used by Repository to perform operations on database.
     /// </summary>
-    public interface IRepository<out T> : IRepository where T : class, new()
+    public interface IRepository<T> : IRepository where T : class, new()
     {
         IQueryable<T> Data { get; }
 
@@ -53,7 +53,7 @@ namespace UnitOfWork.NET.Interfaces
         int Count(Expression<Func<T, bool>> expr);
     }
 
-    public interface IRepository<out TSource, TDestination> : IRepository<TSource> where TSource : class, new() where TDestination : class, new()
+    public interface IRepository<TSource, TDestination> : IRepository<TSource> where TSource : class, new() where TDestination : class, new()
     {
 
         /// <summary>
