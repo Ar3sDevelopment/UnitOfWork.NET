@@ -141,7 +141,7 @@ namespace UnitOfWork.NET.Classes
 				var baseType = repositoryType.BaseType;
 				while (baseType.IsAssignableTo<IRepository>() && baseType.GenericTypeArguments.Length <= 0)
 				{
-					baseType = repositoryType.BaseType;
+					baseType = baseType.BaseType;
 				}
 				var args = baseType.GenericTypeArguments;
 				Type sourceType = null;
