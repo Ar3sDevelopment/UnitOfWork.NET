@@ -21,7 +21,7 @@ namespace UnitOfWork.NET.Classes
 			var cb = new ContainerBuilder();
 
 			cb.Register(t => this).AsImplementedInterfaces().AsSelf().As<UnitOfWork>();
-			cb.RegisterType<Repository>().AsSelf().As<IRepository>().PreserveExistingDefaults();
+			cb.RegisterType<Repository>().AsSelf().As<IRepository>();
 			cb.RegisterGeneric(typeof(Repository<>)).AsSelf().As(typeof(IRepository<>));
 			cb.RegisterGeneric(typeof(Repository<,>)).AsSelf().As(typeof(IRepository<,>));
 			cb.RegisterGeneric(typeof(Repository<,,>)).AsSelf().As(typeof(IListRepository<,,>));
@@ -180,11 +180,11 @@ namespace UnitOfWork.NET.Classes
 
 		public TRepository CustomRepository<TRepository>() where TRepository : IRepository => GetRepository<TRepository>(true);
 
-		public IRepository<T> Repository<T>() where T : class, new() => GetRepository<IRepository<T>>();
+		public IRepository<T> Repository<T>() where T : class, new() => GetRepository<IRepository<T>>() ?? CustomRepository<Repository<T>>();
 
-		public IRepository<TSource, TDestination> Repository<TSource, TDestination>() where TSource : class, new() where TDestination : class, new() => GetRepository<IRepository<TSource, TDestination>>();
+		public IRepository<TSource, TDestination> Repository<TSource, TDestination>() where TSource : class, new() where TDestination : class, new() => GetRepository<IRepository<TSource, TDestination>>() ?? CustomRepository<Repository<TSource, TDestination>>();
 
-		public IListRepository<TSource, TDestination, TListDestination> Repository<TSource, TDestination, TListDestination>() where TSource : class, new() where TDestination : class, new() where TListDestination : class, new() => GetRepository<IListRepository<TSource, TDestination, TListDestination>>();
+		public IListRepository<TSource, TDestination, TListDestination> Repository<TSource, TDestination, TListDestination>() where TSource : class, new() where TDestination : class, new() where TListDestination : class, new() => GetRepository<IListRepository<TSource, TDestination, TListDestination>>() ?? CustomRepository<Repository<TSource, TDestination, TListDestination>>();
 
 		public virtual IQueryable<T> Data<T>() where T : class, new() => Enumerable.Empty<T>().AsQueryable();
 
