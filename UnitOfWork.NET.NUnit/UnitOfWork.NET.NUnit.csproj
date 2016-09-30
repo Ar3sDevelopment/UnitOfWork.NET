@@ -35,7 +35,7 @@
       <HintPath>..\packages\Autofac.4.1.1\lib\net45\Autofac.dll</HintPath>
     </Reference>
     <Reference Include="ClassBuilder">
-      <HintPath>..\packages\ClassBuilder.4.0.0.75\lib\net45\ClassBuilder.dll</HintPath>
+      <HintPath>..\packages\ClassBuilder.4.0.0.80\lib\net45\ClassBuilder.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
