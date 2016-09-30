@@ -28,14 +28,7 @@ namespace UnitOfWork.NET.Classes
 
 			_container = cb.Build();
 
-			cb = new ContainerBuilder();
-
-			var fields = GetType().GetFields().ToArray();
-			var properties = GetType().GetProperties().ToArray();
-
-			foreach (var type in fields.Select(t => t.FieldType).Union(properties.Select(t => t.PropertyType)).Where(IsRepository)) cb.RegisterType(type).AsSelf().AsImplementedInterfaces();
-
-			cb.Update(_container);
+			RegisterProperties();
 
 			_assemblies.CollectionChanged += (sender, args) =>
 			{
@@ -45,6 +38,18 @@ namespace UnitOfWork.NET.Classes
 			};
 
 			foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies()) _assemblies.Add(assembly);
+		}
+
+		protected void RegisterProperties()
+		{
+			var cb = new ContainerBuilder();
+
+			var fields = GetType().GetFields().ToArray();
+			var properties = GetType().GetProperties().ToArray();
+
+			foreach (var type in fields.Select(t => t.FieldType).Union(properties.Select(t => t.PropertyType)).Where(IsRepository)) RegisterRepository(cb, type);
+
+			cb.Update(_container);
 		}
 
 		protected void UpdateProperties()
