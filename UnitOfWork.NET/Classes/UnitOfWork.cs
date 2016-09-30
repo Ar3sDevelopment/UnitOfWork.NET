@@ -134,7 +134,7 @@ namespace UnitOfWork.NET.Classes
 			else
 			{
 				var baseType = repositoryType.BaseType;
-				while (!baseType.ContainsGenericParameters)
+				while (baseType.GenericTypeArguments.Length <= 0)
 				{
 					baseType = repositoryType.BaseType;
 				}
