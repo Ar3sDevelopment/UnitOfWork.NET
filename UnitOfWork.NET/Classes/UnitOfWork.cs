@@ -28,8 +28,6 @@ namespace UnitOfWork.NET.Classes
 
 			_container = cb.Build();
 
-			RegisterProperties();
-
 			_assemblies.CollectionChanged += (sender, args) =>
 			{
 				RegisterAssembly(args.NewItems.Cast<Assembly>().ToArray());
@@ -47,13 +45,15 @@ namespace UnitOfWork.NET.Classes
 			var fields = GetType().GetFields().ToArray();
 			var properties = GetType().GetProperties().ToArray();
 
-			foreach (var type in fields.Select(t => t.FieldType).Union(properties.Select(t => t.PropertyType)).Where(IsRepository)) RegisterRepository(cb, type);
+			foreach (var type in fields.Select(t => t.FieldType).Union(properties.Select(t => t.PropertyType)).Where(IsRepository)) RegisterRepository(cb, type, true);
 
 			cb.Update(_container);
 		}
 
 		protected void UpdateProperties()
 		{
+			RegisterProperties();
+
 			var fields = GetType().GetFields().ToArray();
 			var properties = GetType().GetProperties().ToArray();
 
@@ -115,24 +115,24 @@ namespace UnitOfWork.NET.Classes
 				_assemblies.Add(assembly);
 		}
 
-		public void RegisterRepository<TRepository>() where TRepository : IRepository => RegisterRepository(typeof(TRepository));
+		public void RegisterRepository<TRepository>(bool force = false) where TRepository : IRepository => RegisterRepository(typeof(TRepository), force);
 
-		public void RegisterRepositories(Type[] repositoryTypes)
+		public void RegisterRepositories(Type[] repositoryTypes, bool force = false)
 		{
 			var cb = new ContainerBuilder();
 
 			foreach (var repositoryType in repositoryTypes)
 			{
 				if (repositoryType.IsInterface || repositoryType.IsAbstract || IsRepositoryRegistered(repositoryType)) return;
-				RegisterRepository(cb, repositoryType);
+				RegisterRepository(cb, repositoryType, force);
 			}
 
 			UpdateContainer(cb);
 		}
 
-		protected virtual void RegisterRepository(ContainerBuilder cb, Type repositoryType)
+		protected virtual void RegisterRepository(ContainerBuilder cb, Type repositoryType, bool force = false)
 		{
-			if (IsRepositoryRegistered(repositoryType)) return;
+			if (!force && IsRepositoryRegistered(repositoryType)) return;
 
 			if (repositoryType.IsGenericTypeDefinition)
 			{
@@ -160,14 +160,14 @@ namespace UnitOfWork.NET.Classes
 			}
 		}
 
-		public void RegisterRepository(Type repositoryType)
+		public void RegisterRepository(Type repositoryType, bool force = false)
 		{
 			RegisterRepositories(new[] { repositoryType });
 		}
 
-		private TRepository GetRepository<TRepository>() where TRepository : IRepository
+		private TRepository GetRepository<TRepository>(bool force = false) where TRepository : IRepository
 		{
-			RegisterRepository<TRepository>();
+			RegisterRepository<TRepository>(force);
 
 			return _container.Resolve<TRepository>();
 		}
@@ -178,7 +178,7 @@ namespace UnitOfWork.NET.Classes
 
 		protected bool IsRepositoryRegistered(Type repositoryType) => _container.IsRegistered(repositoryType);
 
-		public TRepository CustomRepository<TRepository>() where TRepository : IRepository => GetRepository<TRepository>();
+		public TRepository CustomRepository<TRepository>() where TRepository : IRepository => GetRepository<TRepository>(true);
 
 		public IRepository<T> Repository<T>() where T : class, new() => GetRepository<IRepository<T>>();
 
