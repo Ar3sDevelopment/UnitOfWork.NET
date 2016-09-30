@@ -132,6 +132,8 @@ namespace UnitOfWork.NET.Classes
 
 		protected virtual void RegisterRepository(ContainerBuilder cb, Type repositoryType)
 		{
+			if (IsRepositoryRegistered(repositoryType)) return;
+
 			if (repositoryType.IsGenericTypeDefinition)
 			{
 				cb.RegisterGeneric(repositoryType).AsSelf().AsRepository().AsImplementedInterfaces();
