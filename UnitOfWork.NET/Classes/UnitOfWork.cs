@@ -21,10 +21,10 @@ namespace UnitOfWork.NET.Classes
 			var cb = new ContainerBuilder();
 
 			cb.Register(t => this).AsImplementedInterfaces().AsSelf().As<UnitOfWork>();
-			//cb.RegisterType<Repository>().AsSelf().As<IRepository>().PreserveExistingDefaults();
-			//cb.RegisterGeneric(typeof(Repository<>)).AsSelf().As(typeof(IRepository<>));
-			//cb.RegisterGeneric(typeof(Repository<,>)).AsSelf().As(typeof(IRepository<,>));
-			//cb.RegisterGeneric(typeof(Repository<,,>)).AsSelf().As(typeof(IListRepository<,,>));
+			cb.RegisterType<Repository>().AsSelf().As<IRepository>();
+			cb.RegisterGeneric(typeof(Repository<>)).AsSelf().As(typeof(IRepository<>));
+			cb.RegisterGeneric(typeof(Repository<,>)).AsSelf().As(typeof(IRepository<,>));
+			cb.RegisterGeneric(typeof(Repository<,,>)).AsSelf().As(typeof(IListRepository<,,>));
 
 			_container = cb.Build();
 
