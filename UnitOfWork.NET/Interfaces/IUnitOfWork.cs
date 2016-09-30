@@ -14,7 +14,7 @@ namespace UnitOfWork.NET.Interfaces
         /// <summary>
         /// 
         /// </summary>
-        IEnumerable<T> Data<T>() where T : class, new();
+        IQueryable<T> Data<T>() where T : class, new();
 
         /// <summary>
         /// 
