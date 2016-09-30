@@ -13,6 +13,7 @@ namespace UnitOfWork.NET.Classes
 	{
 		private readonly ObservableCollection<Assembly> _assemblies;
 		private readonly IContainer _container;
+		private readonly ILifetimeScope _scope;
 
 		public UnitOfWork()
 		{
@@ -27,6 +28,7 @@ namespace UnitOfWork.NET.Classes
 			cb.RegisterGeneric(typeof(Repository<,,>)).AsSelf().As(typeof(IListRepository<,,>));
 
 			_container = cb.Build();
+			_scope = _container.BeginLifetimeScope();
 
 			_assemblies.CollectionChanged += (sender, args) =>
 			{
@@ -190,6 +192,7 @@ namespace UnitOfWork.NET.Classes
 
 		public virtual void Dispose()
 		{
+			_scope.Dispose();
 			_container.Dispose();
 		}
 	}
